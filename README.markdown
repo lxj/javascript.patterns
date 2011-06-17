@@ -8,7 +8,7 @@
 
 ## [第一章 概述](chapter1.markdown)
 
-- [模式]()
+- [模式]
 - [JavaScript：概念]()
 	- 面向对象
 	- 无类
