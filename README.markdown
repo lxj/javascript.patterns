@@ -1,7 +1,8 @@
 # JavaScript Patterns
 
-“JavaScript patterns”
 ![JavaScript.patterns](http://img03.taobaocdn.com/tps/i3/T1np5gXj4nXXXXXXXX-320-420.jpg)
+
+“JavaScript patterns”
 
 # 目录
 
