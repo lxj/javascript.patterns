@@ -202,7 +202,7 @@
 - 远程脚本
 	- XMLHttpRequest
 	- JSONP
-	- Frame和Image加载进度条
+	- Frame和Image加载指示器
 - 部署JavaScript
 	- 合并脚本
 	- 代码减肥和压缩
