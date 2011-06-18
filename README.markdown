@@ -18,9 +18,9 @@
 - [JSLint](chapter1.markdown#a8)
 - [控制台工具](chapter1.markdown#a9)
 
-## 第二章 准备知识
+## [第二章 准备知识](chapter2.markdown)
 
-- 编写可维护的代码
+- [编写可维护的代码](chapter2.markdown)
 - 减少全局对象
 	- 全局对象带来的困扰
 	- 忘记var时的副作用
