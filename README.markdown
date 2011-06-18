@@ -8,15 +8,15 @@
 
 ## [第一章 概述](chapter1.markdown)
 
-- [模式]
-- [JavaScript：概念]()
-	- 面向对象
-	- 无类
-	- 原型
-	- 执行环境
-- ECMAScript 5
-- JSLint
-- 控制台工具
+- [模式](chapter1.markdown)
+- [JavaScript：概念](chapter1.markdown#a2)
+	- [面向对象](chapter1.markdown#a3)
+	- [无类](chapter1.markdown#a4)
+	- [原型](chapter1.markdown#a5)
+	- [运行环境](chapter1.markdown#a6)
+- [ECMAScript 5](chapter1.markdown#a7)
+- [JSLint](chapter1.markdown#a8)
+- [控制台工具](chapter1.markdown#a9)
 
 ## 第二章 准备知识
 
