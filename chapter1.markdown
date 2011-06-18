@@ -130,8 +130,9 @@ console对象在本书中非常常见。这个对象并不是语言的一部分�
 
 本书中大多数代码都使用console对象来输出结果，而没有使用alert()或者刷新当前页面。因为用这种方法输出结果实在太简单了。
 
-![console](http://img01.taobaocdn.com/tps/i1/T1AGmgXgxvXXXXXXXX-629-383.png)
 图 1-1 使用Firebug控制台工具
+
+![console](http://img01.taobaocdn.com/tps/i1/T1AGmgXgxvXXXXXXXX-629-383.png)
 
 我们经常使用log()方法，它将传入的参数在控制台输出，有时会用到dir()，用以将传入的对象属性枚举出来，这里是一个例子：
 
