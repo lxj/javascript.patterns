@@ -21,10 +21,10 @@
 ## [第二章 准备知识](chapter2.markdown)
 
 - [编写可维护的代码](chapter2.markdown)
-- 减少全局对象(chapter2.markdown)
-	- 全局对象带来的困扰(chapter2.markdown)
-	- 忘记var时的副作用(chapter2.markdown)
-	- 访问全局对象(chapter2.markdown)
+- [减少全局对象](chapter2.markdown)
+	- [全局对象带来的困扰](chapter2.markdown)
+	- [忘记var时的副作用](chapter2.markdown)
+	- [访问全局对象](chapter2.markdown)
 	- 单 var 模式
 	- 声明提前：分散的 var 带来的问题
 - for 循环
