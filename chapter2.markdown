@@ -375,6 +375,43 @@ for-in 循环用于对非数组对象作遍历。通过for-in进行循环也被�
 
 因此，不扩充内置对象的原型是最好的，你也可以自己定义一个规则，仅当下列条件满足时做例外考虑：
 
+- 未来的ECMAScript版本的JavaScirpt会将你实现的方法添加为内置方法。比如，你可以实现ECMAScript5定义的一些方法，一直等到浏览器升级至支持ES5。这样，你只是提前定义了这些有用的方法。
+- 如果你发现你自定义的方法已经不存在，要么已经在代码其他地方实现了，要么是浏览器的JavaScript引擎已经内置实现了。
+- 你所做的扩充附带充分的文档说明，且和团队其他成员做了沟通。
 
+如果你遇到这三种情况之一，你可以给内置原型添加自定义方法，写法如下：
+
+	if (typeof Object.protoype.myMethod !== "function") {
+		Object.protoype.myMethod = function () {
+			// implementation...
+		};
+	}
+
+## switch 模式
+
+你可以通过下面这种模式的写法来增强switch语句的可读性和健壮性：
+
+	var inspect_me = 0,
+		result = '';
+	switch (inspect_me) {
+	case 0:
+		result = "zero";
+		break;
+	case 1:
+		result = "one";
+		break;
+	default:
+		result = "unknown";
+	}
+
+这个简单的例子所遵循的风格约定如下：
+
+- 每个case和switch对齐（这里不考虑花括号相关的缩进规则）
+- 每个case中的代码整齐缩进
+- 每个case都以break作为结束
+- 避免连续执行多个case语句块（当省略break时会发生），如果你坚持认为连续执行多case语句块是最好的方法，请务必补充文档说明，对于其他人来说，这种情况看起来是错误的。
+- 以default结束整个switch，以确保即便是在找不到匹配项时也会有正常的结果，
+
+## 避免隐式类型转换
 
 
