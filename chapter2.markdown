@@ -195,3 +195,70 @@ JavaScript 中是允许在函数的任意地方写任意多个var语句的，其
 >有必要对“变量提前”作进一步补充，实际上在JavaScript引擎的实现上这一步稍有复杂。代码处理经过了两个阶段，第一阶段，创建变量、函数和参数，这一步是预编译的过程，它会扫描整段代码的上下文。第二阶段是代码的运行，这一阶段将创建函数表达式和一些非法的标识符（未声明的变量）。从实用性角度来讲，我们更愿意将这两个阶段归成一个概念“变量提前”，尽管这个概念并没有在ECMAScript标准中定义，但我们通常用它来解释预编译的行为过程。
 
 ## for 循环
+
+在for循环中，可以对数组或类似数组的对象（比如arguments和HTMLCollection对象）作遍历，最普通的for循环模式形如：
+
+	// sub-optimal loop
+	for (var i = 0; i < myarray.length; i++) {
+		// do something with myarray[i]
+	}
+
+这种模式的问题是，每次遍历都会访问数组的length属性。这降低了代码运行效率，特别是当myarray并不是一个数组而是一个HTMLCollection对象的时候。
+
+HTMLCollection是由DOM方法返回的对象，比如：
+
+- document.getElementsByName()
+- document.getElementsByClassName()
+- document.getElementsByTagName()
+
+同样有很多中其他的HTMLCollection，这些对象是在DOM标准之前就已经在用了，这些HTMLCollection主要包括：
+
+**document.images**
+
+页面中所有的IMG元素
+
+**document.links**
+
+页面中所有的A元素
+
+**document.forms**
+
+页面中所有的表单
+
+**document.forms[0].elements**
+
+页面中第一个表单的所有字段
+
+这些对象的问题在于，它们均是指向文档（HTML页面）中的活动对象。也就是说每次通过它们访问集合的length时，总是会去查询DOM，通常DOM操作是很耗资源的。
+
+更好的办法是为for循环缓存住要遍历的数组的长度，比如下面这段代码：
+
+	for (var i = 0, max = myarray.length; i < max; i++) {
+		// do something with myarray[i]
+	}
+
+通过这种方法只需要访问DOM节点一次以获得length，在整个循环过程中就都可以使用它。
+
+不管在什么浏览器中，在遍历HTMLCollection时缓存length都可以让程序执行的更快，可以提速两倍（Safari3）到一百九十倍（IE7）不等。更多细节可以参照Nicholas Zakas的《高性能JavaScript》，这本书也是由O'Reilly出版。
+
+需要注意的是，当你在循环过程中需要修改这个元素集合（比如增加DOM元素），你更希望更新length而不是更新常量。
+
+遵照单var模式，你可以将var提到循环的外部，比如：
+
+	function looper() {
+		var i = 0,
+			max,
+			myarray = [];
+		// ...
+		for (i = 0, max = myarray.length; i < max; i++) {
+			// do something with myarray[i]
+		}
+	}
+
+
+
+
+
+
+
+
