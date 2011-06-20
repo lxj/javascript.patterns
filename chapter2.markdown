@@ -144,5 +144,54 @@ JavaScript 使用函数来管理作用域，在一个函数内定义的变量称
 - 提醒你不要忘记声明变量，顺便减少潜在的全局变量
 - 代码量更少（输入更少且更易做代码优化）
 
+单var模式看起来像这样：
 
+	function func() {
+		var a = 1,
+			b = 2,
+			sum = a + b,
+			myobject = {},
+			i,
+			j;
+		// function body...
+	}
 
+你可以使用一个var语句来声明多个变量，变量之间用逗号分隔。也可以在这个语句中加入变量的初始化，这是一个非常好的实践。这种方式可以避免逻辑错误（所有未初始化的变量都被声明了，且值为undefined）并增加了代码的可读性。过段时间后再看这段代码，你会体会到声明不同类型变量的惯用名称，比如，你一眼就可看出某个变量是对象还是整数。
+
+你可以在声明变量时多做一些额外的工作，比如在这个例子中就用了sum=a+b这种代码。另一个例子就是当代码中用到对DOM元素的引用时，你可以把对DOM的引用赋值给一些变量，这一步就可以放在一个单独的声明语句中，比如下面这段代码：
+
+	function updateElement() {
+		var el = document.getElementById("result"),
+			style = el.style;
+		// do something with el and style...
+	}
+
+### 声明提前：分散的 var 带来的问题 
+
+JavaScript 中是允许在函数的任意地方写任意多个var语句的，其实相当于在函数体顶部声明变量，这种现象被称为“变量提前”，当你在声明之前使用这个变量时，可能会造成逻辑错误。对于JavaScript来说，一旦在某个作用域（同一个函数内）里声明了一个变量，这个变量在整个作用域内都是存在的，包括在var声明语句之前。看一下这个例子：
+
+	// antipattern
+	myname = "global"; // global variable
+	function func() {
+		alert(myname); // "undefined"
+		var myname = "local";
+		alert(myname); // "local"
+	}
+	func();
+
+这个例子中，你可能期望第一个alert()弹出“global”，第二个alert()弹出“local”。这种结果是合乎常理的，因为在第一个alert执行时，myname还没有声明，这时就应该“寻找”全局变量中的myname。但实际情况并不是这样，第一个alert弹出“undefined”，因为myname已经在函数内有声明了（尽管声明语句在后面）。所有的变量声明都提前到了函数的顶部。因此，为了避免类似带有“歧义”的程序逻辑，最好在使用它们之前一起声明它们。
+
+上一个代码片段等价于下面这个代码片段：
+
+	myname = "global"; // global variable
+	function func() {
+		var myname; // same as -> var myname = undefined;
+		alert(myname); // "undefined"
+		myname = "local";
+		alert(myname); // "local"
+	}
+	func();
+
+>有必要对“变量提前”作进一步补充，实际上在JavaScript引擎的实现上这一步稍有复杂。代码处理经过了两个阶段，第一阶段，创建变量、函数和参数，这一步是预编译的过程，它会扫描整段代码的上下文。第二阶段是代码的运行，这一阶段将创建函数表达式和一些非法的标识符（未声明的变量）。从实用性角度来讲，我们更愿意将这两个阶段归成一个概念“变量提前”，尽管这个概念并没有在ECMAScript标准中定义，但我们通常用它来解释预编译的行为过程。
+
+## for 循环
