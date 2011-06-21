@@ -431,3 +431,85 @@ for-in 循环用于对非数组对象作遍历。通过for-in进行循环也被�
 
 ### 避免使用eval()
 
+当你想使用eval()的时候，不要忘了那句话“eval()是魔鬼”。这个函数的参数是一个字符串，它可以执行任意字符串。如果事先知道要执行的代码是有问题的（在运行之前），则没有理由使用eval()。如果需要在运行时动态生成执行代码，往往都会有更佳的方式达到同样的目的，而非一定要使用eval()。例如，访问动态属性时可以使用方括号：
+
+	// antipattern
+	var property = "name";
+	alert(eval("obj." + property));
+	// preferred
+	var property = "name";
+	alert(obj[property]);
+
+eval()同样有安全隐患，因为你需要运行一些容易被干扰的代码（比如运行一段来自于网络的代码）。在处理Ajax请求所返回的JSON数据时会常遇到这种情况，使用eval()是一种反模式。这种情况下最好使用浏览器的内置方法来解析JSON数据，以确保代码的安全性和数据的合法性。如果浏览器不支持JSON.parse()，你可以使用JSON.org所提供的库。
+
+记住，多数情况下，给setInterval()、setTimeout()和Function()构造函数传入字符串的情形和eval()类似，这种用法也是应当避免的，这一点非常重要，因为这些情形中JavaScript最终还是会执行传入的字符串参数：
+
+	// antipatterns
+	setTimeout("myFunc()", 1000);
+	setTimeout("myFunc(1, 2, 3)", 1000);
+	// preferred
+	setTimeout(myFunc, 1000);
+	setTimeout(function () {
+		myFunc(1, 2, 3);
+	}, 1000);
+
+new Function()的用法和eval()非常类似，应当特别注意。这种构造函数的方式很强大，但往往被误用。如果你不得不使用eval()，你可以尝试用new Function()来代替。这有一个潜在的好处，在new Function()中运行的代码会在一个局部函数作用域内执行，因此源码中所有用var定义的变量不会自动变成全局变量。还有一种方法可以避免eval()中定义的变量转换为全局变量，即是将eval()包装在一个立即执行的匿名函数内（详细内容请参照第四章）。
+
+看一下这个例子，这里只有un成为了全局变量，污染了全局命名空间：
+
+	console.log(typeof un);// "undefined"
+	console.log(typeof deux); // "undefined"
+	console.log(typeof trois); // "undefined"
+
+	var jsstring = "var un = 1; console.log(un);";
+	eval(jsstring); // logs "1"
+
+	jsstring = "var deux = 2; console.log(deux);";
+	new Function(jsstring)(); // logs "2"
+
+	jsstring = "var trois = 3; console.log(trois);";
+	(function () {
+		eval(jsstring);
+	}()); // logs "3"
+
+	console.log(typeof un); // "number"
+	console.log(typeof deux); // "undefined"
+	console.log(typeof trois); // "undefined"
+
+eval()和Function构造函数还有一个区别，就是eval()可以修改作用域链，而Function更像是一个沙箱。不管在什么地方执行Function，它只能看到全局作用域。因此它不会太严重的污染局部变量。在下面的示例代码中，eval()可以访问且修改其作用域之外的变量，而Function不能（注意，使用Function和new Function是完全一样的）。
+
+	(function () {
+		var local = 1;
+		eval("local = 3; console.log(local)"); // logs 3
+		console.log(local); // logs 3
+	}());
+
+	(function () {
+		var local = 1;
+		Function("console.log(typeof local);")(); // logs undefined
+	}());
+
+## 使用parseInt()进行数字转换
+
+可以使用parseInt()将字符串转换为数字。函数的第二个参数是转换基数（译注：“基数”指的是数字进制的方式），这个参数通常被省略。但当字符串以0为前缀时转换就会出错，例如，在表单中输入日期的一个字段。ECMAScript3中以0为前缀的字符串会被当作八进制数处理（基数为8）。但在ES5中不是这样。为了避免转换类型不一致而导致的意外结果，应当总是指定第二个参数：
+
+	var month = "06",
+		year = "09";
+	month = parseInt(month, 10);
+	year = parseInt(year, 10);
+
+在这个例子中，如果省略掉parseInt的第二个参数，比如parseInt(year)，返回值是0，因为“09”被认为是八进制数（等价于parseInt(year,8)），而且09是非法的八进制数。
+
+字符串转换为数字还有两种方法：
+
+	+"08" // result is 8
+	Number("08") // 8
+
+这两种方法要比parseInt()更快一些，因为顾名思义parseInt()是一种“解析”而不是简单的“转换”。但当你期望将“08 hello”这类字符串转换为数字，则必须使用parseInt()，其他方法都会返回NaN。
+
+## 编码风格
+
+确立并遵守编码规范非常重要，这会让你的代码风格一致、可预测、可读性更强。团队新成员通过学习编码规范可以很快进入开发状态、并写出团队其他成员易于理解的代码。
+
+在开源社区和邮件组中关于编码风格的争论一直不断（比如关于代码缩进，用tab还是空格？）。因此，如果你打算在团队内推行某种编码风格时，要做好应对各种反对意见的心理准备，而且要吸取各种意见，这对确立并一贯遵守某种编码风格是非常重要的，而不是更斤斤计较的纠结于编码风格的细节。
+
