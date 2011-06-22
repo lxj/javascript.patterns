@@ -801,7 +801,7 @@ app.js的开始部分：
 	/**
 	 * My JavaScript application
 	 *
-	 * **@module myapp**
+	 * @module myapp
 	 */
 
 然后定义了一个空对象作为模块的命名空间：
@@ -812,8 +812,8 @@ app.js的开始部分：
 
 	/**
 	* A math utility
-	* **@namespace MYAPP**
-	* **@class math_stuff**
+	* @namespace MYAPP
+	* @class math_stuff
 	*/
 	MYAPP.math_stuff = {
 		/**
@@ -841,6 +841,69 @@ app.js的开始部分：
 		}
 	};
 
-这样就结束了第一个“类”的定义，注意粗体表示的标签
+这样就结束了第一个“类”的定义，注意粗体表示的标签。
+
+@namespace
+
+指向你的对象的全局引用
+
+@class
+
+代表一个对象或构造函数的不恰当的称谓（JavaScript中没有类）
+
+@method
+
+定义对象的方法，并指定方法的名称
+
+@param
+
+列出函数需要的参数，参数的类型放在一对花括号内，跟随其后的是参数名和描述
+
+@return
+
+和@param类似，用以描述方法的返回值，可以不带名字
+
+我们用构造函数来实现第二个“类”，给这个类的原型添加一个方法，能够体会到YUIDoc采用了不同的方式来创建对象：
+
+	/**
+	* Constructs Person objects
+	* @class Person
+	* @constructor
+	* @namespace MYAPP
+	* @param {String} first First name
+	* @param {String} last Last name
+	*/
+	MYAPP.Person = function (first, last) {
+		/**
+		* Name of the person
+		* @property first_name
+		* @type String
+		*/
+		this.first_name = first;
+		/**
+		* Last (family) name of the person
+		* @property last_name
+		* @type String
+		*/
+		this.last_name = last;
+	};
+	/**
+	* Returns the name of the person object
+	*
+	* @method getName
+	* @return {String} The name of the person
+	*/
+	MYAPP.Person.prototype.getName = function () {
+		return this.first_name + ' ' + this.last_name;
+	};
+
+在图2-1中可以看到生成的文档中Person构造函数的生成结果，粗体的部分是：
+
+- @constructor 暗示了这个“类”其实是一个构造函数
+- @prototype 和 @type 用来描述对象的属性
+
+YUIDoc工具是语言无关的，只解析注释块，而不是JavaScript代码。它的缺点是必须要在注释中指定属性、参数和方法的名字，比如，@property first_name。好处是一旦你熟练掌握YUIDoc，就可以用它对任何语言源码进行注释的文档化。
+
+## 编写易读的代码
 
 
