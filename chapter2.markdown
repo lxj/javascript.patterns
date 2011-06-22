@@ -735,7 +735,7 @@ ECMAScript的属性和方法均使用Camel标记法，尽管多字的属性名�
 
 - 在名字尾部添加下划下以表明私有，比如name_和getElements_()
 - 使用一个下划线前缀表明受保护的属性_protected，用两个下划线前缀表明私有属性__private
-- 在Firefox中实现了一些非标准的内置属性，这些属性在开头和结束都有两个下划线，比如__proto__和__parent__
+- 在Firefox中实现了一些非标准的内置属性，这些属性在开头和结束都有两个下划线，比如`__proto__`和`__parent__`
 
 ## 书写注释
 
@@ -751,7 +751,7 @@ ECMAScript的属性和方法均使用Camel标记法，尽管多字的属性名�
 
 很多人都觉得写文档是一件枯燥且吃力不讨好的事情，但实际情况不是这样。我们可以通过代码注释自动生成文档，这样就不用再去专门写文档了。很多人觉得这是一个不错的点子，因为根据某些关键字和格式化的文档自动生成可阅读的参考手册本身就是“某种编程”。
 
-传统的APIdoc诞生自Java世界，这个工具名叫“javadoc”，和Java SDK（软件开发工具包）一起提供。但这个创意迅速被其他语言借鉴。JavaScript领域有两个非常优秀的开源工具，它们是JSDoc Toolkit（http://code.google.com/p/jsdoc-toolkit/）和YUIDoc（http://yuilibrary.com/projects/yuidoc）。
+传统的APIdoc诞生自Java世界，这个工具名叫“javadoc”，和Java SDK（软件开发工具包）一起提供。但这个创意迅速被其他语言借鉴。JavaScript领域有两个非常优秀的开源工具，它们是JSDoc Toolkit（http://code.google.com/p/jsdoc-toolkit/ ）和YUIDoc（http://yuilibrary.com/projects/yuidoc ）。
 
 生成API文档的过程包括：
 
@@ -778,6 +778,69 @@ ECMAScript的属性和方法均使用Camel标记法，尽管多字的属性名�
 		return output;
 	};
 
+可以看到，@param是用来说明输入参数的标签，@return是用来说明返回值的标签，文档生成工具最终会为将这种带注释的源代码解析成格式化好的HTML文档。
 
+### 一个例子：YUIDoc
+
+YUIDoc最初的目的是为YUI库（Yahoo! User Interface）生成文档，但也可以应用于任何项目，为了更充分的使用YUIDoc你需要学习它的注释规范，比如模块和类的写法（当然在JavaScript中是没有类的概念的）。
+
+让我们看一个用YUIDoc生成文档的完整例子。
+
+图2-1展示了最终生成的文档的模样，你可以根据项目需要随意定制HTML模板，让生成的文档更加友好和个性化。
+
+这里同样提供了在线的demo，请参照 http://jspatterns.com/book/2/。
+
+这个例子中所有的应用作为一个模块（myapp）放在一个文件里（app.js），后续的章节会更详细的介绍模块，现在只需知道用可以用一个YUIDoc的标签来表示模块即可。
+
+图2-1 YUIDoc生成的文档
+
+【图】
+
+app.js的开始部分：
+
+	/**
+	 * My JavaScript application
+	 *
+	 * **@module myapp**
+	 */
+
+然后定义了一个空对象作为模块的命名空间：
+
+	var MYAPP = {};
+
+紧接着定义了一个包含两个方法的对象math_stuff，这两个方法分别是sum()和multi()：
+
+	/**
+	* A math utility
+	* **@namespace MYAPP**
+	* **@class math_stuff**
+	*/
+	MYAPP.math_stuff = {
+		/**
+		* Sums two numbers
+		*
+		* @method sum
+		* @param {Number} a First number
+		* @param {Number} b The second number
+		* @return {Number} The sum of the two inputs
+		*/
+		sum: function (a, b) {
+			return a + b;
+		},
+
+		/**
+		* Multiplies two numbers
+		*
+		* @method multi
+		* @param {Number} a First number
+		* @param {Number} b The second number
+		* @return {Number} The two inputs multiplied
+		*/
+		multi: function (a, b) {
+			return a * b;
+		}
+	};
+
+这样就结束了第一个“类”的定义，注意粗体表示的标签
 
 
