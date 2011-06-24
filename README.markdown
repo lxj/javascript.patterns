@@ -63,14 +63,14 @@
 	- [对象直接量语法](chapter3.markdown)
 	- [通过构造函数创建对象](chapter3.markdown)
 	- [获得对象的构造器](chapter3.markdown)
-- 自定义构造函数
-	- 构造函数的返回值
-- 强制使用new的模式
-	- 命名约定
-	- 使用that
-	- 调用自身的构造函数
-- 数组直接量
-	- 数组直接量语法
+- [自定义构造函数](chapter3.markdown)
+	- [构造函数的返回值](chapter3.markdown)
+- [强制使用new的模式](chapter3.markdown)
+	- [命名约定](chapter3.markdown)
+	- [使用that](chapter3.markdown)
+	- [调用自身的构造函数](chapter3.markdown)
+- [数组直接量](chapter3.markdown)
+	- [数组直接量语法](chapter3.markdown)
 	- 有意思的数组构造器
 	- 检查是不是数组
 - JSON
