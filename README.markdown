@@ -20,37 +20,37 @@
 
 ## [第二章 高质量JavaScript基本要点](chapter2.markdown)
 
-- [编写可维护的代码](chapter2.markdown)
-- [减少全局对象](chapter2.markdown)
-	- [全局对象带来的困扰](chapter2.markdown)
-	- [忘记var时的副作用](chapter2.markdown)
-	- [访问全局对象](chapter2.markdown)
-	- 单 var 模式
-	- 声明提前：分散的 var 带来的问题
-- for 循环
-- for-in 循环
-- （不）扩充内置原型
-- switch 模式
-- 避免隐式类型转换
-	- 避免使用 eval()
-- 使用parseInt()进行数字转换
-- 编码风格
-	- 缩进
-	- 花括号
-	- 左花括号的放置
-	- 空格
-- 命名规范
-	- 构造器命名中的大小写
-	- 单词分隔
-	- 其他命名风格
-- 书写注释
-- 书写API文档
-	- 一个例子：YUIDoc
-- 编写易读的代码
-- 相互评审
-- 生产环境中的代码压缩
-- 运行JSLint
-- 小节
+- [编写可维护的代码](chapter2.markdown#a2)
+- [减少全局对象](chapter2.markdown#a3)
+	- [全局对象带来的困扰](chapter2.markdown#a4)
+	- [忘记var时的副作用](chapter2.markdown#a5)
+	- [访问全局对象](chapter2.markdown#a6)
+	- [单 var 模式](chapter2.markdown#a7)
+	- [声明提前：分散的 var 带来的问题](chapter2.markdown#a8)
+- [for 循环](chapter2.markdown#a9)
+- [for-in 循环](chapter2.markdown#a10)
+- [（不）扩充内置原型](chapter2.markdown#a11)
+- [switch 模式](chapter2.markdown#a12)
+- [避免隐式类型转换](chapter2.markdown#a13)
+	- [避免使用 eval()](chapter2.markdown#a14)
+- [使用parseInt()进行数字转换](chapter2.markdown#a15)
+- [编码风格](chapter2.markdown#a16)
+	- [缩进](chapter2.markdown#a17)
+	- [花括号](chapter2.markdown#a18)
+	- [左花括号的放置](chapter2.markdown#a19)
+	- [空格](chapter2.markdown#a20)
+- [命名规范](chapter2.markdown#a21)
+	- [构造器命名中的大小写](chapter2.markdown#a22)
+	- [单词分隔](chapter2.markdown#a23)
+	- [其他命名风格](chapter2.markdown#a24)
+- [书写注释](chapter2.markdown#a25)
+- [书写API文档](chapter2.markdown#a26)
+	- [一个例子：YUIDoc](chapter2.markdown#a27)
+- [编写易读的代码](chapter2.markdown#a28)
+- [相互评审](chapter2.markdown#a29)
+- [生产环境中的代码压缩（Minify）](chapter2.markdown#a30)
+- [运行JSLint](chapter2.markdown#a31)
+- [小结](chapter2.markdown#a32)
 
 ## 第三章 直接量和构造函数
 
