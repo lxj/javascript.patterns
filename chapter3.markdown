@@ -174,7 +174,132 @@ Person构造函数是如何定义的呢？看下面的代码：
 
 ### 构造函数的返回值
 
+用new调用的构造函数总是会返回一个对象，默认返回this所指向的对象。如果构造函数内没有给this赋任何属性，则返回一个“空”对象（除了继承构造函数的原型之外，没有“自己的”属性）。
 
+尽管我们不会在构造函数内写return语句，也会隐式返回this。但我们是可以返回任意指定的对象的，在下面的例子中就返回了新创建的that对象。
 
+	var Objectmaker = function () {
 
+		// this `name` property will be ignored
+		// because the constructor
+		// decides to return another object instead
+		this.name = "This is it";
 
+		// creating and returning a new object
+		var that = {};
+		that.name = "And that's that";
+		return that;
+	};
+
+	// test
+	var o = new Objectmaker();
+	console.log(o.name); // "And that's that"
+
+我们看到，构造函数中其实是可以返回任意对象的，只要你返回的东西是对象即可。如果返回值不是对象（字符串、数字或布尔值），程序不会报错，但这个返回值被忽略，最终还是返回this所指的对象。
+
+## 强制使用new的模式
+
+我们知道，构造函数和普通的函数无异，只是通过new调用而已。那么如果调用构造函数时忘记new会发生什么呢？漏掉new不会产生语法错误也不会有运行时错误，但可能会造成逻辑错误，导致执行结果不符合预期。这是因为如果不写new的话，函数内的this会指向全局对象（在浏览器端this指向window）。
+
+当构造函数内包含this.member之类的代码，并直接调用这个函数（省略new），实际会创建一个全局对象的属性member，可以通过window.member或member访问到它。这必然不是我们想要的结果，因为我们要努力确保全局命名空间的整洁干净。
+
+	// constructor
+	function Waffle() {
+		this.tastes = "yummy";
+	}
+
+	// a new object
+	var good_morning = new Waffle();
+	console.log(typeof good_morning); // "object"
+	console.log(good_morning.tastes); // "yummy"
+
+	// antipattern:
+	// forgotten `new`
+	var good_morning = Waffle();
+	console.log(typeof good_morning); // "undefined"
+	console.log(window.tastes); // "yummy"
+
+ECMAScript5中修正了这种非正常的行为逻辑。在严格模式中，this是不能指向全局对象的。如果在不支持ES5的JavaScript环境中，仍然后很多方法可以确保构造函数的行为即便在省略new调用时也不会出问题。
+
+### 命名约定
+
+最简单的选择是使用命名约定，前面的章节已经提到，构造函数名首字母大写（MyConstructor），普通函数和方法名首字母小写（myFunction）。
+
+### 使用that
+
+遵守命名约定的确能帮上一些忙，但约定毕竟不是强制，不能完全避免出错。这里给出了一种模式可以确保构造函数一定会按照构造函数的方式执行。不要将所有成员挂在this上，将它们挂在that上，并返回that。
+
+	function Waffle() {
+	var that = {};
+		that.tastes = "yummy";
+		return that;
+	}
+
+如果要创建简单的实例对象，甚至不需要定义一个局部变量that，可以直接返回一个对象直接量，就像这样：
+
+	function Waffle() {
+		return {
+			tastes: "yummy"
+		};
+	}
+
+不管用什么方式调用它（使用new或直接调用），它同都会返回一个实例对象：
+
+	var first = new Waffle(),
+		second = Waffle();
+	console.log(first.tastes); // "yummy"
+	console.log(second.tastes); // "yummy"
+
+这种模式的问题是丢失了原型，因此在Waffle()的原型上的成员不会继承到这些实例对象中。
+
+> 需要注意的是，这里用的that只是一种命名约定，that不是语言的保留字，可以将它替换为任何你喜欢的名字，比如self或me。
+
+### 调用自身的构造函数
+
+为了解决上述模式的问题，能够让实例对象继承原型属性，我们使用下面的方法。在构造函数中首先检查this是否是构造函数的实例，如果不是，再通过new调用构造函数，并将new的结果返回：
+
+	function Waffle() {
+
+		if (!(this instanceof Waffle)) {
+			return new Waffle();
+		}
+		this.tastes = "yummy";
+
+	}
+	Waffle.prototype.wantAnother = true;
+
+	// testing invocations
+	var first = new Waffle(),
+		second = Waffle();
+
+	console.log(first.tastes); // "yummy"
+	console.log(second.tastes); // "yummy"
+
+	console.log(first.wantAnother); // true
+	console.log(second.wantAnother); // true
+
+另一种检查实例的通用方法是使用arguments.callee，而不是直接将构造函数名写死在代码中：
+
+	if (!(this instanceof arguments.callee)) {
+		return new arguments.callee();
+	}
+
+这里需要说明的是，在任何函数内部都会自行创建一个arguments对象，它包含函数调用时传入的参数。同时arguments包含一个callee属性，指向它所在的正在被调用的函数。需要注意，ES5严格模式中是禁止使用arguments.callee的，因此最好对它的使用加以限制，并删除任何你能在代码中找到的实例（译注：这里作者的表述很委婉，其实作者更倾向于全面禁止使用arguments.callee）。
+
+## 数组直接量
+
+和其他的大多数一样，JavaScript中的数组也是对象。可以通过内置构造函数Array()来创建数组，类似对象直接量，数组也可以通过直接量形式创建。而且更推荐使用直接量创建数组。
+
+这里的实例代码给出了创建两个具有相同元素的数组的两种方法，使用Array()和使用直接量模式：
+
+	// array of three elements
+	// warning: antipattern
+	var a = new Array("itsy", "bitsy", "spider");
+
+	// the exact same array
+	var a = ["itsy", "bitsy", "spider"];
+
+	console.log(typeof a); // "object", because arrays are objects
+	console.log(a.constructor === Array); // true
+
+### 数组直接量语法
