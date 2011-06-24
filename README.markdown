@@ -2,10 +2,12 @@
 
 ![JavaScript.patterns](http://img03.taobaocdn.com/tps/i3/T1np5gXj4nXXXXXXXX-320-420.jpg)
 
-“JavaScript patterns”
+“JavaScript patterns”中译本
 
 - 作者：[Stoyan Stefanov](http://www.phpied.com/)
-- 译者：[拔赤](http://jayli.github.com/)
+- 翻译：[拔赤](http://jayli.github.com/)
+
+偷懒是程序员的优良品质，模式则是先人们总结的偷懒招式。Stoyan Stefanov 的这本书，从 JavaScript 的实际使用场景出发，提炼了不少可以让前端们偷懒的实用招式。模式的探索、创新，将永远是程序员自我提升的一条修炼之道。值得一读。
 
 # 目录
 
