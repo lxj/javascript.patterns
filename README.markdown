@@ -4,6 +4,9 @@
 
 “JavaScript patterns”
 
+- 作者：[Stoyan Stefanov](http://www.phpied.com/)
+- 译者：[拔赤](http://jayli.github.com/)
+
 # 目录
 
 ## [第一章 概述](chapter1.markdown)
