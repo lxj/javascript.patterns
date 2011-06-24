@@ -52,12 +52,12 @@
 - [运行JSLint](chapter2.markdown#a31)
 - [小结](chapter2.markdown#a32)
 
-## 第三章 直接量和构造函数
+## [第三章 直接量和构造函数](chapter3.markdown)
 
-- 对象直接量
-	- 对象直接量语法
-	- 通过构造函数创建对象
-	- 获得对象的构造器
+- [对象直接量](chapter3.markdown)
+	- [对象直接量语法](chapter3.markdown)
+	- [通过构造函数创建对象](chapter3.markdown)
+	- [获得对象的构造器](chapter3.markdown)
 - 自定义构造函数
 	- 构造函数的返回值
 - 和 new 相关的模式
