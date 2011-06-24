@@ -86,7 +86,93 @@ JavaScript中没有类的概念，这给JavaScript带来了极大的灵活性，
 
 ### 获得对象的构造器
 
+创建实例对象时能用对象直接量就不要使用new Object()构造函数，但有时你希望能继承别人写的代码，这时就需要了解构造函数的一个“特性”（也是不使用它的另一个原因），就是Object()构造函数可以接收参数，通过参数的设置可以把实例对象的创建委托给另一个内置构造函数，并返回另外一个实例对象，而这往往不是你所希望的。
 
+下面的示例代码中展示了给new Object()传入不同的参数：数字、字符串和布尔值，最终得到的对象都是由不同的构造函数生成的：
+
+	// Warning: antipatterns ahead
+
+	// an empty object
+	var o = new Object();
+	console.log(o.constructor === Object); // true
+
+	// a number object
+	var o = new Object(1);
+	console.log(o.constructor === Number); // true
+	console.log(o.toFixed(2)); // "1.00"
+
+	// a string object
+	var o = new Object("I am a string");
+	console.log(o.constructor === String); // true
+	// normal objects don't have a substring()
+	// method but string objects do
+	console.log(typeof o.substring); // "function"
+
+	// a boolean object
+	var o = new Object(true);
+	console.log(o.constructor === Boolean); // true
+
+Object()构造函数的这种特性会导致一些意想不到的结果，特别是当参数不确定的时候。最后再次提醒不要使用new Object()，尽可能的使用对象直接量来创建实例对象。
+
+## 自定义构造函数
+
+除了对象直接量和内置构造函数之外，你也可以通过自定义的构造函数来创建实例对象，正如下面的代码所示：
+
+	var adam = new Person("Adam");
+	adam.say(); // "I am Adam"
+
+这里用了“类”Person创建了实例，这种写法看起来很像Java中的实例创建。两者的语法的确非常接近，但实际上JavaScript中没有类的概念，Person是一个函数。
+
+Person构造函数是如何定义的呢？看下面的代码：
+
+	var Person = function (name) {
+		this.name = name;
+		this.say = function () {
+			return "I am " + this.name;
+		};
+	};
+
+当你通过关键字new来调用这个构造函数时，函数体内将发生这些事情：
+
+- 创建一个空对象，将它的引用赋给this，继承函数的原型。
+- 通过this将属性和方法添加至这个对象
+- 最后返回this指向的新对象（如果没有手动返回其他的对象）
+
+用代码表示这个过程如下：
+
+	var Person = function (name) {
+		// create a new object
+		// using the object literal
+		// var this = {};
+
+		// add properties and methods
+		this.name = name;
+		this.say = function () {
+			return "I am " + this.name;
+		};
+
+		//return this;
+	};
+
+正如这段代码所示，say()方法添加至this中，结果是，不论何时调用new Person()，在内存中都会创建一个新函数（译注：所有Person的实例对象中的方法都是独占一块内存的）。显然这是效率很低的，因为所有实例的say()方法是一模一样的，因此没有必要“拷贝”多份。最好的办法是将方法添加至Person的原型中。
+
+	Person.prototype.say = function () {
+		return "I am " + this.name;
+	};
+
+我们将会在下一章里详细讨论原型和继承。现在只要记住将需要重用的成员和方法放在原型里即可。
+
+关于构造函数的内部工作机制也会在后续章节中有更细致的讨论。这里我们只做概要的介绍。刚才提到，构造函数执行的时候，首先创建一个新对象，并将它的引用赋给this：
+
+	// var this = {};
+
+事实并不完全是这样，因为“空”对象并不是真的空，这个对象继承了Person的原型，看起来更像：
+
+	// var this = Object.create(Person.prototype);
+
+在后续章节会进一步讨论Object.create()。
+
+### 构造函数的返回值
 
 
 
