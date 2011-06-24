@@ -2,7 +2,7 @@
 
 ![JavaScript.patterns](http://img03.taobaocdn.com/tps/i3/T1np5gXj4nXXXXXXXX-320-420.jpg)
 
-“JavaScript patterns”中译本
+**“JavaScript patterns”中译本**
 
 - 作者：[Stoyan Stefanov](http://www.phpied.com/)
 - 翻译：[拔赤](http://jayli.github.com/)
