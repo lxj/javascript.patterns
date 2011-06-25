@@ -2,7 +2,7 @@
 
 ![JavaScript.patterns](http://img03.taobaocdn.com/tps/i3/T1np5gXj4nXXXXXXXX-320-420.jpg)
 
-**“JavaScript patterns”中译本**
+**“JavaScript patterns”中译本** - 《JavaScript 模式》
 
 - 作者：[Stoyan Stefanov](http://www.phpied.com/)
 - 翻译：[拔赤](http://jayli.github.com/)
@@ -59,27 +59,27 @@
 
 ## [第三章 直接量和构造函数](chapter3.markdown)
 
-- [对象直接量](chapter3.markdown)
-	- [对象直接量语法](chapter3.markdown)
-	- [通过构造函数创建对象](chapter3.markdown)
-	- [获得对象的构造器](chapter3.markdown)
-- [自定义构造函数](chapter3.markdown)
-	- [构造函数的返回值](chapter3.markdown)
-- [强制使用new的模式](chapter3.markdown)
-	- [命名约定](chapter3.markdown)
-	- [使用that](chapter3.markdown)
-	- [调用自身的构造函数](chapter3.markdown)
-- [数组直接量](chapter3.markdown)
-	- [数组直接量语法](chapter3.markdown)
-	- 有意思的数组构造器
-	- 检查是不是数组
-- JSON
-	- 使用JSON
-- 正则表达式直接量
-	- 正则表达式直接量语法
-- 原始值的包装对象
-- Error对象
-- 小节
+- [对象直接量](chapter3.markdown#a2)
+	- [对象直接量语法](chapter3.markdown#a3)
+	- [通过构造函数创建对象](chapter3.markdown#a4)
+	- [获得对象的构造器](chapter3.markdown#a5)
+- [自定义构造函数](chapter3.markdown#a6)
+	- [构造函数的返回值](chapter3.markdown#a7)
+- [强制使用new的模式](chapter3.markdown#a8)
+	- [命名约定](chapter3.markdown#a9)
+	- [使用that](chapter3.markdown#a10)
+	- [调用自身的构造函数](chapter3.markdown#a11)
+- [数组直接量](chapter3.markdown#a12)
+	- [数组直接量语法](chapter3.markdown#a13)
+	- [有意思的数组构造器](chapter3.markdown#a14)
+	- [检查是不是数组](chapter3.markdown#a15)
+- [JSON](chapter3.markdown#a16)
+	- [使用JSON](chapter3.markdown#a17)
+- [正则表达式直接量](chapter3.markdown#a18)
+	- [正则表达式直接量语法](chapter3.markdown#a19)
+- [原始值的包装对象](chapter3.markdown#a20)
+- [Error对象](chapter3.markdown#a21)
+- [小节](chapter3.markdown#a22)
 
 ## 第四章 函数
 
