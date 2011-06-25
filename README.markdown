@@ -79,12 +79,12 @@
 	- [正则表达式直接量语法](chapter3.markdown#a19)
 - [原始值的包装对象](chapter3.markdown#a20)
 - [Error对象](chapter3.markdown#a21)
-- [小节](chapter3.markdown#a22)
+- [小结](chapter3.markdown#a22)
 
-## 第四章 函数
+## [第四章 函数](chapter4.markdown#a)
 
-- 背景知识
-	- 术语释义
+- [背景知识](chapter4.markdown#a)
+	- [术语释义](chapter4.markdown#a)
 	- 声明 vs 表达式：命名与提前
 	- 函数的name属性
 	- 函数提前
