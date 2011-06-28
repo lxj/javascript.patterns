@@ -85,17 +85,17 @@
 
 - [背景知识](chapter4.markdown#a)
 	- [术语释义](chapter4.markdown#a)
-	- 声明 vs 表达式：命名与提前
-	- 函数的name属性
-	- 函数提前
-- 回调模式
-	- 一个回调的例子
-	- 回调和作用域
-	- 异步事件监听
-	- 超时
-	- 库中的回调
-- 返回函数
-- 自定义函数
+	- [声明 vs 表达式：命名与提前](chapter4.markdown#a)
+	- [函数的name属性](chapter4.markdown#a)
+	- [函数提前](chapter4.markdown#a)
+- [回调模式](chapter4.markdown#a)
+	- [一个回调的例子](chapter4.markdown#a)
+	- [回调和作用域](chapter4.markdown#a)
+	- [异步事件监听](chapter4.markdown#a)
+	- [超时](chapter4.markdown#a)
+	- [库中的回调](chapter4.markdown#a)
+- [返回函数](chapter4.markdown#a)
+- [自定义函数](chapter4.markdown#a)
 - 立即执行的函数
 	- 立即执行的函数的参数
 	- 立即执行的函数的返回值
