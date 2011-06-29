@@ -388,4 +388,60 @@ JavaScript中的回调模式已经是我们的家常便饭了，比如，如果�
 
 ## 自定义函数
 
+我们动态定义函数，并将函数赋值给变量。如果将你定义的函数赋值给已经存在的函数变量的话，则新函数会覆盖旧函数。这样做的结果是，旧函数的引用就丢弃掉了，变量中所存储的引用值替换成了新的。这样看起来这个变量指代的函数逻辑就发生了变化，或者说函数进行了“重新定义”或“重写”。说起来有些拗口，实际上并不复杂，来看一个例子：
+
+	var scareMe = function () {
+		alert("Boo!");
+		scareMe = function () {
+			alert("Double boo!");
+		};
+	};
+	// using the self-defining function
+	scareMe(); // Boo!
+	scareMe(); // Double boo!
+
+当函数中包含一些初始化操作，并希望这些初始化只执行一次，那么这种模式是非常适合这个场景的。因为能避免的重复执行则尽量避免，函数的一部分可能再也不会执行到。在这个场景中，函数执行一次后就被重写为另外一个函数了。
+
+使用这种模式可以帮助提高应用的执行效率，因为重新定义的函数执行的更少。
+
+>这种模式的另外一个名字是“函数的懒惰定义”，因为直到函数执行一次后才重新定义，可以说它是“某个时间点之后才存在”，简称“懒惰定义”。
+
+这种模式有一种明显的缺陷，就是之前给原函数添加的功能在重定义之后都丢失了。如果将这个函数定义为不同的名字，函数赋值给了很多不同的变量，或作为对象的方法使用，那么新定义的函数有可能不会执行，原始的函数会照旧执行（译注：由于函数的赋值是引用的赋值，函数赋值给多个变量只是将引用赋值给了多个变量，当某一个变量定义了新的函数，也只是变量的引用值发生变化，原函数本身依旧存在，当程序中存在某个变量的引用还是旧函数的话，旧函数还是会依旧执行）。
+
+让我们来看一个例子，scareMe()函数在这里作为一等对象来使用：
+
+1. 给他增加了一个属性
+2. 函数对象赋值给一个新变量
+3. 函数依旧可以作为方法来调用
+
+看一下这段代码：
+
+	// 1. adding a new property
+	scareMe.property = "properly";
+
+	// 2. assigning to a different name
+	var prank = scareMe;
+
+	// 3. using as a method
+	var spooky = {
+		boo: scareMe
+	};
+
+	// calling with a new name
+	prank(); // "Boo!"
+	prank(); // "Boo!"
+	console.log(prank.property); // "properly"
+
+	// calling as a method
+	spooky.boo(); // "Boo!"
+	spooky.boo(); // "Boo!"
+	console.log(spooky.boo.property);
+
+	// "properly"
+	// using the self-defined function
+	scareMe(); // Double boo!
+	scareMe(); // Double boo!
+	console.log(scareMe.property); // undefined
+
+
 
