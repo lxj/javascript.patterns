@@ -435,13 +435,14 @@ JavaScript中的回调模式已经是我们的家常便饭了，比如，如果�
 	// calling as a method
 	spooky.boo(); // "Boo!"
 	spooky.boo(); // "Boo!"
-	console.log(spooky.boo.property);
+	console.log(spooky.boo.property);	// "properly"
 
-	// "properly"
 	// using the self-defined function
 	scareMe(); // Double boo!
 	scareMe(); // Double boo!
 	console.log(scareMe.property); // undefined
+
+从结果来看，当自定义函数被赋值给一个新的变量的时候，这段使用自定义函数的代码的执行结果与我们可能期望的结果并不一样。每当prank()运行的时候，它都弹出“Boo!”。同时它也重写了scareMe()函数，但是prank()自己仍然能够使用之前的定义，包括属性property。在这个函数被作为spooky对象的boo()方法调用的时候，结果也一样。所有的这些调用，在第一次的时候就已经修改了全局的scareMe()的指向，所以当它最终被调用的时候，它的函数体已经被修改为弹出“Double boo”。它也就不能获取到新添加的属性“property”。
 
 
 
