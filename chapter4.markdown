@@ -714,4 +714,23 @@ o.message; // "call me"
 	// cache storage
 	myFunc.cache = {};
 
+需要注意的是，在序列化的过程中，对象的“标识”将会丢失。如果你有两个不同的对象，却碰巧有相同的属性，那么他们会共享同样的缓存内容。
+
+前面代码中的函数名还可以使用arguments.callee来替代，这样就不用将函数名硬编码。不过尽管现阶段这个办法可行，但是仍然需要注意，arguments.callee在ECMAScript 5的严格模式中是不被允许的：
+
+	var myFunc = function (param) {
+	
+		var f = arguments.callee,
+			result;
+	
+		if (!f.cache[param]) {
+			result = {};
+			// ... expensive operation ...
+			f.cache[param] = result;
+		}
+		return f.cache[param];
+	};
+	
+	// cache storage
+	myFunc.cache = {};
 
