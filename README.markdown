@@ -5,7 +5,7 @@
 **“JavaScript patterns”中译本** - 《JavaScript 模式》
 
 - 作者：[Stoyan Stefanov](http://www.phpied.com/)
-- 翻译：[拔赤](http://jayli.github.com/)、[goddyzhao](http://goddyzhao.me)
+- 翻译：[拔赤](http://jayli.github.com/)、[goddyzhao](http://goddyzhao.me)、[TooBug](http://www.toobug.net)
 
 偷懒是程序员的优良品质，模式则是先人们总结的偷懒招式。Stoyan Stefanov 的这本书，从 JavaScript 的实际使用场景出发，提炼了不少可以让前端们偷懒的实用招式。模式的探索、创新，将永远是程序员自我提升的一条修炼之道。值得一读。
 
@@ -96,14 +96,14 @@
 	- [库中的回调](chapter4.markdown#a)
 - [返回函数](chapter4.markdown#a)
 - [自定义函数](chapter4.markdown#a)
-- 立即执行的函数
-	- 立即执行的函数的参数
-	- 立即执行的函数的返回值
-	- 好处和用法
-- 立即初始化的对象
-- 启动时间程序
-- 函数属性——一种备忘录模式
-- 对象的配置
+- [立即执行的函数](chapter4.markdown#a)
+	- [立即执行的函数的参数](chapter4.markdown#a)
+	- [立即执行的函数的返回值](chapter4.markdown#a)
+	- [好处和用法](chapter4.markdown#a)
+- [立即初始化的对象](chapter4.markdown#a)
+- [启动时间程序](chapter4.markdown#a)
+- [函数属性——一种备忘录模式](chapter4.markdown#a)
+- [对象的配置](chapter4.markdown#a)
 - 柯里化 （Curry）
 	- 函数应用
 	- 部分应用
