@@ -610,3 +610,65 @@ o.message; // "call me"
     
 > 这种模式主要用于一些一次性的工作，并且在init()方法执行完后就无法再次访问到这个对象。如果希望在这些工作完成后保持对对象的引用，只需要简单地在init()的末尾加上return this;即可。
 
+
+## 启动时间程序
+
+启动时间程序（也叫加载时间程序）是一种优化模式。当你知道某种条件在整个程序生命周期中都不会变化的时候，那么对这个条件的探测只做一次就很有意义。浏览器探测（或者特征检测）是一个典型的例子。
+
+举例说明，当你探测到XMLHttpRequest被作为一个本地对象支持时，就知道浏览器不会在程序执行过程中改变这一情况，也不用突然又需要去处理ActiveX对象。当环境不发生变化的时候，你的代码就没有必要在需要在每次XHR对象时探测一遍（并且得到同样的结果）。
+
+另外一些可以从启动时间程序中获益的场景是获得一个DOM元素的computed styles或者是绑定事件处理函数。大部分程序员在他们的客户端编程生涯中都编写过事件绑定和取消绑定相关的组件，像下面的例子：
+
+	// BEFORE
+	var utils = {
+		addListener: function (el, type, fn) {
+			if (typeof window.addEventListener === 'function') {
+				el.addEventListener(type, fn, false);
+			} else if (typeof document.attachEvent === 'function') { // IE
+				el.attachEvent('on' + type, fn);
+			} else { // older browsers
+				el['on' + type] = fn;
+			}
+		},
+		removeListener: function (el, type, fn) {
+			// pretty much the same...
+		}
+	};
+
+这段代码的问题就是效率不高。每当你执行utils.addListener()或者utils.removeListener()时，同样的检查都会被重复执行。
+
+如果使用启动时间程序，那么浏览器探测的工作只需要在初始化代码的时候执行一次。在初始化的时候，代码探测一次环境，然后重新定义这个函数在剩下来的程序生命周期中应该怎样工作。下面是一个例子，看看如何达到这个目的：
+
+	// AFTER
+	
+	// the interface
+	var utils = {
+		addListener: null,
+		removeListener: null
+	};
+	
+	// the implementation
+	if (typeof window.addEventListener === 'function') {
+		utils.addListener = function (el, type, fn) {
+			el.addEventListener(type, fn, false);
+		};
+		utils.removeListener = function (el, type, fn) {
+			el.removeEventListener(type, fn, false);
+		};
+	} else if (typeof document.attachEvent === 'function') { // IE
+		utils.addListener = function (el, type, fn) {
+			el.attachEvent('on' + type, fn);
+		};
+		utils.removeListener = function (el, type, fn) {
+			el.detachEvent('on' + type, fn);
+		};
+	} else { // older browsers
+		utils.addListener = function (el, type, fn) {
+			el['on' + type] = fn;
+		};
+		utils.removeListener = function (el, type, fn) {
+			el['on' + type] = null;
+		};
+	}
+
+说到这里，要特别提醒一下关于浏览器探测的事情。当你使用这个模式的时候，不要对浏览器特性过度假设。举个例子，如果你探测到浏览器不支持window.addEventListener，不要假设这个浏览器是IE，也不要认为它不支持原生的XMLHttpRequest，虽然这个结论在整个浏览器历史上的某个点是正确的。当然，也有一些情况是可以放心地做一些特性假设的，比如.addEventListener和.removeEventListerner，但是通常来讲，浏览器的特性在发生变化时都是独立的。最好的策略就是分别探测每个特性，然后使用启动时间程序，使这种探测只做一次。
