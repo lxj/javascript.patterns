@@ -672,3 +672,46 @@ o.message; // "call me"
 	}
 
 说到这里，要特别提醒一下关于浏览器探测的事情。当你使用这个模式的时候，不要对浏览器特性过度假设。举个例子，如果你探测到浏览器不支持window.addEventListener，不要假设这个浏览器是IE，也不要认为它不支持原生的XMLHttpRequest，虽然这个结论在整个浏览器历史上的某个点是正确的。当然，也有一些情况是可以放心地做一些特性假设的，比如.addEventListener和.removeEventListerner，但是通常来讲，浏览器的特性在发生变化时都是独立的。最好的策略就是分别探测每个特性，然后使用启动时间程序，使这种探测只做一次。
+
+## 函数属性——一种备忘录模式
+
+函数也是对象，所以它们可以有属性。事实上，函数也确实本来就有一些属性。比如，对一个函数来说，不管是用什么语法创建的，它会自动拥有一个length属性来标识这个函数期待接受的参数个数：
+
+	function func(a, b, c) {}
+	console.log(func.length); // 3
+
+任何时候都可以给函数添加自定义属性。添加自定义属性的一个有用场景是缓存函数的执行结果（返回值），这样下次同样的函数被调用的时候就不需要再做一次那些可能很复杂的计算。缓存一个函数的运行结果也就是为大家所熟知的备忘录（memoization）。
+
+在下面的例子中，myFunc函数创建了一个cache属性，可以通过myFunc.cache访问到。这个cache属性是一个对象（hash表），传给函数的参数会作为对象的key，函数执行结果会作为对象的值。函数的执行结果可以是会用到的任何的复杂数据结构：
+
+	var myFunc = function (param) {
+		if (!myFunc.cache[param]) {
+			var result = {};
+			// ... expensive operation ...
+			myFunc.cache[param] = result;
+		}
+		return myFunc.cache[param];
+	};
+
+	// cache storage
+	myFunc.cache = {};
+
+上面的代码假设函数只接受一个参数param，并且这个参数是基本类型（比如字符串）。如果你有更多更复杂的参数，则通常需要对它们进行序列化。（译注：序列化后来作为缓存对象的key。）比如，你需要将arguments对象序列化为JSON字符串，然后使用JSON字符串作为cache对象的key：
+
+	var myFunc = function () {
+
+		var cachekey = JSON.stringify(Array.prototype.slice.call(arguments)),
+			result;
+	
+		if (!myFunc.cache[cachekey]) {
+			result = {};
+			// ... expensive operation ...
+			myFunc.cache[cachekey] = result;
+		}
+		return myFunc.cache[cachekey];
+	};
+	
+	// cache storage
+	myFunc.cache = {};
+
+
