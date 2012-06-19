@@ -826,3 +826,54 @@ o.message; // "call me"
 	sayHi.apply(alien, ["humans"]); // "Hello, humans!"
 	sayHi.call(alien, "humans"); // "Hello, humans!"
 
+### 部分应用
+
+现在我们知道了，调用一个函数实际上就是给它应用一堆参数，那是否能够只传一部分参数而不传全部呢？这实际上跟我们手工处理数学函数非常类似。
+
+假设已经有了一个add()函数，它的工作是把x和y两个数加到一起。下面的代码片段展示了当x为5、y为4时的计算步骤：
+
+	// for illustration purposes
+	// not valid JavaScript
+	
+	// we have this function
+	function add(x, y) {
+		return x + y;
+	}
+
+	// and we know the arguments
+	add(5, 4);
+
+	// step 1 -- substitute one argument
+	function add(5, y) {
+		return 5 + y;
+	}
+
+	// step 2 -- substitute the other argument
+	function add(5, 4) {
+		return 5 + 4;
+	}
+
+在这个代码片段中，step 1和step 2并不是有效的JavaScript代码，但是它展示了我们手工计算的过程。首先获得第一个参数的值，然后将未知的x和已知的值5替换到函数中。然后重复这个过程，直到替换掉所有的参数。
+
+step 1是一个所谓的部分应用的例子：我们只应用了第一个参数。当你执行一个部分应用的时候并不能获得结果（或者是解决方案），取而代之的是另一个函数。
+
+下面的代码片段展示了一个虚拟的partialApply()方法的用法：
+
+	var add = function (x, y) {
+		return x + y;
+	};
+	
+	// full application
+	add.apply(null, [5, 4]); // 9
+
+	// partial application
+	var newadd = add.partialApply(null, [5]);
+	// applying an argument to the new function
+	newadd.apply(null, [4]); // 9
+
+正如你所看到的一样，部分应用给了我们另一个函数，这个函数可以在稍后调用的时候接受其它的参数。这实际上跟add(5)(4)是等价的，因为add(5)返回了一个函数，这个函数可以使用(4)来调用。我们又一次看到，熟悉的add(5, 4)也跟add(5)(4)的一种语法糖差不了多少。
+
+现在，让我们回到地球：并不存在这样的一个partialApply()函数，并且函数的默认表现也不会像上面的例子中那样。但是你完全可以自己去写，因为JavaScript的动态特性完全可以做到这样。
+
+让函数理解并且处理部分应用的过程，叫柯里化。
+
