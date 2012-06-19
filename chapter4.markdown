@@ -875,5 +875,94 @@ step 1是一个所谓的部分应用的例子：我们只应用了第一个参�
 
 现在，让我们回到地球：并不存在这样的一个partialApply()函数，并且函数的默认表现也不会像上面的例子中那样。但是你完全可以自己去写，因为JavaScript的动态特性完全可以做到这样。
 
-让函数理解并且处理部分应用的过程，叫柯里化。
+让函数理解并且处理部分应用的过程，叫柯里化（Currying）。
+
+### 柯里化（Currying）
+
+柯里化和辛辣的印度菜可没什么关系；它来自数学家Haskell Curry。（Haskell编程语言也是因他而得名。）柯里化是一个变换的函数的过程。柯里化的另外一个名字也叫schönfinkelisation，来自另一位数学家——Moses Schönfinkelisation——这种变换的最初发明者。
+
+所以我们怎样对一个函数进行柯里化呢？其它的函数式编程语言也许已经原生提供了支持并且所有的函数已经默认柯里化了。在JavaScript中我们可以修改一下add()函数使它柯里化，然后支持部分应用。
+
+来看一个例子：
+
+	// a curried add()
+	// accepts partial list of arguments
+	function add(x, y) {
+		var oldx = x, oldy = y;
+		if (typeof oldy === "undefined") { // partial
+			return function (newy) {
+				return oldx + newy;
+			};
+		}
+		// full application
+		return x + y;
+	}
+	
+	// test
+	typeof add(5); // "function"
+	add(3)(4); // 7
+
+	// create and store a new function
+	var add2000 = add(2000);
+	add2000(10); // 2010
+
+在这段代码中，第一次调用add()时，在返回的内层函数那里创建了一个闭包。这个闭包将原来的x和y的值存储到了oldx和oldy中。当内层函数执行的时候，oldx会被使用。如果没有部分应用，即x和y都传了值，那么这个函数会简单地将他们相加。这个add()函数的实现跟实际情况比起来有些冗余，仅仅是为了更好地说明问题。下面的代码片段中展示了一个更简洁的版本，没有oldx和oldy，因为原始的x已经被存储到了闭包中，此外我们复用了y作为本地变量，而不用像之前那样新定义一个变量newy：
+
+	// a curried add
+	// accepts partial list of arguments
+	function add(x, y) {
+		if (typeof y === "undefined") { // partial
+			return function (y) {
+				return x + y;
+			};
+		}
+		// full application
+		return x + y;
+	}
+
+在这些例子中，add()函数自己处理了部分应用。有没有可能用一种更为通用的方式来做同样的事情呢？换句话说，我们能不能对任意一个函数进行处理，得到一个新函数，使它可以处理部分参数？下面的代码片段展示了一个通用函数的例子，我们叫它schonfinkelize()，正是用来做这个的。我们使用schonfinkelize()一部分原因是它比较难发音，另一部分原因是它听起来比较像动词（使用“curry”则不是那么明确），而我们刚好需要一个动词来表明这是一个函数转换的过程。
+
+这是一个通用的柯里化函数：
+
+	function schonfinkelize(fn) {
+		var slice = Array.prototype.slice,
+		stored_args = slice.call(arguments, 1);
+		return function () {
+			var new_args = slice.call(arguments),
+			args = stored_args.concat(new_args);
+			return fn.apply(null, args);
+		};
+	}
+
+这个schonfinkelize可能显得比较复杂了，只是因为在JavaScript中arguments不是一个真的数组。从Array.prototype中借用slice()方法帮助我们将arguments转换成数组，以便能更好地对它进行操作。当schonfinkelize()第一次被调用的时候，它使用slice变量存储了对slice()方法的引用，同时也存储了调用时的参数（stored\_args），参数保留了除第一个以外的，因为第一个参数是要被柯里化的函数。schonfinkelize()返回了一个函数。当这个返回的函数被调用的时候，它可以（通过闭包）访问到已经存储的参数stored\_args和slice。新的函数只需要合并老的部分应用的参数（stored\_args）和新的参数（new\_args），然后将它们应用到原来的函数fn（也可以在装饰中访问到）即可。
+
+现在有了通用的柯里化函数，就可以做一些测试了：
+
+	// a normal function
+	function add(x, y) {
+		return x + y;
+	}
+
+	// curry a function to get a new function
+	var newadd = schonfinkelize(add, 5);
+	newadd(4); // 9
+
+	// another option -- call the new function directly
+	schonfinkelize(add, 6)(7); // 13
+
+用来做函数转换的schonfinkelize()并不局限于单个参数或者单步的柯里化。这里有些更多用法的例子：
+
+	// a normal function
+	function add(a, b, c, d, e) {
+		return a + b + c + d + e;
+	}
+	
+	// works with any number of arguments
+	schonfinkelize(add, 1, 2, 3)(5, 5); // 16
+	
+	// two-step currying
+	var addOne = schonfinkelize(add, 1);
+	addOne(10, 10, 10, 10); // 41
+	var addSix = schonfinkelize(addOne, 2, 3);
+	addSix(5, 5); // 16
 
