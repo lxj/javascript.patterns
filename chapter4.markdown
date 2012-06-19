@@ -781,3 +781,48 @@ o.message; // "call me"
 举些实例，这个模式对创建DOM元素的函数或者是给元素设定CSS样式函数会非常实用，因为元素和CSS样式可能会有很多但是大部分可选的属性。
 
 
+## 柯里化 （Curry）
+
+在本章剩下的部分，我们将讨论一下关于柯里化和部分应用的话题。但是在我们开始这个话题之前，先看一下到底什么是函数应用。
+
+### 函数应用
+
+在一些纯粹的函数式编程语言中，对函数的描述不是被调用（called或者invoked），而是被应用（applied）。在JavaScript中也有同样的东西——我们可以使用Function.prototype.apply()来应用一个函数，因为在JavaScript中，函数实际上是对象，并且他们拥有方法。
+
+下面是一个函数应用的例子：
+
+	// define a function
+	var sayHi = function (who) {
+		return "Hello" + (who ? ", " + who : "") + "!";
+	};
+	
+	// invoke a function
+	sayHi(); // "Hello"
+	sayHi('world'); // "Hello, world!"
+
+	// apply a function
+	sayHi.apply(null, ["hello"]); // "Hello, hello!"
+
+从上面的例子中可以看出来，调用一个函数和应用一个函数有相同的结果。apply()接受两个参数：第一个是在函数内部绑定到this上的对象，第二个是一个参数数组，参数数组会在函数内部变成一个类似数组的arguments对象。如果第一个参数为null，那么this将指向全局对象，这正是当你调用一个函数（且这个函数不是某个对象的方法）时发生的事情。
+
+当一个函数是一个对象的方法时，我们不再像前面的例子一样传入null。（译注：主要是为了保证方法中的this绑定到一个有效的对象而不是全局对象。）在下面的例子中，对象被作为第一个参数传给apply()：
+
+	var alien = {
+		sayHi: function (who) {
+			return "Hello" + (who ? ", " + who : "") + "!";
+		}
+	};
+
+	alien.sayHi('world'); // "Hello, world!"
+	sayHi.apply(alien, ["humans"]); // "Hello, humans!"
+
+在这个例子中，sayHi()中的this指向alien。而在上一个例子中，this是指向的全局对象。（译注：这个例子的代码有误，最后一行的sayHi并不能访问到alien的sayHi方法，需要使用alien.sayHi.apply(alien, ["humans"])才可正确运行。另外，在sayHi中也没有出现this。）
+
+正如上面两个例子所展现出来的一样，我们所谓的函数调用跟函数应用的一种语法糖没有什么太大的差别。
+
+需要注意的是，除了apply()之外，Function.prototype对象还有一个call()方法，但是它仍然只是apply()的一种语法糖。（译注：这两个方法的区别在于，apply()只接受两个参数，第二个参数为需要传给函数的参数数组，而call()则接受任意多个参数，从第二个开始将参数依次传给函数。）不过有种情况下使用这个语法糖会更好：当你的函数只接受一个参数的时候，你可以省去为唯一的一个元素创建数组的工作：
+
+	// the second is more efficient, saves an array
+	sayHi.apply(alien, ["humans"]); // "Hello, humans!"
+	sayHi.call(alien, "humans"); // "Hello, humans!"
+
