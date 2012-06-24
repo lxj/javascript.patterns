@@ -30,3 +30,28 @@
 
 本章先讨论类式继承，然后再关注现代继承模式。
 
+## 类式继承的期望结果
+
+实现类式继承的目标是基于构造函数Child()来创建一个对象，然后从另一个构造函数Parent()获得属性。
+
+> 尽管我们是在讨论类式继承，但还是尽量避免使用“类”这个词。“构造函数”或者“constructor”虽然更长，但是更准确，不会让人迷惑。通常情况下，应该努力避免在跟团队沟通的时候使用“类”这个词，因为在JavaScript中，很可能每个人都会有不同的理解。
+
+下面是定义两个构造函数Parent()和Child()的例子：
+
+    // the parent constructor
+    function Parent(name) {
+        this.name = name || 'Adam';
+    }
+    
+    // adding functionality to the prototype
+    Parent.prototype.say = function () {
+        return this.name;
+    };
+    
+    // empty child constructor
+    function Child(name) {}
+    
+    // inheritance magic happens here
+    inherit(Child, Parent);
+    
+上面的代码定义了两个构造函数Parent()和Child()，say()方法被添加到了Parent()构建函数的原型（prototype）中，inherit()函数完成了继承的工作。inherit()函数并不是原生提供的，需要自己实现。让我们来看一看比较大众的实现它的几种方法。
