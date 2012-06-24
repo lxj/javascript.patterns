@@ -140,10 +140,10 @@
 - method() 方法
 - 小节
 
-## 第六章 代码重用模式
+## [第六章 代码重用模式](javascript.patterns/blob/master/chapter6.markdown#a)
 
-- 类式继承 vs 现代继承模式
-- 类式继承的期望结果
+- [类式继承 vs 现代继承模式](javascript.patterns/blob/master/chapter6.markdown#a)
+- [类式继承的期望结果](javascript.patterns/blob/master/chapter6.markdown#a)
 - 经典模式 1  ——默认模式
 	- 使用原型链
 	- 模式 1 的缺陷
