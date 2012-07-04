@@ -38,20 +38,20 @@
 
 下面是定义两个构造函数Parent()和Child()的例子：
 
-    // the parent constructor
+    //parent构造函数
     function Parent(name) {
         this.name = name || 'Adam';
     }
     
-    // adding functionality to the prototype
+    //给原型增加方法
     Parent.prototype.say = function () {
         return this.name;
     };
     
-    // empty child constructor
+    //空的child构造函数
     function Child(name) {}
     
-    // inheritance magic happens here
+    //继承
     inherit(Child, Parent);
     
 上面的代码定义了两个构造函数Parent()和Child()，say()方法被添加到了Parent()构建函数的原型（prototype）中，inherit()函数完成了继承的工作。inherit()函数并不是原生提供的，需要自己实现。让我们来看一看比较大众的实现它的几种方法。
@@ -119,3 +119,49 @@ Child()构造函数是空的，也没有属性添加到Child.prototype上，这�
 	s.say(); // "Adam"
 
 这并不是我们期望的结果。事实上传递参数给父构造函数是可能的，但这样需要在每次需要一个子对象时再做一次继承，很不方便，因为需要不断地创建父对象。
+
+
+## 类式继承2——借用构造函数
+
+下面这种模式解决了从子对象传递参数到父对象的问题。它借用了父对象的构造函数，将子对象绑定到this，同时传入参数：
+
+	function Child(a, c, b, d) {
+		Parent.apply(this, arguments);
+	}
+
+使用这种模式时，只能继承在父对象的构造函数中添加到this的属性，不能继承原型上的成员。
+
+使用借用构造函数的模式，子对象通过复制的方式继承父对象的成员，而不是像类式继承1中那样获得引用。下面的例子展示了这两者的不同：
+
+	//父构造函数
+	function Article() {
+		this.tags = ['js', 'css'];
+	}
+	var article = new Article();
+
+	//BlogPost通过类式继承1（默认模式）从article继承
+	function BlogPost() {}
+	BlogPost.prototype = article;
+	var blog = new BlogPost();
+	//注意你不需要使用`new Article()`，因为已经有一个实例了
+
+	//StaticPage通过借用构造函数的方式从Article继承
+	function StaticPage() {
+		Article.call(this);
+	}
+	var page = new StaticPage();
+	
+	alert(article.hasOwnProperty('tags')); // true
+	alert(blog.hasOwnProperty('tags')); // false
+	alert(page.hasOwnProperty('tags')); // true
+
+在上面的代码片段中，Article()被两种方式分别继承。默认模式使blog可以通过原型链访问到tags属性，所以它自己并没有tags属性，hasOwnProperty()返回false。page对象有自己的tags属性，因为它是使用借用构造函数的方式继承，复制（而不是引用）了tags属性。
+
+注意在修改继承后的tags属性时的不同：
+
+	blog.tags.push('html');
+	page.tags.push('php');
+	alert(article.tags.join(', ')); // "js, css, html"
+
+在这个例子中，blog对象修改了tags属性，同时，它也修改了父对象，因为实际上blog.tags和article.tags是引向同一个数组。而对pages.tags的修改并不影响父对象article，因为pages.tags在继承的时候是一份独立的拷贝。
+
