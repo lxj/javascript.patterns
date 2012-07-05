@@ -165,3 +165,72 @@ Child()构造函数是空的，也没有属性添加到Child.prototype上，这�
 
 在这个例子中，blog对象修改了tags属性，同时，它也修改了父对象，因为实际上blog.tags和article.tags是引向同一个数组。而对pages.tags的修改并不影响父对象article，因为pages.tags在继承的时候是一份独立的拷贝。
 
+
+### 原型链
+
+我们来看一下当我们使用熟悉的Parent()和Child()构造函数和这种继承模式时原型链是什么样的。为了使用这种继承模式，Child()有明显变化：
+
+	//父构造函数
+	function Parent(name) {
+		this.name = name || 'Adam';
+	}
+
+	//在原型上添加方法
+	Parent.prototype.say = function () {
+		return this.name;
+	};
+
+	//子构造函数
+	function Child(name) {
+		Parent.apply(this, arguments);
+	}
+
+	var kid = new Child("Patrick");
+		kid.name; // "Patrick"
+	typeof kid.say; // "undefined"
+
+如果看一下图6-4，就能发现new Child对象和Parent之间不再有链接。这是因为Child.prototype根本就没有被使用，它指向一个空对象。使用这种模式，kid拥有了自己的name属性，但是并没有继承say()方法，如果尝试调用它的话会出错。这种继承方式只是一种一次性地将父对象的属性复制为子对象的属性，并没有__proto__链接。
+
+![图6-4 使用借用构造函数模式时没有被关联的原型链](./Figure/chapter6/6-4.jpg)
+
+图6-4 使用借用构造函数模式时没有被关联的原型链
+
+
+### 利用借用构造函数模式实现多继承
+
+使用借用构造函数模式，可以通过借用多个构造函数的方式来实现多继承：
+
+	function Cat() {
+		this.legs = 4;
+		this.say = function () {
+			return "meaowww";
+		}
+	}
+
+	function Bird() {
+		this.wings = 2;
+		this.fly = true;
+	}
+
+	function CatWings() {
+		Cat.apply(this);
+		Bird.apply(this);
+	}
+
+	var jane = new CatWings();
+	console.dir(jane);
+
+结果如图6-5，任何重复的属性都会以最后的一个值为准。
+
+![图6-5 在Firebug中查看CatWings对象](./Figure/chapter6/6-5.jpg)
+
+图6-5 在Firebug中查看CatWings对象
+
+
+### 借用构造函数的利与弊
+
+这种模式的一个明显的弊端就是无法继承原型。如前面所说，原型往往是添加可复用的方法和属性的地方，这样就不用在每个实例中再创建一遍。
+
+这种模式的一个好处是获得了父对象自己成员的拷贝，不存在子对象意外改写父对象属性的风险。
+
+那么，在上一个例子中，怎样使一个子对象也能够继承原型属性呢？怎样能使kid可以访问到say()方法呢？下一种继承模式解决了这个问题。
