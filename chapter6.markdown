@@ -234,3 +234,49 @@ Child()构造函数是空的，也没有属性添加到Child.prototype上，这�
 这种模式的一个好处是获得了父对象自己成员的拷贝，不存在子对象意外改写父对象属性的风险。
 
 那么，在上一个例子中，怎样使一个子对象也能够继承原型属性呢？怎样能使kid可以访问到say()方法呢？下一种继承模式解决了这个问题。
+
+
+## 类式继承3——借用并设置原型
+
+综合以上两种模式，首先借用父对象的构造函数，然后将子对象的原型设置为父对象的一个新实例：
+
+	function Child(a, c, b, d) {
+		Parent.apply(this, arguments);
+	}
+	Child.prototype = new Parent();
+
+这样做的好处是子对象获得了父对象自己的成员，也获得了父对象中可复用的（在原型中实现的）方法。子对象也可以传递任何参数给父构造函数。这种行为可能是最接近Java的，子对象继承了父对象的所有东西，同时可以安全地修改自己的属性而不用担心修改到父对象。
+
+一个弊端是父构造函数被调用了两次，所以不是很高效。最后，（父对象）自己的属性（比如这个例子中的name）也被继承了两次。
+
+我们来看一下代码并做一些测试：
+
+	//父构造函数
+	function Parent(name) {
+		this.name = name || 'Adam';
+	}
+
+	//在原型上添加方法
+	Parent.prototype.say = function () {
+		return this.name;
+	};
+
+	//子构造函数
+	function Child(name) {
+		Parent.apply(this, arguments);
+	}
+	Child.prototype = new Parent();
+
+	var kid = new Child("Patrick");
+	kid.name; // "Patrick"
+	kid.say(); // "Patrick"
+	delete kid.name;
+	kid.say(); // "Adam"
+
+跟前一种模式不一样，现在say()方法被正确地继承了。可以看到name也被继承了两次，在删除掉自己的拷贝后，在原型链上的另一个就被暴露出来了。
+
+图6-6展示了这些对象之间的关系。这些关系有点像图6-3中展示的，但是获得这种关系的方法是不一样的。
+
+![图6-6 除了继承“自己的属性”外，原型链也被保留了](./Figure/chapter6/6-6.jpg)
+
+图6-6 除了继承“自己的属性”外，原型链也被保留了
