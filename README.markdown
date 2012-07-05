@@ -144,14 +144,14 @@
 
 - [类式继承 vs 现代继承模式](javascript.patterns/blob/master/chapter6.markdown#a)
 - [类式继承的期望结果](javascript.patterns/blob/master/chapter6.markdown#a)
-- 经典模式 1  ——默认模式
-	- 使用原型链
-	- 模式 1 的缺陷
-- 经典模式 2 ——借用构造器
-	- 原型连
-	- 通过借用构造函数实现多重继承
-	- 借用构造器模式的利弊
-- 经典模式 3 ——借用并设置原型
+- [类式继承 1  ——默认模式](javascript.patterns/blob/master/chapter6.markdown#a)
+	- [跟踪原型链](javascript.patterns/blob/master/chapter6.markdown#a)
+	- [这种模式的缺点](javascript.patterns/blob/master/chapter6.markdown#a)
+- [类式继承 2 ——借用构造函数](javascript.patterns/blob/master/chapter6.markdown#a)
+	- [原型链](javascript.patterns/blob/master/chapter6.markdown#a)
+	- [通过借用构造函数实现多继承](javascript.patterns/blob/master/chapter6.markdown#a)
+	- [借用构造器模式的利与弊](javascript.patterns/blob/master/chapter6.markdown#a)
+- [类式继承 3 ——借用并设置原型](javascript.patterns/blob/master/chapter6.markdown#a)
 - 经典模式 4 ——共享原型
 - 经典模式 5 —— 临时构造器
 	- 存储父类
