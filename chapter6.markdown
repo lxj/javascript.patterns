@@ -326,3 +326,62 @@ Child()构造函数是空的，也没有属性添加到Child.prototype上，这�
 	var kid = new Child();
 
 如果你访问kid.name将得到undefined。在这个例子中，name是父对象自己的属性，而在继承的过程中我们并没有调用new Parent()，所以这个属性并没有被创建。当访问kid.say()时，它在3号对象中不可用，所以在原型链中查找，4号对象也没有，但是1号对象有，它在内在中的位置会被所有从Parent()创建的构造函数和子对象所共享。
+
+
+### 存储父类（Superclass）
+
+在上一种模式的基础上，还可以添加一个指向原始父对象的引用。这很像其它语言中访问超类（superclass）的情况，有时候很方便。
+
+我们将这个属性命名为“uber”，因为“super”是一个保留字，而“superclass”则可能误导别人认为JavaScript拥有类。下面是这种类式继承模式的一个改进版实现：
+
+	function inherit(C, P) {
+		var F = function () {};
+		F.prototype = P.prototype;
+		C.prototype = new F();
+		C.uber = P.prototype;
+	}
+
+
+### 重置构造函数引用
+
+这个近乎完美的模式上还需要做的最后一件事情就是重置构造函数（constructor）的指向，以便未来在某个时刻能被正确地使用。
+
+如果不重置构造函数的指向，那所有的子对象都会认为Parent()是它们的构造函数，而这个结果完全没有用。使用前面的inherit()的实现，你可以观察到这种行为：
+
+	// parent, child, inheritance
+	function Parent() {}
+	function Child() {}
+	inherit(Child, Parent);
+
+	// testing the waters
+	var kid = new Child();
+	kid.constructor.name; // "Parent"
+	kid.constructor === Parent; // true
+
+constructor属性很少用，但是在运行时检查对象很方便。你可以重新将它指向期望的构造函数而不影响功能，因为这个属性更多是“信息性”的。（译注：即它更多的时候是在提供信息而不是参与到函数功能中。）
+
+最终，这种类式继承的Holy Grail版本看起来是这样的：
+
+	function inherit(C, P) {
+		var F = function () {};
+		F.prototype = P.prototype;
+		C.prototype = new F();
+		C.uber = P.prototype;
+		C.prototype.constructor = C;
+	}
+
+类似这样的函数也存在于YUI库（也许还有其它库）中，它将类式继承的方法带给了没有类的语言。如果你决定使用类式继承，那么这是最好的方法。
+
+> “代理函数”或者“代理构造函数”也是指这种模式，因为临时构造函数是被用作获取父构造函数原型的代理。
+
+一种常见的对Holy Grail模式的优化是避免每次需要继承的时候都创建一个临时（代理）构造函数。事实上创建一次就足够了，以后只需要修改它的原型即可。你可以用一个立即执行的函数来将代理函数存储到闭包中：
+
+	var inherit = (function () {
+		var F = function () {};
+		return function (C, P) {
+			F.prototype = P.prototype;
+			C.prototype = new F();
+			C.uber = P.prototype;
+			C.prototype.constructor = C;
+		}
+	}());
