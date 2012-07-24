@@ -385,3 +385,46 @@ constructor属性很少用，但是在运行时检查对象很方便。你可以
 			C.prototype.constructor = C;
 		}
 	}());
+	
+
+## Klass
+
+有很多JavaScript类库模拟了类，创造了新的语法糖。具体的实现方式可能会不一样，但是基本上都有一些共性，包括：
+
+- 有一个约定好名字的方法，如initialize、_init或者其它相似的名字，会被自动调用，来充当类的构造函数。
+- 类可以从其它类继承
+- 在子类中可以访问到父类（superclass）
+
+> 我们在这里做一下变化，在本章的这部分自由地使用“class”单词，因为主题就是模拟类。
+
+为避免讨论太多细节，我们来看一下JavaScript中一种模拟类的实现。首先，这种解决方案从客户的角度来看将如何被使用？
+
+	var Man = klass(null, {
+		__construct: function (what) {
+			console.log("Man's constructor");
+			this.name = what;
+		},
+		getName: function () {
+			return this.name;
+		}
+	});
+	
+这种语法糖的形式是一个名为klass()的函数。在一些实现方式中，它可能是Klass()构造函数或者是增强的Object.prototype，但是在这个例子中，我们让它只是一个简单的函数。
+
+这个函数接受两个参数：一个被继承的类和通过对象字面量提供的新类的实现。受PHP的影响，我们约定类的构造函数必须是一个名为\_\_construct的方法。在前面的代码片段中，建立了一个名为Man的新类，并且它不继承任何类（意味着继承自Object）。Man类有一个在\_\_construct建立的自己的属性name和一个方法getName()。这个类是一个构造函数，所以下面的代码将正常工作（并且看起来像类实例化的过程）：
+
+	var first = new Man('Adam'); // logs "Man's constructor"
+	first.getName(); // "Adam"
+	
+现在我们来扩展这个类，创建一个SuperMan类：
+
+	var SuperMan = klass(Man, {
+		__construct: function (what) {
+			console.log("SuperMan's constructor");
+		},
+		getName: function () {
+			var name = SuperMan.uber.getName.call(this);
+			return "I am " + name;
+		}
+	});
+	
