@@ -485,3 +485,93 @@ constructor属性很少用，但是在运行时检查对象很方便。你可以
 3. 最后一部分是类真正定义的地方，循环需要实现的方法（如例子中的\_\_constructt和getName），并将它们添加到Child的原型中。
 
 什么时候使用这种模式？其实，最好是能避免则避免，因为它带来了在这门语言中不存在的完整的类的概念，会让人疑惑。使用它需要学习新的语法和新的规则。也就是说，如果你或者你的团队对类感到习惯并且同时对原型感到不习惯，这种模式可能是一个可以探索的方向。这种模式允许你完全忘掉原型，好处就是你可以将语法变种得像其它你所喜欢的语言一样。
+
+
+## 原型继承
+
+现在，让我们从一个叫作“原型继承”的模式来讨论没有类的现代继承模式。在这种模式中，没有任何类进来，在这里，一个对象继承自另外一个对象。你可以这样理解它：你有一个想复用的对象，然后你想创建第二个对象，并且获得第一个对象的功能。下面是这种模式的用法：
+
+	//需要继承的对象
+	var parent = {
+		name: "Papa"
+	};
+	
+	//新对象
+	var child = object(parent);
+
+	//测试
+	alert(child.name); // "Papa"
+	
+在这个代码片段中，有一个已经存在的使用对象字面量创建的对象叫parent，我们想创建一个和parent有相同的属性和方法的对象叫child。child对象使用object()函数创建。这个函数在JavaScript中并不存在（不要与构造函数Object()混淆），所以我们来看看怎样定义它。
+
+与Holy Grail类式继承相似，可以使用一个空的临时构造函数F()，然后设定F()的原型为parent对象。最后，返回一个临时构造函数的新实例。
+
+	function object(o) {
+		function F() {}
+		F.prototype = o;
+		return new F();
+	}
+
+图6-9展示了使用原型继承时的原型链。在这里child总是以一个空对象开始，它没有自己的属性但通过原型链（\_\_proto\_\_）拥有父对象的所有功能。
+
+//TODO:图6-9
+
+### 讨论
+
+在原型继承模式中，parent不需要使用对象字面量来创建。（尽管这是一种更觉的方式。）可以使用构造函数来创建parent。注意，如果你这样做，那么自己的属性和原型上的属性都将被继承：
+
+	// parent constructor
+	function Person() {
+		// an "own" property
+		this.name = "Adam";
+	}
+	// a property added to the prototype
+	Person.prototype.getName = function () {
+		return this.name;
+	};
+
+	// create a new person
+	var papa = new Person();
+	// inherit
+	var kid = object(papa);
+
+	// test that both the own property
+	// and the prototype property were inherited
+	kid.getName(); // "Adam"
+	
+在这种模式的另一个变种中，你可以选择只继承已存在的构造函数的原型对象。记住，对象继承自对象，不管父对象是怎么创建的。这是前面例子的一个修改版本：
+
+	// parent constructor
+	function Person() {
+		// an "own" property
+		this.name = "Adam";
+	}
+	// a property added to the prototype
+	Person.prototype.getName = function () {
+		
+	};
+
+	// inherit
+	var kid = object(Person.prototype);
+
+	typeof kid.getName; // "function", because it was in the prototype
+	typeof kid.name; // "undefined", because only the prototype was inherited
+	
+###例外的ECMAScript 5
+
+在ECMAScript 5中，原型继承已经正式成为语言的一部分。这种模式使用Object.create方法来实现。换句话说，你不再需要自己去写类似object()的函数，它是语言原生的了：
+
+	var child = Object.create(parent);
+	
+Object.create()接收一个额外的参数——一个对象。这个额外对象中的属性将被作为自己的属性添加到返回的子对象中。这让我们可以很方便地将继承和创建子对象在一个方法调用中实现。例如：
+
+	var child = Object.create(parent, {
+		age: { value: 2 } // ECMA5 descriptor
+	});
+	child.hasOwnProperty("age"); // true
+	
+你可能也会发现原型继承模式已经在一些JavaScript类库中实现了，比如，在YUI3中，它是Y.Object()方法：
+
+	YUI().use('*', function (Y) {
+		var child = Y.Object(parent);
+	});
