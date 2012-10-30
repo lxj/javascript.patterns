@@ -38,22 +38,22 @@
 
 下面是定义两个构造函数Parent()和Child()的例子：
 
-    //parent构造函数
-    function Parent(name) {
-        this.name = name || 'Adam';
-    }
-    
-    //给原型增加方法
-    Parent.prototype.say = function () {
-        return this.name;
-    };
-    
-    //空的child构造函数
-    function Child(name) {}
-    
-    //继承
-    inherit(Child, Parent);
-    
+	//parent构造函数
+	function Parent(name) {
+		this.name = name || 'Adam';
+	}
+	
+	//给原型增加方法
+	Parent.prototype.say = function () {
+		return this.name;
+	};
+	
+	//空的child构造函数
+	function Child(name) {}
+	
+	//继承
+	inherit(Child, Parent);
+	
 上面的代码定义了两个构造函数Parent()和Child()，say()方法被添加到了Parent()构建函数的原型（prototype）中，inherit()函数完成了继承的工作。inherit()函数并不是原生提供的，需要自己实现。让我们来看一看比较大众的实现它的几种方法。
 
 ## 类式继承1——默认模式
@@ -589,7 +589,7 @@ Object.create()接收一个额外的参数——一个对象。这个额外对�
 				child[i] = parent[i];
 			}
 		}
-    		return child;
+			return child;
 	}
 	
 这是一个简单的实现，仅仅是遍历了父对象的成员然后复制它们。在这个实现中，child是可选参数，如果它没有被传入一个已有的对象，那么一个全新的对象将被创建并被返回：
@@ -650,4 +650,40 @@ Object.create()接收一个额外的参数——一个对象。这个额外对�
 	
 通过复制属性继承的模式很简单且应用很广泛。例如Firebug（JavaScript写的Firefox扩展）有一个方法叫extend()做浅拷贝，jQuery的extend()方法做深拷贝。YUI3提供了一个叫作Y.clone()的方法，它创建一个深拷贝并且通过绑定到子对象的方式复制函数。（本章后面将有更多关于绑定的内容。）
 
-它并不高深，根本并没有原型牵涉到这种模式中，它只是跟对象和它们属性有关的模式。
+这种模式并不高深，因为根本没有原型牵涉进来，而只跟对象和它们的属性有关。
+
+## 混元（Mix-ins）
+
+既然谈到了通过拷贝属性来继随，就让我们顺便多说一点，来讨论一下“混元”模式。除了前面说的从一个对象复制，你还可以从任意多数量的对象中复制属性，然后将它们混在一起组成一个新对象。
+
+实现很简单，只需要遍历传入的每个参数然后复制它们的每个属性：
+
+	function mix() {
+		var arg, prop, child = {};
+		for (arg = 0; arg < arguments.length; arg += 1) {
+			for (prop in arguments[arg]) {
+				if (arguments[arg].hasOwnProperty(prop)) {
+					child[prop] = arguments[arg][prop];
+				}
+			}
+		}
+		return child;
+	}
+	
+现在我们有了一个通用的混元函数，我们可以传递任意数量的对象进去，返回的结果将是一个包含所有传入对象属性的新对象。下面是用法示例：
+
+	var cake = mix(
+		{eggs: 2, large: true},
+		{butter: 1, salted: true},
+		{flour: "3 cups"},
+		{sugar: "sure!"}
+	);
+	
+图6-10展示了在Firebug的控制台中用console.dir(cake)展示出来的混元后cake对象的属性。
+
+![图6-10 在Firebug中查看cake对象](./Figure/chapter6/6-10.jpg)
+
+图6-10 在Firebug中查看cake对象
+
+> 如果你习惯了某些将混元作为原生部分的语言，那么你可能期望修改一个或多个父对象时也影响子对象。但在这个实现中这是不会发生的事情。这里我们只是简单地遍历、复制自己的属性，并没有与父对象的链接。
+	
