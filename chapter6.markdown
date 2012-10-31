@@ -686,4 +686,132 @@ Object.create()接收一个额外的参数——一个对象。这个额外对�
 图6-10 在Firebug中查看cake对象
 
 > 如果你习惯了某些将混元作为原生部分的语言，那么你可能期望修改一个或多个父对象时也影响子对象。但在这个实现中这是不会发生的事情。这里我们只是简单地遍历、复制自己的属性，并没有与父对象的链接。
+
+## 借用方法
+
+有时候会有这样的情况：你希望使用某个已存在的对象的一两个方法，你希望能复用它们，但是又真的不希望和那个对象产生继承关系，因为你只希望使用你需要的那一两个方法，而不继承那些你永远用不到的方法。受益于函数方法call()和apply()，通过借用方法模式，这是可行的。在本书中，你其实已经见过这种模式了，甚至在本章extendDeep()的实现中也有用到。
+
+如你所熟知的一样，在JavaScript中函数也是对象，它们有一些有趣的方法，比如call()和apply()。这两个方法的唯一区别是后者接受一个参数数组以传入正在调用的方法，而前者只接受一个一个的参数。你可以使用这两个方法来从已有的对象中借用方法：
+
+	//call() example
+	notmyobj.doStuff.call(myobj, param1, p2, p3);
+	// apply() example
+	notmyobj.doStuff.apply(myobj, [param1, p2, p3]);
 	
+在这个例子中有一个对象myobj，而且notmyobj有一个用得着的方法叫doStuff()。你可以简单地临时借用doStuff()方法，而不用处理继承然后得到一堆myobj中你永远不会用的方法。
+
+你传一个对象和任意的参数，这个被借用的方法会将this绑定到你自己的对象上。简单地说，你的对象会临时假装成另一个对象以使用它的方法。这就像实际上获得了继承但又免除了“继承税”（指你不需要的属性和方法）。
+
+### 例：从数组借用
+
+这种模式的一种常见用法是从数组借用方法。
+
+数组有很多很有用但是一些“类数组”对象（如arguments）不具备的方法。所以arguments可以借用数组的方法，比如slice()。这是一个例子：
+
+	function f() {
+		var args = [].slice.call(arguments, 1, 3);
+			return args;
+		}
+		
+	// example
+	f(1, 2, 3, 4, 5, 6); // returns [2,3]
+	
+在这个例子中，有一个空数组被创建了，因为要借用它的方法。同样的事情也可以使用一种看起来代码更长的方法来做，那就是直接从数组的原型中借用方法，使用Array.prototype.slice.call(...)。这种方法代码更长一些，但是不用创建一个空数组。
+
+### 借用并绑定
+
+当借用方法的时候，不管是通过call()/apply()还是通过简单的赋值，方法中的this指向的对象都是基于调用的表达式来决定的。但是有时候最好的使用方式是将this的值锁定或者提前绑定到一个指定的对象上。
+
+我们来看一个例子。这是一个对象one，它有一个say()方法：
+
+	var one = {
+		name: "object",
+		say: function (greet) {
+			return greet + ", " + this.name;
+		}
+	};
+	
+	// test
+	one.say('hi'); // "hi, object"
+	
+现在另一个对象two没有say()方法，但是它可以从one借用：
+
+	var two = {
+		name: "another object"
+	};
+	
+	one.say.apply(two, ['hello']); // "hello, another object"
+	
+在这个例子中，say()方法中的this指向了two，this.name是“another object”。但是如果在某些场景下你将th函数赋值给了全局变量或者是将这个函数作为回调，会发生什么？在客户端编程中有非常多的事件和回调，所以这种情况经常发生：
+
+	// assigning to a variable
+	// `this` will point to the global object
+	var say = one.say;
+	say('hoho'); // "hoho, undefined"
+	
+	// passing as a callback
+	var yetanother = {
+		name: "Yet another object",
+		method: function (callback) {
+			return callback('Hola');
+		}
+	};
+	yetanother.method(one.say); // "Holla, undefined"
+	
+在这两种情况中say()中的this都指向了全局对象，所以代码并不像我们想象的那样正常工作。要修复（换言之，绑定）一个方法的对象，我们可以用一个简单的函数，像这样：
+
+	function bind(o, m) {
+		return function () {
+			return m.apply(o, [].slice.call(arguments));
+		};
+	}
+	
+这个bind()函数接受一个对象o和一个方法m，然后把它们绑定在一起，再返回另一个函数。返回的函数通过闭包可以访问到o和m。也就是说，即使在bind()返回之后，内层的函数仍然可以访问到o和m，而o和m会始终指向原始的对象和方法。让我们用bind()来创建一个新函数：
+
+	var twosay = bind(two, one.say);
+	twosay('yo'); // "yo, another object"
+	
+正如你看到的，尽管twosay()是作为一个全局函数被创建的，但this并没有指向全局对象，而是指向了通过bind()传入的对象two。不论无何调用twosay()，this将始终指向two。
+
+绑定是奢侈的，你需要付出的代价是一个额外的闭包。
+
+### Function.prototype.bind()
+
+ECMAScript5在Function.prototype中添加了一个方法叫bind()，使用时和apply和call()一样简单。所以你可以这样写：
+
+	var newFunc = obj.someFunc.bind(myobj, 1, 2, 3);
+	
+这意味着将someFunc()主myobj绑定了并且传入了someFunc()的前三个参数。这也是一个在第4章讨论过的部分应用的例子。
+
+让我们来看一下当你的程序跑在低于ES5的环境中时如何实现Function.prototype.bind()：
+
+	if (typeof Function.prototype.bind === "undefined") {
+		Function.prototype.bind = function (thisArg) {
+			var fn = this,
+			slice = Array.prototype.slice,
+			args = slice.call(arguments, 1);
+			
+			return function () {
+				return fn.apply(thisArg, args.concat(slice.call(arguments)));
+			};
+		};
+	}
+	
+这个实现可能看起来有点熟悉，它使用了部分应用，将传入bind()的参数串起来（除了第一个参数），然后在被调用时传给bind()返回的新函数。这是用法示例：
+
+	var twosay2 = one.say.bind(two);
+	twosay2('Bonjour'); // "Bonjour, another object"
+	
+在这个例子中，除了绑定的对象外，我们没有传任何参数给bind()。下一个例子中，我们来传一个用于部分应用的参数：
+
+	var twosay3 = one.say.bind(two, 'Enchanté');
+	twosay3(); // "Enchanté, another object"
+	
+##小结
+
+在JavaScript中，继承有很多种方案可以选择。学习和理解不同的模式是有好处的，因为这可以增强你对这门语言的掌握能力。在本章中你看到了很多类式继承和现代继承的方案。
+
+但是，也许在开发过程中继承并不是你经常面对的一个问题。这一部分是因为这个问题已经被使用某种方式或者某个你使用的类库解决了，另一部分是因为你不需要在JavaScript中建立很长很复杂的继承链。在静态强类型语言中，继承可能是唯一可以利用代码的方法，但在JavaScript中你可能有更多更简单更优化的方法，包括借用方法、绑定、拷贝属性、混元等。
+
+记住，代码复用才是目标，继承只是达成这个目标的一种手段。
+
