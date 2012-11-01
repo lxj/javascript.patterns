@@ -140,33 +140,33 @@
 - method() 方法
 - 小节
 
-## [第六章 代码重用模式](javascript.patterns/blob/master/chapter6.markdown#a)
+## [第六章 代码复用模式](javascript.patterns/blob/master/chapter6.markdown#a1)
 
-- [类式继承 vs 现代继承模式](javascript.patterns/blob/master/chapter6.markdown#a)
-- [类式继承的期望结果](javascript.patterns/blob/master/chapter6.markdown#a)
-- [类式继承 1  ——默认模式](javascript.patterns/blob/master/chapter6.markdown#a)
-	- [跟踪原型链](javascript.patterns/blob/master/chapter6.markdown#a)
-	- [这种模式的缺点](javascript.patterns/blob/master/chapter6.markdown#a)
-- [类式继承 2 ——借用构造函数](javascript.patterns/blob/master/chapter6.markdown#a)
-	- [原型链](javascript.patterns/blob/master/chapter6.markdown#a)
-	- [通过借用构造函数实现多继承](javascript.patterns/blob/master/chapter6.markdown#a)
-	- [借用构造器模式的利与弊](javascript.patterns/blob/master/chapter6.markdown#a)
-- [类式继承 3 ——借用并设置原型](javascript.patterns/blob/master/chapter6.markdown#a)
-- 经典模式 4 ——共享原型
-- 经典模式 5 —— 临时构造器
-	- 存储父类
-	- 重置构造器引用
-- Klass
-- 原型继承
-	- 讨论
-	- 除了ECMAScript5之外
-- 通过拷贝属性继承
-- 混元
-- 借用方法
-	- 例子：从数组借用
-	- 借用和绑定
-	- Function.prototype.bind()
-- 小节
+- [类式继承 vs 现代继承模式](javascript.patterns/blob/master/chapter6.markdown#a2)
+- [类式继承的期望结果](javascript.patterns/blob/master/chapter6.markdown#a3)
+- [类式继承 1  ——默认模式](javascript.patterns/blob/master/chapter6.markdown#a4)
+	- [跟踪原型链](javascript.patterns/blob/master/chapter6.markdown#a5)
+	- [这种模式的缺点](javascript.patterns/blob/master/chapter6.markdown#a6)
+- [类式继承 2 ——借用构造函数](javascript.patterns/blob/master/chapter6.markdown#a7)
+	- [原型链](javascript.patterns/blob/master/chapter6.markdown#a8)
+	- [利用借用构造函数模式实现多继承](javascript.patterns/blob/master/chapter6.markdown#a9)
+	- [借用构造函数的利与弊](javascript.patterns/blob/master/chapter6.markdown#a10)
+- [类式继承 3 ——借用并设置原型](javascript.patterns/blob/master/chapter6.markdown#a11)
+- [经典模式 4 ——共享原型](javascript.patterns/blob/master/chapter6.markdown#a12)
+- [经典模式 5 —— 临时构造函数](javascript.patterns/blob/master/chapter6.markdown#a13)
+	- [存储父类](javascript.patterns/blob/master/chapter6.markdown#a14)
+	- [重置构造函数引用](javascript.patterns/blob/master/chapter6.markdown#a15)
+- [Klass](javascript.patterns/blob/master/chapter6.markdown#a16)
+- [原型继承](javascript.patterns/blob/master/chapter6.markdown#a17)
+	- [讨论](javascript.patterns/blob/master/chapter6.markdown#a18)
+	- [例外的ECMAScript 5](javascript.patterns/blob/master/chapter6.markdown#a19)
+- [通过复制属性继承](javascript.patterns/blob/master/chapter6.markdown#a20)
+- [混元（Mix-ins）](javascript.patterns/blob/master/chapter6.markdown#a21)
+- [借用方法](javascript.patterns/blob/master/chapter6.markdown#a22)
+	- [例：从数组借用](javascript.patterns/blob/master/chapter6.markdown#a23)
+	- [借用并绑定](javascript.patterns/blob/master/chapter6.markdown#a24)
+	- [Function.prototype.bind()](javascript.patterns/blob/master/chapter6.markdown#a25)
+- [小结](javascript.patterns/blob/master/chapter6.markdown#a26)
 
 ## 第七章 设计模式
 
