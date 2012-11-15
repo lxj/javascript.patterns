@@ -209,3 +209,84 @@ uni.constructor不再和Universe()相同的原因是uni.constructor仍然是指�
 		};
 	
 	}());
+	
+## 工厂模式
+
+使用工厂模式的目的就是创建对象。它通常被在类或者类的静态方法中实现，目的是：
+
+- 执行在建立相似的对象时进行的一些重复操作
+- 让工厂的使用者在编译阶段创建对象时不必知道它的特定类型（类）
+
+第二点在静态的基于类的语言中更重要，因为在（编译阶段）提前不知道类的情况下，创建类的实例是不普通的行为。但在JavaScript中，这部分的实现却是相当容易的事情。
+
+使用工厂方法（或类）创建的对象被设计为从同一个父对象继承；它们是特定的实现一些特殊功能的子类。有些时候这个共同的父对象就是包含工厂方法的同一个类。
+
+我们来看一个示例实现，我们有：
+
+- 一个共同的父构造函数CarMaker。
+- CarMaker的一个静态方法叫factory()，用来创建car对象。
+- 特定的从CarMaker继承而来的构造函数CarMaker.Compact，CarMaker.SUV，CarMaker.Convertible。它们都被定义为父构造函数的静态属性以便保持全局空间干净，同时在需要的时候我们也知道在哪里找到它们。
+
+我们来看一下已经完成的实现会怎么被使用：
+
+	var corolla = CarMaker.factory('Compact');
+	var solstice = CarMaker.factory('Convertible');
+	var cherokee = CarMaker.factory('SUV');
+	corolla.drive(); // "Vroom, I have 4 doors"
+	solstice.drive(); // "Vroom, I have 2 doors"
+	cherokee.drive(); // "Vroom, I have 17 doors"
+	
+这一段：
+
+	var corolla = CarMaker.factory('Compact');
+	
+可能是工厂模式中最知名的。你有一个方法可以在运行时接受一个表示类型的字符串，然后它创建并返回了一个和请求的类型一样的对象。这里没有使用new的构造函数，也没有看到任何对象字面量，仅仅只有一个函数根据一个字符串指定的类型创建了对象。
+
+这里是一个工厂模式的示例实现，它能让上面的代码片段工作：
+
+	// parent constructor
+	function CarMaker() {}
+	
+	// a method of the parent
+	CarMaker.prototype.drive = function () {
+		return "Vroom, I have " + this.doors + " doors";
+	};
+	
+	// the static factory method
+	CarMaker.factory = function (type) {
+		var constr = type,
+		newcar;
+		
+		// error if the constructor doesn't exist
+		if (typeof CarMaker[constr] !== "function") {
+			throw {
+				name: "Error",
+				message: constr + " doesn't exist"
+			};
+		}
+		
+		// at this point the constructor is known to exist
+		// let's have it inherit the parent but only once
+		if (typeof CarMaker[constr].prototype.drive !== "function") {
+			CarMaker[constr].prototype = new CarMaker();
+		}
+		// create a new instance
+		newcar = new CarMaker[constr]();
+		// optionally call some methods and then return...
+		return newcar;
+	};
+	
+	// define specific car makers
+	CarMaker.Compact = function () {
+		this.doors = 4;
+	};
+	CarMaker.Convertible = function () {
+		this.doors = 2;
+	};
+	CarMaker.SUV = function () {
+		this.doors = 24;
+	};
+	
+工厂模式的实现中没有什么是特别困难的。你需要做的仅仅是寻找请求类型的对象的构造函数。在这个例子中，使用了一个简单的名字转换以便映射对象类型和创建对象的构造函数。继承的部分只是一个公共的重复代码片段的示例，它可以被放到工厂方法中而不是被每个构造函数的类型重复。（译注：指通过原型继承的代码可以在factory方法以外执行，而不是放到factory中每调用一次都要执行一次。）
+
+
