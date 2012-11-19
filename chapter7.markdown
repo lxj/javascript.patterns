@@ -308,3 +308,49 @@ uni.constructor不再和Universe()相同的原因是uni.constructor仍然是指�
 
 Object()也是一个工厂这一事实可能没有太多实际用处，仅仅是觉得值得作为一个例子提一下，告诉我们工厂模式是随处可见的。
 
+## 迭代器
+
+在迭代器模式中，你有一些含有有序聚合数据的对象。这些数据可能在内部用一种复杂的结构存储着，但是你希望提供一种简单的方法来访问这种结构中的每个元素。数据的使用者不需要知道你是怎样组织你的数据的，他们只需要操作一个个独立的元素。
+
+在迭代器模式中，你的对象需要提供一个next()方法。按顺序调用next()方法必须返回序列中的下一个元素，但是“下一个”在你的特定的数据结构中指什么是由你自己来决定的。
+
+假设你的对象叫agg，你可以通过简单地在循环中调用next()来访问每个数据元素，像这样：
+
+	var element;
+	while (element = agg.next()) {
+		// do something with the element ...
+		console.log(element);
+	}
+	
+在迭代器模式中，聚合对象通常也会提供一个方便的方法hasNext()，这样对象的使用者就可以知道他们已经获取到你数据的最后一个元素。当使用另一种方法——hasNext()——来按顺序访问所有元素时，是像这样的：
+
+	while (agg.hasNext()) {
+		// do something with the next element...
+		console.log(agg.next());
+	}
+
+## 装饰器
+
+在装饰器模式中，一些额外的功能可以在运行时被动态地添加到一个对象中。在静态的基于类的语言中，处理这个问题可能是个挑战，但是在JavaScript中，对象本来就是可变的，所以给一个对象添加额外的功能本身并不是什么问题。
+
+装饰器模式的一个很方便的特性是可以对我们需要的特性进行定制和配置。刚开始时，我们有一个拥有基本功能的对象，然后可以从可用的装饰器中去挑选一些需要用到的去增加这个对象，甚至如果顺序很重要的话，还可以指定增强的顺序。
+
+### 用法
+
+我们来看一下这个模式的示例用法。假设你正在做一个卖东西的web应用，每个新交易是一个新的sale对象。这个对象“知道”交易的价格并且可以通过调用sale.getPrice()方法返回。根据环境的不同，你可以开始用一些额外的功能来装饰这个对象。假设一个场景是这笔交易是发生在加拿大的一个省Québec，在这种情况下，购买者需要付联邦税和Québec省税。根据装饰器模式的用法，你需要指明使用联邦税装饰器和Québec省税装饰器来装饰这个对象。然后你还可以给这个对象装饰一些价格格式的功能。这个场景的使用方式可能是像这样：
+
+	var sale = new Sale(100); // the price is 100 dollars
+	sale = sale.decorate('fedtax'); // add federal tax
+	sale = sale.decorate('quebec'); // add provincial tax
+	sale = sale.decorate('money'); // format like money
+	sale.getPrice(); // "$112.88"
+	
+在另一种场景下，购买者在一个不需要交省税的省，并且你想用加拿大元的格式来显示价格，你可以这样做：
+
+	var sale = new Sale(100); // the price is 100 dollars
+	sale = sale.decorate('fedtax'); // add federal tax
+	sale = sale.decorate('cdn'); // format using CDN
+	sale.getPrice(); // "CDN$ 105.00"
+	
+如你所见，这是一种在运行时很灵活的方法来添加功能和调整对象。我们来看一下如何来实现这种模式。
+
