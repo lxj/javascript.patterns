@@ -354,3 +354,36 @@ Object()也是一个工厂这一事实可能没有太多实际用处，仅仅是
 	
 如你所见，这是一种在运行时很灵活的方法来添加功能和调整对象。我们来看一下如何来实现这种模式。
 
+### 实现
+
+一种实现装饰器模式的方法是让每个装饰器成为一个拥有应该被重写的方法的对象。每个装饰器实际上是继承自已经被前一个装饰器增强过的对象。装饰器的每个方法都会调用父对象（继承自的对象）的同名方法并取得值，然后做一些额外的处理。
+
+最终的效果就是当你在第一个例子中调用sale.getPrice()时，实际上是在调用money装饰器的方法（图7-1）。但是因为每个装饰器会先调用父对象的方法，money的getPrice()先调用quebec的getPrice()，而它又会去调用fedtax的getPrice()方法，依次类推。这个链会一直走到原始的未经装饰的由Sale()构造函数实现的getPrice()。
+
+![图7-1 装饰器模式的实现](./Figure/chapter7/7-1.jpg)
+图7-1 装饰器模式的实现
+
+这个实现以一个构造函数和一个原型方法开始：
+
+	function Sale(price) {
+		this.price = price || 100;
+	}
+	Sale.prototype.getPrice = function () {
+		return this.price;
+	};
+	
+装饰器对象将都被作为构造函数的属性实现：
+
+	Sale.decorators = {};
+	
+我们来看一个装饰器的例子。这是一个对象，实现了一个自定义的getPrice()方法。注意这个方法首先从父对象的方法中取值然后修改这个值：
+
+	Sale.decorators.fedtax = {
+		getPrice: function () {
+			var price = this.uber.getPrice();
+			price += price * 5 / 100;
+			return price;
+		}
+	};
+	
+
