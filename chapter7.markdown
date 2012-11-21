@@ -386,4 +386,108 @@ Object()也是一个工厂这一事实可能没有太多实际用处，仅仅是
 		}
 	};
 	
+使用类似的方法我们可以实现任意多个需要的其它装饰器。他们的实现方式像插件一样来扩展核心的Sale()的功能。他们甚至可以被放到额外的文件中，被第三方的开发者来开发和共享：
 
+	Sale.decorators.quebec = {
+		getPrice: function () {
+			var price = this.uber.getPrice();
+			price += price * 7.5 / 100;
+			return price;
+		}
+	};
+	
+	Sale.decorators.money = {
+		getPrice: function () {
+			return "$" + this.uber.getPrice().toFixed(2);
+		}
+	};
+	
+	Sale.decorators.cdn = {
+		getPrice: function () {
+			return "CDN$ " + this.uber.getPrice().toFixed(2);
+		}
+	};
+	
+最后我们来看decorate()这个神奇的方法，它把所有上面说的片段都串起来了。记得它是这样被调用的：
+
+	sale = sale.decorate('fedtax');
+	
+字符串'fedtax'对应在Sale.decorators.fedtax中实现的对象。被装饰过的最新的对象newobj将从现在有的对象（也就是this对象，它要么是原始的对象，要么是经过最后一个装饰器装饰过的对象）中继承。实现这一部分需要用到前面章节中提到的临时构造函数模式。我们也设置一个uber属性给newobj以便子对象可以访问到父对象。然后我们从装饰器中复制所有额外的属性到被装饰的对象newobj中。最后，在我们的例子中，newobj被返回并且成为被更新过的sale对象。
+
+	Sale.prototype.decorate = function (decorator) {
+		var F = function () {},
+			overrides = this.constructor.decorators[decorator],
+			i, newobj;
+		F.prototype = this;
+		newobj = new F();
+		newobj.uber = F.prototype;
+		for (i in overrides) {
+			if (overrides.hasOwnProperty(i)) {
+				newobj[i] = overrides[i];
+			}
+		}
+		return newobj;
+	};
+	
+### 使用列表实现
+
+我们来看另一个明显不同的实现方法，受益于JavaScript的动态特性，它完全不需要使用继承。同时，我们也可以简单地将前一个方面的结果作为参数传给下一个方法，而不需要每一个方法都去调用前一个方法。
+
+这样的实现方法还允许很容易地反装饰（undecorating）或者撤销一个装饰，这仅仅需要从一个装饰器列表中移除一个条目。
+
+用法示例也会明显简单一些，因为我们不需要将decorate()的返回值赋值给对象。在这个实现中，decorate()不对对象做任何事情，它只是简单地将装饰器加入到一个列表中：
+
+	var sale = new Sale(100); // the price is 100 dollars
+	sale.decorate('fedtax'); // add federal tax
+	sale.decorate('quebec'); // add provincial tax
+	sale.decorate('money'); // format like money
+	sale.getPrice(); // "$112.88"
+	
+Sale()构造函数现在有了一个作为自己属性的装饰器列表：
+
+	function Sale(price) {
+		this.price = (price > 0) || 100;
+		this.decorators_list = [];
+	}
+	
+可用的装饰器仍然被实现为Sale.decorators的属性。注意getPrice()方法现在更简单了，因为它们不需要调用父对象的getPrice()来获取结果，结果已经作为参数传递给它们了：
+
+	Sale.decorators = {};
+	
+	Sale.decorators.fedtax = {
+		getPrice: function (price) {
+			return price + price * 5 / 100;
+		}
+	};
+	
+	Sale.decorators.quebec = {
+		getPrice: function (price) {
+			return price + price * 7.5 / 100;
+		}
+	};
+	
+	Sale.decorators.money = {
+		getPrice: function (price) {
+			return "$" + price.toFixed(2);
+		}
+	};
+	
+最有趣的部分发生在父对象的decorate()和getPrice()方法上。在前一种实现方式中，decorate()还是多少有些复杂，而getPrice()十分简单。在这种实现方式中事情反过来了：decorate()只需要往列表中添加条目而getPrice()做了所有的工作。这些工作包括遍历现在添加的装饰器的列表，然后调用它们的getPrice()方法，并将结果传递给前一个：
+
+	Sale.prototype.decorate = function (decorator) {
+		this.decorators_list.push(decorator);
+	};
+	
+	Sale.prototype.getPrice = function () {
+		var price = this.price,
+			i,
+			max = this.decorators_list.length,
+			name;
+		for (i = 0; i < max; i += 1) {
+			name = this.decorators_list[i];
+			price = Sale.decorators[name].getPrice(price);
+		}
+		return price;
+	};
+	
+装饰器模式的第二种实现方式更简单一些，并且没有引入继承。装饰的方法也会简单。所有的工作都由“同意”被装饰的方法来做。在这个示例实现中，getPrice()是唯一被允许装饰的方法。如果你想有更多可以被装饰的方法，那遍历装饰器列表的工作就需要由每个方法重复去做。但是，这可以很容易地被抽象到一个辅助方法中，给它传一个方法然后使这个方法“可被装饰”。如果这样实现的话，decorators_list属性就应该是一个对象，它的属性名字是方法名，值是装饰器对象的数组。
