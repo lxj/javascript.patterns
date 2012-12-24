@@ -678,4 +678,151 @@ Sale()构造函数现在有了一个作为自己属性的装饰器列表：
 
 图7-2 通过代理对象时客户代码与真正的主体的关系
 
+### 一个例子
 
+在真正的主体做某件工作开销很大时，代理模式很有用处。在web应用中，开销最大的操作之一就是网络请求，此时尽可能地合并HTTP请求是有意义的。我们来看一个这种场景下应用代理模式的实例。
+
+#### 一个视频列表（expando）
+
+我们假设有一个用来播放选中视频的应用。你可以在这里看到真实的例子(http://www.jspatterns.com/book/7/proxy.html)[http://www.jspatterns.com/book/7/proxy.html]。
+
+页面上有一个视频标题的列表，当用户点击视频标题的时候，标题下方的区域会展开并显示视频的更多信息，同时也使得视频可被播放。视频的详细信息和用来播放的URL并不是页面的一部分，它们需要通过网络请求来获取。服务端可以接受多个视频ID，这样我们就可以在合适的时候通过一次请求多个视频信息来减少HTTP请求以加快应用的速度。
+
+我们的应用允许一次展开好几个（或全部）视频，所以这是一个合并网络请求的绝好机会。
+
+![图7-3 真实的视频列表](./figure/chapter7/7-3.jpg)
+
+图7-3 真实的视频列表
+
+#### 没有代理对象的情况
+
+这个应用中最主要的角色是两个对象：
+
+- videos
+	负责对信息区域展开/收起（videos.getInfo()方法）和播放视频的响应（videos.getPlayer()方法）
+- http
+	负责通过http.makeRequest()方法与服务端通讯
+
+当没有代理对象的时候，videos.getInfo()会为每个视频调用一次http.makeRequest()方法。当我们添加代理对象proxy后，它将位于vidoes和http中间，接手对makeRequest()的调用，并在可能的时候合并请求。
+
+我们首先看一下没有代理对象的代码，然后添加代理对象来提升应用的响应速度。
+
+#### HTML
+
+HTML代码仅仅是一个链接列表：
+
+	<p><span id="toggle-all">Toggle Checked</span></p>
+	<ol id="vids">
+		<li><input type="checkbox" checked><a
+		href="http://new.music.yahoo.com/videos/--2158073">Gravedigger</a></li>
+		<li><input type="checkbox" checked><a
+		href="http://new.music.yahoo.com/videos/--4472739">Save Me</a></li>
+		<li><input type="checkbox" checked><a
+		href="http://new.music.yahoo.com/videos/--45286339">Crush</a></li>
+		<li><input type="checkbox" checked><a
+		href="http://new.music.yahoo.com/videos/--2144530">Don't Drink The Water</a></li>
+		<li><input type="checkbox" checked><a
+		href="http://new.music.yahoo.com/videos/--217241800">Funny the Way It Is</a></li>
+		<li><input type="checkbox" checked><a
+		href="http://new.music.yahoo.com/videos/--2144532">What Would You Say</a></li>
+	</ol>
+	
+#### 事件处理
+
+现在我们来看一下事件处理的逻辑。首先我们定义一个方便的快捷函数$：
+
+	var $ = function (id) {
+		return document.getElementById(id);
+	};
+	
+使用事件代理（第8章有更多关于这个模式的内容），我们将所有id="vids"的条目上的点击事件统一放到一个函数中处理：
+
+	$('vids').onclick = function (e) {
+		var src, id;
+		
+		e = e || window.event;
+		src = e.target || e.srcElement;
+		
+		if (src.nodeName !== "A") {
+			return;
+		}
+		
+		if (typeof e.preventDefault === "function") {
+			e.preventDefault();
+		}
+		e.returnValue = false;
+		
+		id = src.href.split('--')[1];
+		
+		if (src.className === "play") {
+			src.parentNode.innerHTML = videos.getPlayer(id);
+			return;
+		}
+		
+		src.parentNode.id = "v" + id;
+		videos.getInfo(id);
+	};
+
+#### videos对象
+
+videos对象有三个方法：
+
+- getPlayer()
+	返回播放视频需要的HTML代码（跟我们讨论的无关）
+- updateList()
+	网络请求的回调函数，接受从服务器返回的数据，然后生成用于视频详细信息的HTML代码。这一部分也没有什么太有趣的事情。
+- getInfo()
+	这个方法切换视频信息的可视状态，同时也调用http对象的方法，并传递updaetList()作为回调函数。
+
+下面是这个对象的代码片段：
+
+	var videos = {
+	
+		getPlayer: function (id) {...},
+		updateList: function (data) {...},
+		
+		getInfo: function (id) {
+		
+			var info = $('info' + id);
+			
+			if (!info) {
+				http.makeRequest([id], "videos.updateList");
+				return;
+			}
+			
+			if (info.style.display === "none") {
+				info.style.display = '';
+			} else {
+				info.style.display = 'none';
+			}
+			
+		}
+	};
+	
+#### http对象
+
+http对象只有一个方法，它向Yahoo!的YQL服务发起一个JSONP请求：
+
+	var http = {
+		makeRequest: function (ids, callback) {
+			var url = 'http://query.yahooapis.com/v1/public/yql?q=',
+				sql = 'select * from music.video.id where ids IN ("%ID%")',
+				format = "format=json",
+				handler = "callback=" + callback,
+				script = document.createElement('script');
+				
+			sql = sql.replace('%ID%', ids.join('","'));
+			sql = encodeURIComponent(sql);
+			
+			url += sql + '&' + format + '&' + handler;
+			script.src = url;
+			
+			document.body.appendChild(script);
+		}
+	};
+
+> YQL（Yahoo! Query Language）是一种web service，它提供了使用类似SQL的语法来调用很多其它web service的能力，使得使用者不需要学习每个service的API。
+
+当所有的六个视频都被选中后，将会向服务端发起六个独立的像这样的YQL请求：
+
+select * from music.video.id where ids IN ("2158073")
