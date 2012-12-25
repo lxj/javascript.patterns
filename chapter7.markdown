@@ -909,3 +909,122 @@ proxy对象创建了一个队列来收集50ms之内接受到的视频ID，然后
 
 图7-6 代理缓存
 
+
+## 中介者模式
+
+一个应用不论大小，都是由一些彼此独立的对象组成的。所有的对象都需要一个通讯的方式来保持可维护性，即你可以安全地修改应用的一部分而不破坏其它部分。随着应用的开发和维护，会有越来越多的对象。然后，在重构代码的时候，对象可能会被移除或者被重新安排。当对象知道其它对象的太多信息并且直接通讯（直接调用彼此的方法或者修改属性）时，会导致我们不愿意看到的紧耦合。当对象耦合很紧时，要修改一个对象而不影响其它的对象是很困难的。此时甚至连一个最简单的修改都变得不那么容易，甚至连一个修改需要用多长时间都难以评估。
+
+中介者模式就是一个缓解此问题的办法，它通过解耦来提升代码的可维护性（见图7-7）。在这个模式中，各个彼此合作的对象并不直接通讯，而是通过一个mediator（中介者）对象通讯。当一个对象改变了状态后，它就通知中介者，然后中介者再将这个改变告知给其它应该知道这个变化的对象。
+
+![图7-7 中介者模式中的对象关系](./figure/chapter7/7-7.jpg)
+
+图7-7 中介者模式中的对象关系
+
+### 中介者示例
+
+我们来看一个使用中介者模式的实例。这个应用是一个游戏，它的玩法是比较两位游戏者在半分钟内按下按键的次数，次数多的获胜。玩家1需要按的是1，玩家2需要按的是0（这样他们的手指不会搅在一起）。当前分数会显示在一个计分板上。
+
+对象列表如下：
+
+- Player 1
+- Player 2
+- Scoreboard
+- Mediator
+
+中介者Mediator知道所有的对象。它与输入设备（键盘）打交道，处理keypress事件，决定现在是哪位玩家玩的，然后通知这个玩家（见图7-8）。玩家负责玩（即给自己的分数加一分），然后通知中介者他这一轮已经玩完。中介者再告知计分板最新的分数，计分板更新显示。
+
+除了中介者之外，其它的对象都不知道有别的对象存在。这样就使得更新这个游戏变得很简单，比如要添加一位玩家或者是添加另外一个显示剩余时间的地方。
+
+你可以在这里看到这个游戏的在线演示[http://jspatterns.com/book/7/mediator.html](http://jspatterns.com/book/7/mediator.html)。
+
+![图7-8 游戏涉及的对象](./figure/chapter7/7-8.jpg)
+
+图7-8 游戏涉及的对象
+
+玩家对象是通过Player()构造函数来创建的，有自己的points和name属性。原型上的play()方法负责给自己加一分然后通知中介者：
+
+	function Player(name) {
+		this.points = 0;
+		this.name = name;
+	}
+	Player.prototype.play = function () {
+		this.points += 1;
+		mediator.played();
+	};
+	
+scoreboard对象（计分板）有一个update()方法，它会在每次玩家玩完后被中介者调用。计分析根本不知道玩家的任何信息，也不保存分数，它只负责显示中介者给过来的分数：
+
+	var scoreboard = {
+	
+		// HTML element to be updated
+		element: document.getElementById('results'),
+		
+		// update the score display
+		update: function (score) {
+		
+			var i, msg = '';
+			for (i in score) {
+			
+				if (score.hasOwnProperty(i)) {
+					msg += '<p><strong>' + i + '<\/strong>: ';
+					msg += score[i];
+					msg += '<\/p>';
+				}
+			}
+			this.element.innerHTML = msg;
+		}
+	};
+	
+现在我们来看一下mediator对象（中介者）。在游戏初始化的时候，在setup()方法中创建游戏者，然后放后players属性以便后续使用。played()方法会被游戏者在每轮玩完后调用，它更新score哈希然表然后将它传给scoreboard用于显示。最后一个方法是keypress()，负责处理键盘事件，决定是哪位玩家玩的，并且通知它：
+
+	var mediator = {
+	
+		// all the players
+		players: {},
+		
+		// initialization
+		setup: function () {
+			var players = this.players;
+			players.home = new Player('Home');
+			players.guest = new Player('Guest');
+			
+		},
+		
+		// someone plays, update the score
+		played: function () {
+			var players = this.players,
+			score = {
+				Home: players.home.points,
+				Guest: players.guest.points
+			};
+			
+			scoreboard.update(score);
+		},
+		
+		// handle user interactions
+		keypress: function (e) {
+			e = e || window.event; // IE
+			if (e.which === 49) { // key "1"
+				mediator.players.home.play();
+				return;
+			}
+			if (e.which === 48) { // key "0"
+				mediator.players.guest.play();
+				return;
+			}
+		}
+	};
+	
+最后一件事是初始化和结束游戏：
+
+	// go!
+	mediator.setup();
+	window.onkeypress = mediator.keypress;
+	
+	// game over in 30 seconds
+	setTimeout(function () {
+		window.onkeypress = null;
+		alert('Game over!');
+	}, 30000);
+	
+
