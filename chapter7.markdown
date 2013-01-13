@@ -1028,3 +1028,149 @@ scoreboard对象（计分板）有一个update()方法，它会在每次玩家�
 	}, 30000);
 	
 
+## 观察者模式
+
+观察者模式被广泛地应用于JavaScript客户端编程中。所有的浏览器事件（mouseover，keypress等）都是使用观察者模式的例子。这种模式的另一个名字叫“自定义事件”，意思是这些事件是被编写出来的，和浏览器触发的事件相对。它还有另外一个名字叫“订阅者/发布者”模式。
+
+使用这个模式的最主要目的就是促进代码触解耦。在观察者模式中，一个对象订阅另一个对象的指定活动并得到通知，而不是调用另一个对象的方法。订阅者也被叫作观察者，被观察的对象叫作发布者或者被观察者（译注：subject，不知道如何翻译，第一次的时候译为“主体”，第二次译时觉得不妥，还是直接叫被观察者好了）。当一个特定的事件发生的时候，发布者会通知（调用）所有的订阅者，同时还可能以事件对象的形式传递一些消息。
+
+### 例1：杂志订阅
+
+为了理解观察者模式的实现方式，我们来看一个具体的例子。我们假设有一个发布者paper，它发行一份日报和一份月刊。无论是日报还是月刊发行，有一个名叫joe的订阅者都会收到通知。
+
+paper对象有一个subscribers属性，它是一个数组，用来保存所有的订阅者。订阅的过程就仅仅是将订阅者放到这个数组中而已。当一个事件发生时，paper遍历这个订阅者列表，然后通知它们。通知的意思也就是调用订阅者对象的一个方法。因此，在订阅过程中，订阅者需要提供一个方法给paper对象的subscribe()。
+
+paper对象也可以提供unsubscribe()方法，它可以将订阅者从数组中移除。paper对象的最后一个重要的方法是publish()，它负责调用订阅者的方法。总结一下，一个发布者对象需要有这些成员：
+
+- subscribers
+	一个数组
+- subscribe()
+	将订阅者加入数组
+- unsubscribe()
+	从数组中移除订阅者
+- publish()
+	遍历订阅者并调用它们订阅时提供的方法
+
+所有三个方法都需要一个type参数，因为一个发布者可能触发好几种事件（比如同时发布杂志和报纸），而订阅者可以选择性地订阅其中的一种或几种。
+
+因为这些成员对任何对象来说都是通用的，因此将它们作为独立对象的一部分提取出来是有意义的。然后，我们可以（通过混元模式）将它们复制到任何一个对象中，将这些对象转换为订阅者。
+
+下面是这些发布者通用功能的一个示例实现，它定义了上面列出来的所有成员，还有一个辅助的visitSubscribers()方法：
+
+	var publisher = {
+		subscribers: {
+			any: [] // event type: subscribers
+		},
+		subscribe: function (fn, type) {
+			type = type || 'any';
+			if (typeof this.subscribers[type] === "undefined") {
+				this.subscribers[type] = [];
+			}
+			this.subscribers[type].push(fn);
+		},
+		unsubscribe: function (fn, type) {
+			this.visitSubscribers('unsubscribe', fn, type);
+		},
+		publish: function (publication, type) {
+			this.visitSubscribers('publish', publication, type);
+		},
+		visitSubscribers: function (action, arg, type) {
+			var pubtype = type || 'any',
+				subscribers = this.subscribers[pubtype],
+				i,
+				max = subscribers.length;
+		
+			for (i = 0; i < max; i += 1) {
+				if (action === 'publish') {
+					subscribers[i](arg);
+				} else {
+					if (subscribers[i] === arg) {
+						subscribers.splice(i, 1);
+					}
+				}
+			}
+		}
+	};
+
+下面这个函数接受一个对象作为参数，并通过复制通用的发布者的方法将这个对象墨迹成发布者：
+
+	function makePublisher(o) {
+		var i;
+		for (i in publisher) {
+			if (publisher.hasOwnProperty(i) && typeof publisher[i] === "function") {
+				o[i] = publisher[i];
+			}
+		}
+		o.subscribers = {any: []};
+	}
+
+现在我们来实现paper对象，它能做的事情就是发布日报和月刊：
+
+	var paper = {
+		daily: function () {
+			this.publish("big news today");
+		},
+		monthly: function () {
+			this.publish("interesting analysis", "monthly");
+		}
+	};
+
+将paper对象变成发布者：
+
+	makePublisher(paper);
+
+现在我们有了一个发布者，让我们再来看一下订阅者对象joe，它有两个方法：
+
+	var joe = { 
+		drinkCoffee: function (paper) {
+			console.log('Just read ' + paper);
+		},
+		sundayPreNap: function (monthly) {
+			console.log('About to fall asleep reading this ' + monthly);
+		}
+	};
+
+现在让joe来订阅paper：
+
+	paper.subscribe(joe.drinkCoffee);
+	paper.subscribe(joe.sundayPreNap, 'monthly');
+
+如你所见，joe提供了一个当默认的any事件发生时被调用的方法，还提供了另一个当monthly事件发生时被调用的方法。现在让我们来触发一些事件：
+
+	paper.daily();
+	paper.daily();
+	paper.daily();
+	paper.monthly();
+
+这些发布行为都会调用joe的对应方法，控制台中输出的结果是：
+
+	Just read big news today
+	Just read big news today
+	Just read big news today
+	About to fall asleep reading this interesting analysis
+
+这里值得称道的地方就是paper对象并没有硬编码写上joe，而joe也同样没有硬编码写上paper。这里也没有知道所有事情的中介者对象。所有涉及到的对象都是松耦合的，而且在不修改代码的前提下，我们可以给paper添加更多的订阅者，同时joe也可以在任何时候取消订阅。
+
+让我们更进一步，将joe也变成一个发布者。（毕竟，在博客和微博上，任何人都可以是发布者。）这样，joe变成发布者之后就可以在Twitter上更新状态：
+
+	makePublisher(joe);
+	joe.tweet = function (msg) {
+		this.publish(msg);
+	};
+
+现在假设paper的公关部门准备通过Twitter收集读者反馈，于是它订阅了joe，提供了一个方法readTweets()：
+
+	paper.readTweets = function (tweet) {
+		alert('Call big meeting! Someone ' + tweet);
+	};
+	joe.subscribe(paper.readTweets);
+
+这样每当joe发出消息时，paper就会弹出警告窗口：
+
+	joe.tweet("hated the paper today");
+
+结果是一个警告窗口：“Call big meeting! Someone hated the paper today”。
+
+你可以在<http://jspatterns.com/book/7/observer.html>看到完整的源代码，并且在控制台中运行这个实例。
+
+
