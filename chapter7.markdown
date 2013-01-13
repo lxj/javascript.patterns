@@ -1173,4 +1173,140 @@ paper对象也可以提供unsubscribe()方法，它可以将订阅者从数组�
 
 你可以在<http://jspatterns.com/book/7/observer.html>看到完整的源代码，并且在控制台中运行这个实例。
 
+### 例2：按键游戏
+
+我们来看另一个例子。我们将实现一个和中介者模式的示例一样的按钮游戏，但这次使用观察者模式。为了让它看起来更高档，我们允许接受无限个玩家，而不限于2个。我们仍然保留用来产生玩家的Player()构造函数，也保留scoreboard对象。只有mediator会变成game对象。
+
+在中介者模式中，mediator对象知道所有涉及到的对象，并且调用它们的方法。而观察者模式中的game对象不是这样，它会让对象来订阅它们感兴趣的事件。比如，scoreboard会订阅game对象的scorechange事件。
+
+首先我们重新看一下通用的publisher对象，并且将它的接口做一点小修改以更贴近浏览器的情况：
+
+- 将publish()，subscribe()，unsubscribe()分别改为fire()，on()，remove()
+- 事件的type每次都会被用到，所以把它变成三个方法的第一个参数
+- 可以给订阅者的方法额外加一个context参数，以便回调方法可以用this指向它自己所属的对象
+
+新的publisher对象是这样：
+
+	var publisher = {
+		subscribers: {
+			any: []
+		},
+		on: function (type, fn, context) {
+			type = type || 'any';
+			fn = typeof fn === "function" ? fn : context[fn];
+
+			if (typeof this.subscribers[type] === "undefined") {
+				this.subscribers[type] = [];
+			}
+			this.subscribers[type].push({fn: fn, context: context || this});
+		},
+		remove: function (type, fn, context) {
+			this.visitSubscribers('unsubscribe', type, fn, context);
+		},
+		fire: function (type, publication) {
+			this.visitSubscribers('publish', type, publication);
+		},
+		visitSubscribers: function (action, type, arg, context) {
+			var pubtype = type || 'any',
+				subscribers = this.subscribers[pubtype],
+				i,
+				max = subscribers ? subscribers.length : 0;
+
+			for (i = 0; i < max; i += 1) {
+				if (action === 'publish') {
+					subscribers[i].fn.call(subscribers[i].context, arg);
+				} else {
+					if (subscribers[i].fn === arg && subscribers[i].context === context) {
+						subscribers.splice(i, 1);
+					}
+				}
+			}
+		}
+	};
+
+
+新的Player()构造函数是这样：
+
+	function Player(name, key) {
+		this.points = 0;
+		this.name = name;
+		this.key = key;
+		this.fire('newplayer', this);
+	}
+
+	Player.prototype.play = function () {
+		this.points += 1;
+		this.fire('play', this);
+	};
+
+变动的部分是这个构造函数接受key，代表这个玩家在键盘上用来按之后得分的按键。（这些键预先被硬编码过。）每次创建一个新玩家的时候，一个newplayer事件也会被触发。类似的，每次有一个玩家玩的时候，会触发play事件。
+
+scoreboard对象和原来一样，它只是简单地将当前分数显示出来。
+
+game对象会关注所有的玩家，这样它就可以给出分数并且触发scorechange事件。它也会订阅浏览吕中所有的keypress事件，这样它就会知道按钮对应的玩家：
+
+var game = {
+
+	keys: {},
+
+	addPlayer: function (player) {
+		var key = player.key.toString().charCodeAt(0);
+		this.keys[key] = player;
+	},
+
+	handleKeypress: function (e) {
+		e = e || window.event; // IE
+		if (game.keys[e.which]) {
+			game.keys[e.which].play();
+		}
+	},
+
+	handlePlay: function (player) {
+		var i,
+			players = this.keys,
+			score = {};
+
+		for (i in players) {
+			if (players.hasOwnProperty(i)) {
+				score[players[i].name] = players[i].points;
+			}
+		}
+		this.fire('scorechange', score);
+	}
+};
+
+用于将任意对象转变为订阅者的makePublisher()还是和之前一样。game对象会变成发布者（这样它才可以触发scorechange事件），Player.prototype也会变成发布者，以使得每个玩家对象可以触发play和newplayer事件：
+
+	makePublisher(Player.prototype);
+	makePublisher(game);
+
+game对象订阅play和newplayer事件（以及浏览器的keypress事件），scoreboard订阅scorechange事件：
+
+	Player.prototype.on("newplayer", "addPlayer", game);
+	Player.prototype.on("play", "handlePlay", game);
+	game.on("scorechange", scoreboard.update, scoreboard);
+	window.onkeypress = game.handleKeypress;
+
+如你所见，on()方法允许订阅者通过函数（scoreboard.update）或者是字符串（"addPlayer"）来指定回调函数。当有提供context（如game）时，才能通过字符串来指定回调函数。
+
+初始化的最后一点工作就是动态地创建玩家对象（以及它们对象的按键），用户想要多少个就可以创建多少个：
+
+var playername, key;
+while (1) {
+	playername = prompt("Add player (name)");
+	if (!playername) {
+		break;
+	}
+	while (1) {
+		key = prompt("Key for " + playername + "?");
+		if (key) {
+			break;
+		}
+	}
+	new Player(playername, key);
+}
+
+这就是游戏的全部。你可以在<http://jspatterns .com/book/7/observer-game.html>看到完整的源代码并且试玩一下。
+
+值得注意的是，在中介者模式中，mediator对象必须知道所有的对象，然后在适当的时机去调用对应的方法。而这个例子中，game对象会显得笨一些（译注：指知道的信息少一些），游戏依赖于对象去观察特写的事件然后触发相应的动作：如scoreboard观察scorechange事件。这使得对象之间的耦合更松了（对象间知道彼此的信息越少越好），而代价则是弄清事件和订阅者之间的对应关系会更困难一些。在这个例子中，所有的订阅行为都发生在代码中的同一个地方，而随着应用规模的境长，on()可能会被在各个地方调用（如在每个对象的初始化代码中）。这使得调试更困难一些，因为没有一个集中的地方来看这些代码并理解正在发生什么事情。在观察者模式中，你将不再能看到那种从开头一直跟到结尾的顺序执行方式。
 
