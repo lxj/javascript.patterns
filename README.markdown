@@ -168,31 +168,30 @@
 	- [Function.prototype.bind()](javascript.patterns/blob/master/chapter6.markdown#a25)
 - [小结](javascript.patterns/blob/master/chapter6.markdown#a26)
 
-## 第七章 设计模式
+## [第七章 设计模式](javascript.patterns/blob/master/chapter7.markdown#a1)
 
-- 单体
-	- 使用 new
-	- 静态属性中的实例
-	- 闭包中的实例
-- 工厂
-	- 内置对象工厂
-- 迭代器
-- 装饰者
-	- 用法
-	- 实现
-	- 使用列表实现
-- 策略
-	- 数据校验的例子
-- 外观
-- 代理
-	- 一个例子
-	- 作为缓存的代理
-- 中介者
-	- 中介者例子
-- 观察者
-	- 例子 1：杂志订阅
-	- 例子 2：按键游戏
-- 小节
+- [单例](javascript.patterns/blob/master/chapter7.markdown#a2)
+	- [使用new](javascript.patterns/blob/master/chapter7.markdown#a3)
+	- [将实例放到静态属性中](javascript.patterns/blob/master/chapter7.markdown#a4)
+	- [将实例放到闭包中](javascript.patterns/blob/master/chapter7.markdown#a5)
+- [工厂模式](javascript.patterns/blob/master/chapter7.markdown#a6)
+	- [内置对象工厂](javascript.patterns/blob/master/chapter7.markdown#a7)
+- [迭代器](javascript.patterns/blob/master/chapter7.markdown#a8)
+- [装饰器](javascript.patterns/blob/master/chapter7.markdown#a9)
+	- [用法](javascript.patterns/blob/master/chapter7.markdown#a10)
+	- [实现](javascript.patterns/blob/master/chapter7.markdown#a11)
+	- [使用列表实现](javascript.patterns/blob/master/chapter7.markdown#a12)
+- [策略模式](javascript.patterns/blob/master/chapter7.markdown#a13)
+	- [数据验证示例](javascript.patterns/blob/master/chapter7.markdown#a14)
+- [外观模式](javascript.patterns/blob/master/chapter7.markdown#a15)
+- [代理模式](javascript.patterns/blob/master/chapter7.markdown#a16)
+	- [一个例子](javascript.patterns/blob/master/chapter7.markdown#a17)
+- [中介者模式](javascript.patterns/blob/master/chapter7.markdown#a18)
+	- [中介者示例](javascript.patterns/blob/master/chapter7.markdown#a19)
+- [观察者模式](javascript.patterns/blob/master/chapter7.markdown#a20)
+	- [例1：杂志订阅](javascript.patterns/blob/master/chapter7.markdown#a21)
+	- [例2：按键游戏](javascript.patterns/blob/master/chapter7.markdown#a22)
+- [小结](javascript.patterns/blob/master/chapter7.markdown#a23)
 
 ## 第八章 DOM和浏览器模式
 
