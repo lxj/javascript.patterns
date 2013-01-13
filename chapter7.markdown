@@ -703,7 +703,7 @@ Sale()构造函数现在有了一个作为自己属性的装饰器列表：
 
 #### 一个视频列表（expando）
 
-我们假设有一个用来播放选中视频的应用。你可以在这里看到真实的例子(http://www.jspatterns.com/book/7/proxy.html)[http://www.jspatterns.com/book/7/proxy.html]。
+我们假设有一个用来播放选中视频的应用。你可以在这里看到真实的例子<http://www.jspatterns.com/book/7/proxy.html>。
 
 页面上有一个视频标题的列表，当用户点击视频标题的时候，标题下方的区域会展开并显示视频的更多信息，同时也使得视频可被播放。视频的详细信息和用来播放的URL并不是页面的一部分，它们需要通过网络请求来获取。服务端可以接受多个视频ID，这样我们就可以在合适的时候通过一次请求多个视频信息来减少HTTP请求以加快应用的速度。
 
@@ -960,7 +960,7 @@ proxy对象创建了一个队列来收集50ms之内接受到的视频ID，然后
 
 除了中介者之外，其它的对象都不知道有别的对象存在。这样就使得更新这个游戏变得很简单，比如要添加一位玩家或者是添加另外一个显示剩余时间的地方。
 
-你可以在这里看到这个游戏的在线演示[http://jspatterns.com/book/7/mediator.html](http://jspatterns.com/book/7/mediator.html)。
+你可以在这里看到这个游戏的在线演示<http://jspatterns.com/book/7/mediator.html>。
 
 ![图7-8 游戏涉及的对象](./figure/chapter7/7-8.jpg)
 
