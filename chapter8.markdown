@@ -239,3 +239,57 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 - 最后，如果需要的话，阻止默认行为。有一些事件（点击链接、提交表单）有默认的行为，但你可以使用preventDefault()（IE是通过设置returnValue的值为false的方式）来阻止这些默认行为。
 
 如你所见，这里涉及到了很多重复性的工作，所以使用第7章讨论过的外观模式创建自己的事件处理套件是很有意义的。
+
+### 事件委托
+
+事件委托是通过事件冒泡来实现的，它可以减少分散到各个节点上的事件处理函数的数量。如果有10个按钮在一个div元素中，你可以给div绑定一个事件处理函数，而不是给每个按钮都绑定一个。
+
+我们来的睦一个实例，三个按钮放在一个div元素中（图8-1）。你可以在<http://jspatterns.com/book/8/click-delegate.html>看到这个事件委托的实例。
+
+![图8-1 事件委托示例：三个在点击时增加计数器值的按钮](./figure/chapter8/8-1.jpg)
+
+图8-1 事件委托示例：三个在点击时增加计数器值的按钮
+
+结构是这样的：
+
+	<div id="click-wrap">
+		<button>Click me: 0</button>
+		<button>Click me too: 0</button>
+		<button>Click me three: 0</button>
+	</div>
+
+你可以给包裹按钮的div绑定一个事件处理函数，而不是给每个按钮绑定一个。然后你可以使用和前面的示例中一样的myHandler()函数，但需要修改一个小地方：你需要将你不感兴趣的点击排除掉。在这个例子中，你只关注按钮上的点击，而在同一个div中产生的其它的点击应该被忽略掉。
+
+myHandler()的改变就是检查事件来源的nodeName是不是“button”:
+
+	// ...
+	// get event and source element
+	e = e || window.event;
+	src = e.target || e.srcElement;
+
+	if (src.nodeName.toLowerCase() !== "button") {
+		return;
+	}
+	// ...
+
+事件委托的坏处是筛选容器中感兴趣的事件使得代码看起来更多了，但好处是性能的提升和更干净的代码，这个好处明显大于坏处，因此这是一种强烈推荐的模式。
+
+主流的JavaScript库通过提供方便的API的方式使得使用事件委托变得很容易。比如YUI3中有Y.delegate()方法，它允许你指定一个用来匹配包裹容器的CSS选择器和一个用于匹配你感兴趣的节点的CSS选择器。这很方便，因为如果事件发生在你不关心的元素上时，你的事件处理回调函数不会被调用。在这种情况下，绑定一个事件处理函数很简单：
+
+	Y.delegate('click', myHandler, "#click-wrap", "button");
+
+感谢YUI抽象了浏览器的差异，已经处理好了事件的来源，使得回调函数更简单了：
+
+	function myHandler(e) {
+
+		var src = e.currentTarget,
+			parts;
+
+		parts = src.get('innerHTML').split(": ");
+		parts[1] = parseInt(parts[1], 10) + 1;
+		src.set('innerHTML', parts[0] + ": " + parts[1]);
+
+		e.halt();
+	}
+
+你可以在<http://jspatterns.com/book/8/click-y-delegate.html>看到实例。
