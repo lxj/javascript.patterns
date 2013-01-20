@@ -1323,20 +1323,20 @@ game对象订阅play和newplayer事件（以及浏览器的keypress事件），s
 
 初始化的最后一点工作就是动态地创建玩家对象（以及它们对象的按键），用户想要多少个就可以创建多少个：
 
-var playername, key;
-while (1) {
-	playername = prompt("Add player (name)");
-	if (!playername) {
-		break;
-	}
+	var playername, key;
 	while (1) {
-		key = prompt("Key for " + playername + "?");
-		if (key) {
+		playername = prompt("Add player (name)");
+		if (!playername) {
 			break;
 		}
+		while (1) {
+			key = prompt("Key for " + playername + "?");
+			if (key) {
+				break;
+			}
+		}
+		new Player(playername, key);
 	}
-	new Player(playername, key);
-}
 
 这就是游戏的全部。你可以在<http://jspatterns .com/book/7/observer-game.html>看到完整的源代码并且试玩一下。
 
