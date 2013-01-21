@@ -293,3 +293,51 @@ myHandler()的改变就是检查事件来源的nodeName是不是“button”:
 	}
 
 你可以在<http://jspatterns.com/book/8/click-y-delegate.html>看到实例。
+
+## 长时间运行的脚本
+
+你可能注意到过，有时候浏览器会提示脚本运行时间过长，询问用户是否要停止执行。这种情况你当然不希望发生在自己的应用中，不管它有多复杂。
+
+同时，如果脚本运行时间太长的话，浏览器的UI将变得没有响应，用户不能点击任何东西。这是一种很差的用户体验，应该尽量避免。
+
+在JavaScript中没有线程，但你可以在浏览器中使用setTimeout来模拟，或者在现代浏览器中使用web workers。
+
+### setTimeout()
+
+它的思想是将一大堆工作分解成为一小段一小段，然后每隔1毫秒运行一段。使用1毫秒的延迟会导致整个任务完成得更慢，但是用户界面会保持可响应状态，用户会觉得浏览器没有失控，觉得更舒服。
+
+> 1毫秒（甚至0毫秒）的延迟执行命令在实际运行的时候会延迟更多，这取决于浏览器和操作系统。设定0毫秒的延迟并不意味着马上执行，而是指“尽快执行”。比如，在IE中，最短的延迟是15毫秒。
+
+### Web Workers
+
+现代浏览器为长时间运行的脚本提供了另一种解决方案：web workers。web workers在浏览器内部提供了后台线程支持，你可以将计算量很大的部分放到一个单独的文件中，比如my_web_worker.js，然后从主程序（页面）中这样调用它：
+
+	var ww = new Worker('my_web_worker.js');
+	ww.onmessage = function (event) {
+		document.body.innerHTML +=
+			"<p>message from the background thread: " + event.data + "</p>";
+	};
+
+下面展示了一个做1亿次简单的数学运算的web worker：
+
+	var end = 1e8, tmp = 1;
+
+	postMessage('hello there');
+
+	while (end) {
+		end -= 1;
+		tmp += end;
+		if (end === 5e7) { // 5e7 is the half of 1e8
+			postMessage('halfway there, `tmp` is now ' + tmp);
+		}
+	}
+
+	postMessage('all done');
+
+web worker使用postMessage()来和调用它的程序通讯，调用者通过onmessage事件来接受更新。onmessage事件处理函数接受一个事件对象作为参数，这个对象含有一个由web worker传过来data属性。类似的，调用者（在这个例子中）也可以使用ww.postMessage()来给web worker传递数据，web worker可以通过一个onmessage事件处理函数来接受这些数据。
+
+上面的例子会在浏览器中打印出：
+
+	message from the background thread: hello there
+	message from the background thread: halfway there, `tmp` is now 3749999975000001 message from the background thread: all done
+
