@@ -438,4 +438,106 @@ getdata.php可以是任何类型的页面或者脚本。callback参数指定用�
 
 （译注：原文这里说得不是太明白。JSONP的返回内容如上面的代码片段，它的工作原理是在页面中动态插入一个脚本，这个脚本的内容是函数调用+JSON数据，其中要调用的函数是在页面中已经定义好的，数据以参数的形式存在。一般情况下数据由服务端动态生成，而函数由页面生成，为了使返回的脚本能调用到正确的函数，在请求的时候一般会带上callback参数以便后台动态返回处理函数的名字。）
 
+#### JSONP示例：井字棋
+
+我们来看一个使用JSONP的井字棋游戏示例，玩家就是客户端（浏览器）和服务器。它们两者都会产生1到9之间的随机数，我们使用JSONP去取服务器产生的数字（图8-2）。
+
+你可以在<http://jspatterns.com/book/8/ttt.html>玩这个游戏。
+
+![图8-2 使用JSONP的井字棋游戏](./figure/chapter8/8-2.jpg)
+
+图8-2 使用JSONP的井字棋游戏
+
+界面上有两个按钮：一个用于开始新游戏，一个用于取服务器下的棋（客户端下的棋会在一定数量的延时之后自动进行）：
+
+	<button id="new">New game</button>
+	<button id="server">Server play</button>
+
+界面上包含9个单元格，每个都有对应的id，比如：
+
+	<td id="cell-1">&nbsp;</td>
+	<td id="cell-2">&nbsp;</td>
+	<td id="cell-3">&nbsp;</td>
+	...
+
+整个游戏是在一个全局对象ttt中实现：
+
+var ttt = { 
+	// cells played so far
+	played: [],
+
+	// shorthand 
+	get: function (id) {
+		return document.getElementById(id);
+	},
+
+	// handle clicks
+	setup: function () {
+		this.get('new').onclick = this.newGame;
+		this.get('server').onclick = this.remoteRequest;
+	},
+
+	// clean the board
+	newGame: function () {
+		var tds = document.getElementsByTagName("td"),
+			max = tds.length, 
+			i;
+		for (i = 0; i < max; i += 1) {
+			tds[i].innerHTML = "&nbsp;";
+		}
+		ttt.played = [];
+	},
+
+	// make a request
+	remoteRequest: function () {
+		var script = document.createElement("script");
+		script.src = "server.php?callback=ttt.serverPlay&played=" + ttt.played.join(',');
+		document.body.appendChild(script);
+	},
+
+	// callback, server's turn to play
+	serverPlay: function (data) {
+		if (data.error) {
+			alert(data.error);
+			return;
+		}
+
+		data = parseInt(data, 10);
+		this.played.push(data);
+
+		this.get('cell-' + data).innerHTML = '<span class="server">X<\/span>';
+
+		setTimeout(function () {
+			ttt.clientPlay();
+		}, 300); // as if thinking hard
+	},
+
+	// client's turn to play
+	clientPlay: function () {
+		var data = 5;
+
+		if (this.played.length === 9) {
+			alert("Game over");
+			return;
+		}
+
+		// keep coming up with random numbers 1-9 
+		// until one not taken cell is found 
+		while (this.get('cell-' + data).innerHTML !== "&nbsp;") {
+			data = Math.ceil(Math.random() * 9); }
+			this.get('cell-' + data).innerHTML = 'O';
+			this.played.push(data);
+		} 
+	};
+
+ttt对象维护着一个已经填过的单元格的列表ttt.played，并且将它发送给服务器，这样服务器就可以返回一个没有玩过的数字。如果有错误发生，服务器会像这样响应：
+
+	ttt.serverPlay({"error": "Error description here"});
+
+如你所见，JSONP中的回调函数必须是公开的并且全局可访问的函数，它并不一定要是全局函数，也可以是一个全局对象的方法。如果没有错误发生，服务器将会返回一个函数调用，像这样：
+
+	ttt.serverPlay(3);
+
+这里的3是指3号单元格是服务器要下棋的位置。在这种情况下，数据非常简单，甚至都不需要使用JSON格式，只需要一个简单的值就可以了。
+
 
