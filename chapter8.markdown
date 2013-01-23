@@ -341,3 +341,70 @@ web worker使用postMessage()来和调用它的程序通讯，调用者通过onm
 	message from the background thread: hello there
 	message from the background thread: halfway there, `tmp` is now 3749999975000001 message from the background thread: all done
 
+## 远程脚本编程
+
+现代web应用经常会使用远程脚本编程和服务器通讯，而不刷新当前页面。这使得web应用更灵活，更像桌面程序。我们来看一下几种用JavaScript和服务器通讯的方法。
+
+### XMLHttpRequest
+
+现在，XMLHttpRequest是一个特别的对象（构造函数），绝大多数浏览器都可以用，它使得我们可以从JavaScript来发送HTTP请求。发送一个请求有以下三步：
+
+1. 初始化一个XMLHttpRequest对象（简称XHR）
+2. 提供一个回调函数，供请求对象状态改变时调用
+3. 发送请求
+
+第一步很简单：
+
+	var xhr = new XMLHttpRequest();
+
+但是在IE7之前的版本中，XHR的功能是使用ActiveX对象实现的，所以需要做一下兼容处理。
+
+第二步是给readystatechange事件提供一个回调函数：
+
+	xhr.onreadystatechange = handleResponse;
+
+最后一步是使用open()和send()两个方法触发请求。open()方法用于初始化HTTP请求的方法（如GET，POST）和URL。send()方法用于传递POST的数据，如果是GET方法，则是一个空字符串。open()方法的最后一个参数用于指定这个请求是不是异步的。异步是指浏览器在等待响应的时候不会阻塞，这明显是更好的用户体验，因此除非必须要同步，否则异步参数应该使用true：
+
+	xhr.open("GET", "page.html", true);
+	xhr.send();
+
+下面是一个完整的示例，它获取新页面的内容，然后将当前页面的内容替换掉（可以在<http://jspatterns.com/ book/8/xhr.html>看到示例）：
+
+	var i, xhr, activeXids = [
+		'MSXML2.XMLHTTP.3.0',
+		'MSXML2.XMLHTTP',
+		'Microsoft.XMLHTTP'
+	];
+
+	if (typeof XMLHttpRequest === "function") { // native XHR
+		xhr = new XMLHttpRequest();
+	} else { // IE before 7
+		for (i = 0; i < activeXids.length; i += 1) {
+			try {
+				xhr = new ActiveXObject(activeXids[i]);
+				break;
+			} catch (e) {}
+		}
+	}
+
+	xhr.onreadystatechange = function () {
+		if (xhr.readyState !== 4) {
+			return false;
+		}
+		if (xhr.status !== 200) {
+			alert("Error, status code: " + xhr.status);
+			return false;
+		}
+		document.body.innerHTML += "<pre>" + xhr.responseText + "<\/pre>"; };
+
+	xhr.open("GET", "page.html", true);
+	xhr.send("");
+
+代码中的一些说明：
+
+- 因为IE6及以下版本中，创建XHR对象有一点复杂，所以我们通过一个数组列出ActiveX的名字，然后遍历这个数组，使用try-catch块来尝试创建对象。
+- 回调函数会检查xhr对象的readyState属性。这个属性有0到4一共5个值，4代表“complete”（完成）。如果状态还没有完成，我们就继续等待下一次readystatechange事件。
+- 回调函数也会检查xhr对象的status属性。这个属性和HTTP状态码对应，比如200（OK）或者是404（Not found）。我们只对状态码200感兴趣，而将其它所有的都报为错误（为了简化示例，否则需要检查其它不代表出错的状态码）。
+- 上面的代码会在每次创建XHR对象时检查一遍支持情况。你可以使用前面提到过的模式（如条件初始化）来重写上面的代码，使得只需要做一次检查。
+
+
