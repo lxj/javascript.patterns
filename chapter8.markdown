@@ -462,69 +462,70 @@ getdata.php可以是任何类型的页面或者脚本。callback参数指定用�
 
 整个游戏是在一个全局对象ttt中实现：
 
-var ttt = { 
-	// cells played so far
-	played: [],
+	var ttt = { 
+		// cells played so far
+		played: [],
 
-	// shorthand 
-	get: function (id) {
-		return document.getElementById(id);
-	},
+		// shorthand 
+		get: function (id) {
+			return document.getElementById(id);
+		},
 
-	// handle clicks
-	setup: function () {
-		this.get('new').onclick = this.newGame;
-		this.get('server').onclick = this.remoteRequest;
-	},
+		// handle clicks
+		setup: function () {
+			this.get('new').onclick = this.newGame;
+			this.get('server').onclick = this.remoteRequest;
+		},
 
-	// clean the board
-	newGame: function () {
-		var tds = document.getElementsByTagName("td"),
-			max = tds.length, 
-			i;
-		for (i = 0; i < max; i += 1) {
-			tds[i].innerHTML = "&nbsp;";
-		}
-		ttt.played = [];
-	},
+		// clean the board
+		newGame: function () {
+			var tds = document.getElementsByTagName("td"),
+				max = tds.length, 
+				i;
+			for (i = 0; i < max; i += 1) {
+				tds[i].innerHTML = "&nbsp;";
+			}
+			ttt.played = [];
+		},
 
-	// make a request
-	remoteRequest: function () {
-		var script = document.createElement("script");
-		script.src = "server.php?callback=ttt.serverPlay&played=" + ttt.played.join(',');
-		document.body.appendChild(script);
-	},
+		// make a request
+		remoteRequest: function () {
+			var script = document.createElement("script");
+			script.src = "server.php?callback=ttt.serverPlay&played=" + ttt.played.join(',');
+			document.body.appendChild(script);
+		},
 
-	// callback, server's turn to play
-	serverPlay: function (data) {
-		if (data.error) {
-			alert(data.error);
-			return;
-		}
+		// callback, server's turn to play
+		serverPlay: function (data) {
+			if (data.error) {
+				alert(data.error);
+				return;
+			}
 
-		data = parseInt(data, 10);
-		this.played.push(data);
+			data = parseInt(data, 10);
+			this.played.push(data);
 
-		this.get('cell-' + data).innerHTML = '<span class="server">X<\/span>';
+			this.get('cell-' + data).innerHTML = '<span class="server">X<\/span>';
 
-		setTimeout(function () {
-			ttt.clientPlay();
-		}, 300); // as if thinking hard
-	},
+			setTimeout(function () {
+				ttt.clientPlay();
+			}, 300); // as if thinking hard
+		},
 
-	// client's turn to play
-	clientPlay: function () {
-		var data = 5;
+		// client's turn to play
+		clientPlay: function () {
+			var data = 5;
 
-		if (this.played.length === 9) {
-			alert("Game over");
-			return;
-		}
+			if (this.played.length === 9) {
+				alert("Game over");
+				return;
+			}
 
-		// keep coming up with random numbers 1-9 
-		// until one not taken cell is found 
-		while (this.get('cell-' + data).innerHTML !== "&nbsp;") {
-			data = Math.ceil(Math.random() * 9); }
+			// keep coming up with random numbers 1-9 
+			// until one not taken cell is found 
+			while (this.get('cell-' + data).innerHTML !== "&nbsp;") {
+				data = Math.ceil(Math.random() * 9);
+			}
 			this.get('cell-' + data).innerHTML = 'O';
 			this.played.push(data);
 		} 
@@ -539,5 +540,16 @@ ttt对象维护着一个已经填过的单元格的列表ttt.played，并且将�
 	ttt.serverPlay(3);
 
 这里的3是指3号单元格是服务器要下棋的位置。在这种情况下，数据非常简单，甚至都不需要使用JSON格式，只需要一个简单的值就可以了。
+
+### 框架（frame）和图片信标(image beacon)
+
+另外一种做远程脚本编程的方式是使用框架。你可以使用JavaScript来创建框架并改变它的src URL。新的URL可以包含数据和函数调用来更新调用者，也就是框架之外的父页面。
+
+远程脚本编程中最最简单的情况是你只需要传递一点数据给服务器，而并不需要服务器的响应内容。在这种情况下，你可以创建一个新的图片，然后将它的src指向服务器的脚本：
+
+	new Image().src = "http://example.org/some/page.php";
+
+这种模式叫作图片信标，当你想发送一些数据给服务器记录时很有用，比如做访问统计。因为信标的响应对你来说完全是没有用的，所以通常的做法（不推荐）是让服务器返回一个1x1的GIF图片。更好的做法是让服务器返回一个“204 No Content”HTTP响应。这意味着返回给客户端的响应只有响应头（header）而没有响应体（body）。
+
 
 
