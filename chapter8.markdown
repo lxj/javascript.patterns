@@ -608,7 +608,76 @@ CDN是指“文件分发网络”（Content Delivery Network）。这是一项�
 - 微软托管了jQuery和自家的Ajax库
 - 雅虎在自己的CDN上托管了YUI库
 
+## 加载策略
 
+怎样在页面上引入脚本，这第一眼看起来是一个简单的问题——使用\<script\>元素，然后要么写内联的JavaScript代码或者是在src属性中指定一个独立的文件：
 
+	// option 1
+	<script>
+	console.log("hello world"); </script>
+	// option 2
+	<script src="external.js"></script>
 
+但是，当你的目标是要构建一个高性能的web应用的时候，有些模式和考虑点还是应该知道的。
+
+作为题外话，来看一些比较常见的开发者会用在<script>元素上的属性：
+
+- language="JavaScript"
+
+	还有一些不同大小写形式的“JavaScript”，有的时候还会带上一个版本号。language属性不应该被使用，因为默认的语言就是JavaScript。版本号也不像想象中工作得那么好，这应该是一个设计上的错误。
+- type="text/javascript"
+
+	这个属性是HTML4和XHTML1标准所要求的，但它不应该存在，因为浏览器会假设它就是JavaScript。HTML5不再要求这个属性。除非是要强制通过难，否则没有任何使用type的理由。
+- defer
+	
+	（或者是HTML5中更好的async）是一种指定浏览器在下载外部脚本时不阻塞页面其它部分的方法，但还没有被广泛支持。关于阻塞的更多内容会在后面提及。
+
+### \<script\>元素的位置
+
+script元素会阻塞页面的下载。浏览器会同时下载好几个组件（文件），但遇到一个外部脚本的时候，会停止其它的下载，直到脚本文件被下载、解析、执行完毕。这会严重影响页面的加载时间，尤其是当这样的事件在页面加载时发生多次的时候。
+
+为了尽量减小阻塞带来的影响，你可以将script元素放到页面的尾部，在\</body\>之前，这样就没有可以被脚本阻塞的元素了。此时，页面中的其它组件（文件）已经被下载完毕并呈现给用户了。
+
+最坏的“反模式”是在文档的头部使用独立的文件：
+
+	<!doctype html>
+	<html>
+	<head>
+		<title>My App</title>
+		<!-- ANTIPATTERN -->
+		<script src="jquery.js"></script>
+		<script src="jquery.quickselect.js"></script>
+		<script src="jquery.lightbox.js"></script>
+		<script src="myapp.js"></script>
+	</head>
+	<body>
+		...
+	</body>
+	</html>
+
+一个更好的选择是将所有的文件合并起来：
+
+	<!doctype html>
+	<html>
+	<head>
+		<title>My App</title>
+		<script src="all_20100426.js"></script>
+	</head>
+	<body>
+		...
+	</body>
+	</html>
+
+最好的选择是将合并后的脚本放到页面的尾部：
+
+	<!doctype html>
+	<html>
+	<head>
+		<title>My App</title>
+	</head>
+	<body>
+		...
+		<script src="all_20100426.js"></script>
+	</body>
+	</html>
 
