@@ -681,3 +681,52 @@ script元素会阻塞页面的下载。浏览器会同时下载好几个组件�
 	</body>
 	</html>
 
+### HTTP分块
+
+HTTP协议支持“分块编码”。它允许将页面分成一块一块发送。所以如果你有一个很复杂的页面，你不需要将那些每个站都多多少少会有的（静态）头部信息也等到所有的服务端工作都完成后再开始发送。
+
+一个简单的策略是在组装页面其余部分的时候将页面\<head\>的内容作为第一块发送。也就是像这样子：
+
+	<!doctype html>
+	<html>
+	<head>
+		<title>My App</title>
+	</head>
+	<!-- end of chunk #1 -->
+	<body>
+		...
+		<script src="all_20100426.js"></script> </body>
+	</html>
+	<!-- end of chunk #2 -->
+
+这种情况下可以做一个简单的发动，将JavaScript移回\<head\>，随着第一块一起发送。
+
+这样的话可以让服务器在拿到head区内容后就开始下载脚本文件，而此时页面的其它部分在服务端还尚未就绪：
+
+	<!doctype html>
+	<html>
+	<head>
+		<title>My App</title>
+		<script src="all_20100426.js"></script> </body>
+	</head>
+	<!-- end of chunk #1 -->
+	<body>
+		...
+	</html>
+	<!-- end of chunk #2 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
