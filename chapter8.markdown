@@ -896,23 +896,69 @@ function require(file, callback) {
 
 这段代码会在console中打印两条，然后页面中会显示“done!”，你可以在<http://jspatterns.com/book/7/ondemand.html>看到示例。
 
+### 预加载JavaScript
 
+在延迟加载模式和按需加载模式中，我们加载了当前页面需要用到的脚本。除此之外，我们也可以加载当前页面不需要但可能在接下来的页面中需要的脚本。这样的话，当用户进入第二个页面时，脚本已经被预加载过，整体体验会变得更快。
 
+预加载可以简单地通过动态脚本模式实现。但这也意味着脚本会被解析和执行。解析仅仅会在页面加载时间中增加预加载消耗的时间，但执行却可能导致JavaScript错误，因为预加载的脚本会假设自己运行在第二个页面上，比如找一个特写的DOM节点就可能出错。
 
+仅加载脚本而不解析和执行是可能的，这也同样适用于CSS和图像。
 
+在IE中，你可以使用熟悉的图片信标模式来发起请求：
 
+	new Image().src = "preloadme.js";
 
+在其它的浏览器中，你可以使用\<object\>替代script元素，然后将它的data属性指向脚本的URL：
 
+	var obj = document.createElement('object');
+	obj.data = "preloadme.js";
+	document.body.appendChild(obj);
 
+为了阻止object可见，你应该设置它的width和height属性为0。
 
+你可以创建一个通用的preload()函数或者方法，使用条件初始化模式（第4章）来处理浏览器差异：
 
+	var preload;
+	if (/*@cc_on!@*/false) { // IE sniffing with conditional comments
+		preload = function (file) {
+			new Image().src = file;
+		};
+	} else {
+		preload = function (file) {
+			var obj = document.createElement('object'),
+				body = document.body;
 
+			obj.width = 0;
+			obj.height = 0;
+			obj.data = file;
+			body.appendChild(obj);
+		};
+	}
 
+使用这个新函数：
 
+	preload('my_web_worker.js');
 
+这种模式的坏处在于存在用户代理（浏览器）嗅探，但这里无法避免，因为特性检测没有办法告知足够的浏览器行为信息。比如在这个模式中，理论上你可以测试typeof Image是否是“function”来代替嗅探。但这种方法其实没有作用，因为所有的浏览器都支持new Image();只是有一些浏览器会为图片单独做缓存，意味着作为图片缓存下来的组件（文件）在第二个页面中不会被作为脚本取出来，而是会重新下载。
 
+> 浏览器嗅探中使用条件注释很有意思，这明显比在navigator.userAgent中找字符串要安全得多，因为用户可以很容易地修改这些字符串。
+> 比如：
+> 	var isIE = /*@cc_on!@*/false;
+> 会在其它的浏览器中将isIE设为false（因为忽略了注释），但在IE中会是true，因为在条件注释中有取反运算符!。在IE中就像是这样：
+> 	var isIE = !false; // true
 
+预加载模式可以被用于各种组件（文件），而不仅仅是脚本。比如在登录页就很有用。当用户开始输入用户名时，你可以使用打字的时间开始预加载（非敏感的东西），因为用户很可能会到第二个也就是登录后的页面。
 
+## 小结
 
+在前一章中我们讨论了JavaScript核心的模式，它们与环境无关，这一章主要关注了只在客户端浏览器环境中应用的模式。
 
+我们看了：
 
+- 分离的思想（HTML：内容，CSS：表现，JavaScript：行为），只用于增强体验的JavaScript以及基于特性检测的浏览器探测。（尽管在本章的最后你看到了如何打破这个模式。）
+- DOM编程——加速DOM访问和操作的模式，主要通过将DOM操作集中在一起来实现，因为频繁和DOM打交道代码是很高的。
+- 事件，跨浏览器的事件处理，以及使用事件代码来减少事件处理函数的绑定数量以提高性能。
+- 两种处理长时间大计算量脚本的模式——使用setTimeout()将长时间操作拆分为小块执行和在现代浏览器中使用web workers。
+- 多种用于远程编程，进行服务器和客户端通讯的模式——XHR，JSONP，框架和图片信标。
+- 在生产环境中部署JavaScript的步骤——将脚本合并为更少的文件，压缩和gzip（总共节省85%），可能的话托管到CDN并发送Expires头来提升缓存效果。
+- 基于性能考虑引入页面脚本的模式，包括：放置\<script\>元素的位置，同时也可以从HTTP分块获益。为了减少页面初始化时加载大的脚本文件引起的初始化工作量，我们讨论了几种不同的模式，比如延迟加载、预加载和按需加载。
