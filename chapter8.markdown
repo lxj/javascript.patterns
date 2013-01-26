@@ -805,6 +805,33 @@ HTTP协议支持“分块编码”。它允许将页面分成一块一块发送�
 
 frist_script是页面中一定存在的一个script标签，script是你创建的新的script元素。
 
+### 延迟加载
+
+所谓的延迟加载是指在页面的load事件之后再加载外部文件。通常，将一个大的合并后的文件分成两部分是有好处的：
+
+- 一部分是页面初始化和绑定UI元素的事件处理函数必须的
+- 第二部分是只在用户交互或者其它条件下才会用到的
+
+目标就是逐步加载页面，让用户尽快可以进行一些操作。剩余的部分可以在用户可以看到页面的时候再在后台加载。
+
+加载第二部分JavaScript的方法也是使用动态script元素，将它加在head或者body中：
+
+		.. The full body of the page ...
+
+		<!-- end of chunk #2 -->
+		<script src="all_20100426.js"></script>
+		<script>
+		window.onload = function () {
+			var script = document.createElement("script");
+			script.src = "all_lazy_20100426.js";
+			document.documentElement.firstChild.appendChild(script);
+		};
+		</script>
+	</body>
+	</html>
+	<!-- end of chunk #3 -->
+
+对很多应用来说，延迟加载的部分大部分情况下会比核心部分要大，因为我们关注的“行为”（比如拖放、XHR、动画）只在用户初始化之后才会发生。
 
 
 
