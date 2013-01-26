@@ -715,6 +715,103 @@ HTTP协议支持“分块编码”。它允许将页面分成一块一块发送�
 	</html>
 	<!-- end of chunk #2 -->
 
+一个更好的办法是使用第三块内容，让它在页面尾部，只包含脚本。如果有一些每个页面都用到的静态的头部，也可以将这部分随和一块一起发送：
+
+	<!doctype html> <html>
+	<head>
+		<title>My App</title> </head>
+	<body>
+		<div id="header">
+			<img src="logo.png" />
+			...
+		</div>
+		<!-- end of chunk #1 -->
+
+		... The full body of the page ...
+
+		<!-- end of chunk #2 -->
+		<script src="all_20100426.js"></script>
+	</body>
+	</html>
+	<!-- end of chunk #3 -->
+
+这种方法很适合使用渐进增强思想的网站（关键业务不依赖JavaScript）。当HTML的第二块发送完毕的时候，浏览器已经有了一个加载、显示完毕并且可用的页面，就像禁用JavaScript时的情况。当JavaScript随着第三块到达时，它会进一步增强页面，为页面锦上添花。
+
+### 动态\<script\>元素实现非阻塞下载
+
+前面已经说到过，JavaScript会阻塞后面文件的下载，但有一些模式可以防止阻塞：
+
+- 使用XHR加载脚本，然后作为一个字符串使用eval()来执行。这种方法受同源策略的限制，而且引入了eval()这种“反模式”。
+- 使用defer和async属性，但有浏览器兼容性问题
+- 使用动态<script>元素
+
+最后一种是一个很好并且实际可行的模式。和介绍JSONP时所做的一样，创建一个新的script元素，设置它的src属性，然后将它放到页面上。
+
+这是一个异步加载JavaScript，不阻塞其它文件下载的示例：
+
+	var script = document.createElement("script");
+	script.src = "all_20100426.js";
+	document.documentElement.firstChild.appendChild(script);
+
+这种模式的缺点是，在这之后加载的脚本不能依赖这个脚本。因为这个脚本是异步加载的，所以无法保证它什么时候会被加载进来，如果要依赖的话，很可能会访问到（因还未加载完毕导致的）未定义的对象。
+
+如果要解决这个问题，可以让内联的脚本不立即执行，而是作为一个函数放到一个数组中。当依赖的脚本加载完毕后，再执行数组中的所有函数。所以一共有三个步骤。
+
+首先，创建一个数组用来存储所有的内联代码，定义的位置尽量靠前：
+
+	var mynamespace = {
+		inline_scripts: []
+	};
+
+然后你需要将这些单独的内联脚本包裹进一个函数中，然后将每个函数放到inline_scripts数组中，也就是这样：
+
+	// was:
+	// <script>console.log("I am inline");</script>
+
+	// becomes:
+	<script>
+		mynamespace.inline_scripts.push(function () {
+			console.log("I am inline");
+		});
+	</script>
+
+最后一步是使用异步加载的脚本遍历这个数组，然后执行函数：
+
+	var i, scripts = mynamespace.inline_scripts, max = scripts.length;
+	for (i = 0; i < max; max += 1) {
+		scripts[i]();
+	}
+
+#### 插入\<script\>元素
+
+通常脚本是插入到文档的<head>中的，但其实你可以插入任何元素中，包括body（像JSONP示例中那样）。
+
+在前面的例子中，我们使用documentElement来插到\<head\>中，因为documentElement就是\<html\>，它的第一个子元素是\<head\>：
+
+	document.documentElement.firstChild.appendChild(script);
+
+通常也会这样写：
+
+	document.getElementsByTagName("head")[0].appendChild(script);
+
+当你能控制结构的时候，这样做没有问题，但是如果你在写挂件（widget）或者是广告时，你并不知道托管它的是一个什么样的页面。甚至可能页面上连\<head\>和\<body\>都没有，尽管document.body在绝大多数没有\<body\>标签的时候也可以工作：
+
+	document.body.appendChild(script);
+
+可以肯定页面上一定存在的一个标签是你正在运行的脚本所处的位置——script标签。（对内联或者外部文件来说）如果没有script标签，那么代码就不会运行。可以利用这一事实，在页面的第一个script标签上使用insertBefore()：
+
+	var first_script = document.getElementsByTagName('script')[0];
+	first_script.parentNode.insertBefore(script, first_script);
+
+frist_script是页面中一定存在的一个script标签，script是你创建的新的script元素。
+
+
+
+
+
+
+
+
 
 
 
