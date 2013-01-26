@@ -833,6 +833,68 @@ frist_script是页面中一定存在的一个script标签，script是你创建�
 
 对很多应用来说，延迟加载的部分大部分情况下会比核心部分要大，因为我们关注的“行为”（比如拖放、XHR、动画）只在用户初始化之后才会发生。
 
+### 按需加载
+
+前面的模式会在页面加载后无条件加载其它的JavaScript，并假设这些代码很可能会被用到。但我们是否可以做得更好，分部分加载，在真正需要使用的时候才加载那一部分？
+
+假设你页面的侧边栏上有一些tabs。点击tab会发出一个XHR请求获取内容，然后更新tab的内容，然后有一个更新的动画。如果这是页面上唯一需要XHR和动画库的地方，而用户又不点击tab的话会怎样？
+
+下面介绍按需加载模式。你可以创建一个require()函数或者方法，它接受一个需要被加载的脚本文件的文件名，还有一个在脚本被加载完毕后执行的回调函数。
+
+require()函数可以被这样使用：
+
+	require("extra.js", function () {
+		functionDefinedInExtraJS();
+	});
+
+我们来看一下如何实现这样一个函数。加载脚本很简单——你只需要按照动态\<script\>元素模式做就可以了。获知脚本已经加载需要一点点技巧，因为浏览器之间有差异：
+
+function require(file, callback) {
+
+	var script = document.getElementsByTagName('script')[0], newjs = document.createElement('script');
+
+	// IE
+	newjs.onreadystatechange = function () {
+		if (newjs.readyState === 'loaded' || newjs.readyState === 'complete') {
+			newjs.onreadystatechange = null;
+			callback();
+		}
+	};
+
+	// others
+	newjs.onload = function () {
+		callback();
+	};
+
+	newjs.src = file;
+	script.parentNode.insertBefore(newjs, script);
+}
+
+这个实现的几点说明：
+
+- 在IE中需要订阅readystatechange事件，然后判断状态是否为“loaded”或者“complete”。其它的浏览器会忽略这里。
+- 在Firefox，Safari和Opera中，通过onload属性订阅load事件。
+- 这个方法在Safari 2中无效。如果必须要处理这个浏览器，需要设一个定时器，周期性地去检查某个指定的变量（在脚本中定义的）是否有定义。当它变成已定义时，就意味着新的脚本已经被加载并执行。
+
+你可以通过建立一个人为延迟的脚本来测试这个实现（模拟网络延迟），比如ondemand.js.php，如：
+
+	<?php
+	header('Content-Type: application/javascript');
+	sleep(1);
+	?>
+	function extraFunction(logthis) {
+		console.log('loaded and executed');
+		console.log(logthis);
+	}
+
+现在测试require()函数：
+
+	require('ondemand.js.php', function () {
+		extraFunction('loaded from the parent page');
+		document.body.appendChild(document.createTextNode('done!'));
+	});
+
+这段代码会在console中打印两条，然后页面中会显示“done!”，你可以在<http://jspatterns.com/book/7/ondemand.html>看到示例。
 
 
 
