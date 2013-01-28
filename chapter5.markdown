@@ -125,3 +125,49 @@ JavaScript默认语法并不支持命名空间，但很容易可以实现此特�
 
 图5-1 MYAPP命名空间在Firebug下的可视结果
 
+## 声明依赖
+
+JavaScript库往往是模块化而且有用到命名空间的，这使用你可以只使用你需要的模块。比如在YUI2中，全局变量YAHOO就是一个命名空间，各个模块作为全局变量的属性，比如YAHOO.util.Dom（DOM模块）、YAHOO.util.Event（事件模块）。
+
+将你的代码依赖在函数或者模块的顶部进行声明是一个好主意。声明就是创建一个本地变量，指向你需要用到的模块：
+
+	var myFunction = function () {
+		// dependencies
+		var event = YAHOO.util.Event,
+			dom = YAHOO.util.Dom;
+
+		// use event and dom variables
+		// for the rest of the function...
+	};
+
+这是一个相当简单的模式，但是有很多的好处：
+
+- 明确的声明依赖是告知你代码的用户，需要保证指定的脚本文件被包含在页面中。
+- 将声明放在函数顶部使得依赖很容易被查找和解析。
+- 本地变量（如dom）永远会比全局变量（如YAHOO）要快，甚至比全局变量的属性（如YAHOO.util.Dom）还要快，这样会有更好的性能。使用了依赖声明模式之后，全局变量的解析在函数中只会进行一次，在此之后将会使用更快的本地变量。
+- 一些高级的代码压缩工具比如YUI Compressor和Google Closure compiler会重命名本地变量（比如event可能会被压缩成一个字母，如A），这会使代码更精简，但这个操作不会对全局变量进行，因为这样做不安全。
+
+下面的代码片段是关于是否使用依赖声明模式对压缩影响的展示。尽管使用了依赖声明模式的test2()看起来复杂，因为需要更多的代码行数和一个额外的变量，但在压缩后它的代码量却会更小，意味着用户只需要下载更少的代码：
+
+	function test1() {
+		alert(MYAPP.modules.m1);
+		alert(MYAPP.modules.m2);
+		alert(MYAPP.modules.m51);
+	}
+
+	/*
+	minified test1 body:
+	alert(MYAPP.modules.m1);alert(MYAPP.modules.m2);alert(MYAPP.modules.m51)
+	*/
+
+	function test2() {
+		var modules = MYAPP.modules;
+		alert(modules.m1);
+		alert(modules.m2);
+		alert(modules.m51);
+	}
+
+	/*
+	minified test2 body:
+	var a=MYAPP.modules;alert(a.m1);alert(a.m2);alert(a.m51)
+	*/
