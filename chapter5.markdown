@@ -171,3 +171,49 @@ JavaScript库往往是模块化而且有用到命名空间的，这使用你可�
 	minified test2 body:
 	var a=MYAPP.modules;alert(a.m1);alert(a.m2);alert(a.m51)
 	*/
+
+
+## 私有属性和方法
+
+JavaScript不像Java或者其它语言，它没有专门的提供私有、保护、公有属性和方法的语法。所有的对象成员都是公有的：
+
+	var myobj = {
+		myprop: 1,
+		getProp: function () {
+			return this.myprop;
+		}
+	};
+	console.log(myobj.myprop); // `myprop` is publicly accessible console.log(myobj.getProp()); // getProp() is public too
+
+当你使用构造函数创建对象的时候也是一样的，所有的成员都是公有的：
+
+	function Gadget() {
+		this.name = 'iPod';
+		this.stretch = function () {
+			return 'iPad';
+		};
+	}
+	var toy = new Gadget();
+	console.log(toy.name); // `name` is public console.log(toy.stretch()); // stretch() is public
+
+### 私有成员
+
+尽管语言并没有用于私有成员的专门语法，但你可以通过闭包来实现。在构造函数中创建一个闭包，任何在这个闭包中的部分都不会暴露到构造函数之外。但是，这些私有变量却可以被公有方法访问，也就是在构造函数中定义的并且作为返回对象一部分的那些方法。我们来看一个例子，name是一个私有成员，在构造函数之外不能被访问：
+
+	function Gadget() {
+		// private member
+		var name = 'iPod';
+		// public function
+		this.getName = function () {
+			return name;
+		};
+	}
+	var toy = new Gadget();
+
+	// `name` is undefined, it's private
+	console.log(toy.name); // undefined
+	// public method has access to `name`
+	console.log(toy.getName()); // "iPod"
+
+如你所见，在JavaScript创建私有成员很容易。你需要做的只是将私有成员放在一个函数中，保证它是函数的本地变量，也就是说让它在函数之外不可以被访问。
+
