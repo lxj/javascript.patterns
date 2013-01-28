@@ -223,3 +223,54 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 在前面的例子中，getName()就是一个特权方法，因为它有访问name属性的特殊权限。
 
+### 私有成员失效
+
+当你使用私有成员时，需要考虑一些极端情况：
+
+- 在Firefox的一些早期版本中，允许通过给eval()传递第二个参数的方法来指定上下文对象，从而允许访问函数的私有作用域。比如在Mozilla Rhino（译注：一个JavaScript引擎）中，允许使用`__parent__`来访问私有作用域。现在这些极端情况并没有被广泛应用到浏览器中。
+- 当你直接通过特权方法返回一个私有变量，而这个私有变量恰好是一个对象或者数组时，外部的代码可以修改这个私有变量，因为它是按引用传递的。
+
+我们来看一下第二种情况。下面的Gadget的实现看起来没有问题：
+
+	function Gadget() {
+		// private member
+		var specs = {
+		screen_width: 320,
+		screen_height: 480,
+		color: "white"
+		};
+
+		// public function
+		this.getSpecs = function () {
+			return specs;
+		};
+	}
+
+这里的问题是getSpecs()返回了一个specs对象的引用。这使得Gadget的使用者可以修改貌似隐藏起来的私有成员specs：
+
+	var toy = new Gadget(),
+		specs = toy.getSpecs();
+
+	specs.color = "black";
+	specs.price = "free";
+
+	console.dir(toy.getSpecs());
+
+在Firebug控制台中打印出来的结果如图5-2：
+
+![图5-2 私有对象被修改了](./figure/chapter5/5-2.jpg)
+
+图5-2 私有对象被修改了
+
+这个意外的问题的解决方法就是不要将你想保持私有的对象或者数组的引用传递出去。达到这个目标的一种方法是让getSpecs()返回一个新对象，这个新对象只包含对象的使用者感兴趣的数据。这也是众所周知的“最低授权原则”（Principle of Least Authority，简称POLA），指永远不要给出比需求更多的东西。在这个例子中，如果Gadget的使用者关注它是否适应一个特定的盒子，它只需要知道尺寸即可。所以你应该创建一个getDimensions()，用它返回一个只包含width和height的新对象，而不是把什么都给出去。也就是说，也许你根本不需要实现getSpecs()方法。
+
+当你需要传递所有的数据时，有另外一种方法，就是使用通用的对象复制函数创建specs对象的一个副本。下一章提供了两个这样的函数——一个叫extend()，它会浅复制一个给定的对象（只复制顶层的成员）。另一个叫extendDeep()，它会做深复制，遍历所有的属性和嵌套的属性。
+
+
+
+
+
+
+
+
+
