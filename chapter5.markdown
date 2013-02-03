@@ -338,5 +338,51 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 	var toy = new Gadget();
 	console.log(toy.getName()); // privileged "own" method console.log(toy.getBrowser()); // privileged prototype method
 
+### 将私有函数暴露为公有方法
 
+“暴露模式”是指将已经有的私有函数暴露为公有方法。当对对象进行操作时，所有功能代码都对这些操作很敏感，而你想尽量保护这些代码的时候很有用。（译注：指对来自外部的修改很敏感。）但同时，你又希望能提供一些功能的访问权限，因为它们会被用到。如果你把这些方法公开，就会使得它们不再健壮，你的API的使用者可能修改它们。在ECMAScript5中，你可以选择冻结一个对象，但在之前的版本中不可用。下面进入暴露模式（原来是由Christian Heilmann创造的模式，叫“暴露模块模式”）。
+
+我们来看一个例子，它建立在对象字面量的私有成员模式之上：
+
+	var myarray;
+
+	(function () {
+
+		var astr = "[object Array]",
+			toString = Object.prototype.toString;
+
+		function isArray(a) {
+			return toString.call(a) === astr;
+		}
+
+		function indexOf(haystack, needle) {
+			var i = 0,
+				max = haystack.length;
+			for (; i < max; i += 1) {
+				if (haystack[i] === needle) {
+					return i;
+				}
+			}
+			return −1;
+		}
+
+		myarray = {
+			isArray: isArray,
+			indexOf: indexOf,
+			inArray: indexOf
+		};
+
+	}());
+
+这里有两个私有变量和两个私有函数——`isArray()`和`indexOf()`。在包裹函数的最后，使用那些允许被从外部访问的函数填充`myarray`对象。在这个例子中，同一个私有函数	`indexOf()`同时被暴露为ECMAScript 5风格的`indexOf`和PHP风格的`inArry`。测试一下myarray对象：
+
+	myarray.isArray([1,2]); // true
+	myarray.isArray({0: 1}); // false
+	myarray.indexOf(["a", "b", "z"], "z"); // 2
+	myarray.inArray(["a", "b", "z"], "z"); // 2
+
+现在假如有一些意外的情况发生在暴露的`indexOf()`方法上，私有的`indexOf()`方法仍然是安全的，因此`inArray()`仍然可以正常工作：
+
+	myarray.indexOf = null;
+	myarray.inArray(["a", "b", "z"], "z"); // 2
 
