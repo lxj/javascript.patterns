@@ -307,7 +307,36 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 这个例子也是所谓的“模块模式”的基础，我们稍后将讲到它。
 
+### 原型和私有成员
 
+使用构造函数创建私有成员的一个弊端是，每一次调用构造函数创建对象时这些私有成员都会被创建一次。
+
+这对在构建函数中添加到`this`的成员来说是一个问题。为了避免重复劳动，节省内存，你可以将共用的属性和方法添加到构造函数的`prototype`（原型）属性中。这样的话这些公共的部分会在使用同一个构造函数创建的所有实例中共享。你也同样可以在这些实例中共享私有成员。你可以将两种模式联合起来达到这个目的：构造函数中的私有属性和对象字面量中的私有属性。因为`prototype`属性也只是一个对象，可以使用对象字面量创建。
+
+这是一个示例：
+
+	function Gadget() {
+		// private member
+		var name = 'iPod';
+		// public function
+		this.getName = function () {
+			return name;
+		};
+	}
+
+	Gadget.prototype = (function () {
+		// private member
+		var browser = "Mobile Webkit";
+		// public prototype members
+		return {
+			getBrowser: function () {
+				return browser;
+			}
+		};
+	}());
+
+	var toy = new Gadget();
+	console.log(toy.getName()); // privileged "own" method console.log(toy.getBrowser()); // privileged prototype method
 
 
 
