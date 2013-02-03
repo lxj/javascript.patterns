@@ -266,9 +266,46 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 当你需要传递所有的数据时，有另外一种方法，就是使用通用的对象复制函数创建specs对象的一个副本。下一章提供了两个这样的函数——一个叫extend()，它会浅复制一个给定的对象（只复制顶层的成员）。另一个叫extendDeep()，它会做深复制，遍历所有的属性和嵌套的属性。
 
+### 对象字面量和私有成员
 
+到目前为止，我们只看了使用构建函数创建私有成员的示例。如果使用对象字面量创建对象时会是什么情况呢？是否有可能含有私有成员？
 
+如你前面所看到的那样，私有数据使用一个函数来包裹。所以在使用对象字面量时，你也可以使用一个立即执行的匿名函数创建的闭包。例如：
 
+	var myobj; // this will be the object
+	(function () {
+		// private members
+		var name = "my, oh my";
+
+		// implement the public part
+		// note -- no `var`
+		myobj = {
+			// privileged method
+			getName: function () {
+				return name;
+			}
+		};
+	}());
+
+	myobj.getName(); // "my, oh my"
+
+还有一个原理一样但看起来不一样的实现示例：
+
+	var myobj = (function () {
+		// private members
+		var name = "my, oh my";
+
+		// implement the public part
+		return {
+			getName: function () {
+				return name;
+			}
+		};
+	}());
+
+	myobj.getName(); // "my, oh my"
+
+这个例子也是所谓的“模块模式”的基础，我们稍后将讲到它。
 
 
 
