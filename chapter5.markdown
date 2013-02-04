@@ -462,7 +462,38 @@ MYAPP.utilities.array = (function () {
 
 模块模式被广泛使用，这是一种值得强烈推荐的模式，它可以帮助组织代码，尤其是代码量在不断增长的时候。
 
+### 暴露模块模式
 
+我们在本章中讨论私有成员模式时已经讨论过暴露模式。模块模式也可以用类似的方法来组织，将所有的方法保持私有，只在最后暴露需要使用的方法来初始化API。
+
+上面的例子可以变成这样：
+
+	MYAPP.utilities.array = (function () {
+
+			// private properties
+		var array_string = "[object Array]",
+			ops = Object.prototype.toString,
+
+			// private methods
+			inArray = function (haystack, needle) {
+				for (var i = 0, max = haystack.length; i < max; i += 1) {
+					if (haystack[i] === needle) {
+						return i;
+					}
+				}
+				return −1;
+			},
+			isArray = function (a) {
+				return ops.call(a) === array_string;
+			};
+			// end var
+
+		// revealing public API
+		return {
+			isArray: isArray,
+			indexOf: inArray
+		};
+	}());
 
 
 
