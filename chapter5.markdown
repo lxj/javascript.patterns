@@ -495,5 +495,50 @@ MYAPP.utilities.array = (function () {
 		};
 	}());
 
+### 创建构造函数的模块
 
+前面的例子创建了一个对象`MYAPP.utilities.array`，但有时候使用构造函数来创建对象会更方便。你也可以同样使用模块模式来做。唯一的区别是包裹模块的立即执行的函数会在最后返回一个函数，而不是一个对象。
+
+看下面的模块模式的例子，创建了一个构造函数`MYAPP.utilities.Array`：
+
+	MYAPP.namespace('MYAPP.utilities.Array');
+
+	MYAPP.utilities.Array = (function () {
+
+			// dependencies
+		var uobj = MYAPP.utilities.object,
+			ulang = MYAPP.utilities.lang,
+
+			// private properties and methods...
+			Constr;
+
+			// end var
+
+			// optionally one-time init procedures
+			// ...
+
+			// public API -- constructor
+			Constr = function (o) {
+				this.elements = this.toArray(o);
+			};
+			// public API -- prototype
+			Constr.prototype = {
+				constructor: MYAPP.utilities.Array,
+				version: "2.0",
+				toArray: function (obj) {
+					for (var i = 0, a = [], len = obj.length; i < len; i += 1) {
+						a[i] = obj[i];
+					}
+					return a;
+				}
+			};
+
+		// return the constructor
+		// to be assigned to the new namespace return Constr;
+
+	}());
+
+像这样使用这个新的构造函数：
+
+	var arr = new MYAPP.utilities.Array(obj);
 
