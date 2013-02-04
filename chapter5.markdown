@@ -542,3 +542,14 @@ MYAPP.utilities.array = (function () {
 
 	var arr = new MYAPP.utilities.Array(obj);
 
+### 在模块中引入全局上下文
+
+作为这种模式的一个常见的变种，你可以给包裹模块的立即执行的函数传递参数。你可以传递任何值，但通常会传递全局变量甚至是全局对象本身。引入全局上下文可以加快函数内部的全局变量的解析，因为引入之后会作为函数的本地变量：
+
+MYAPP.utilities.module = (function (app, global) {
+
+	// references to the global object
+	// and to the global app namespace object
+	// are now localized
+	
+}(MYAPP, this));
