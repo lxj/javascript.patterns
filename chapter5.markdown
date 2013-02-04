@@ -553,3 +553,84 @@ MYAPP.utilities.module = (function (app, global) {
 	// are now localized
 	
 }(MYAPP, this));
+
+## 沙箱模式
+
+沙箱模式主要着眼于命名空间模式的短处，即：
+
+- 依赖一个全局变量成为应用的全局命名空间。在命名空间模式中，没有办法在同一个页面中运行同一个应用或者类库的不同版本，在为它们都会需要同一个全局变量名，比如`MYAPP`。
+- 代码中以点分隔的名字比较长，无论写代码还是解析都需要处理这个很长的名字，比如`MYAPP.utilities.array`。
+
+顾名思义，沙箱模式为模块提供了一个环境，模块在这个环境中的任何行为都不会影响其它的模块和其它模块的沙箱。
+
+这个模式在YUI3中用得很多，但是需要记住的是，下面的讨论只是一些示例实现，并不讨论YUI3中的消息箱是如何实现的。
+
+### 全局构造函数
+
+在命名空间模式中 ，有一个全局对象，而在沙箱模式中，唯一的全局变量是一个构造函数，我们把它命名为`Sandbox()`。我们使用这个构造函数来创建对象，同时也要传入一个回调函数，这个函数会成为代码运行的独立空间。
+
+使用沙箱模式是像这样：
+
+	new Sandbox(function (box) {
+		// your code here...
+	});
+
+`box`对象和命名空间模式中的`MYAPP`类似，它包含了所有你的代码需要用到的功能。
+
+我们要多做两件事情：
+
+- 通过一些手段（第3章中的强制使用new的模式），你可以在创建对象的时候不要求一定有new。
+- 让`Sandbox()`构造函数可以接受一个（或多个）额外的配置参数，用于指定这个对象需要用到的模块名字。我们希望代码是模块化的，因此绝大部分`Sandbox()`提供的功能都会被包含在模块中。
+
+有了这两个额外的特性之后，我们来看一下实例化对象的代码是什么样子。
+
+你可以在创建对象时省略`new`并像这样使用已有的“ajax”和“event”模块：
+
+	Sandbox(['ajax', 'event'], function (box) {
+		// console.log(box);
+	});
+
+下面的例子和前面的很像，但是模块名字是作为独立的参数传入的：
+
+	Sandbox('ajax', 'dom', function (box) {
+		// console.log(box);
+	});
+
+使用通配符“＊”来表示“使用所有可用的模块”如何？为了方便，我们也假设没有任何模块传入时，沙箱使用“＊”。所以有两种使用所有可用模块的方法：
+
+	Sandbox('*', function (box) {
+		// console.log(box);
+	});
+
+	Sandbox(function (box) {
+		// console.log(box);
+	});
+
+下面的例子展示了如何实例化多个消息箱对象，你甚至可以将它们嵌套起来而互不影响：
+
+	Sandbox('dom', 'event', function (box) {
+
+		// work with dom and event
+	
+		Sandbox('ajax', function (box) {
+			// another sandboxed "box" object
+			// this "box" is not the same as
+			// the "box" outside this function
+
+			//...
+
+			// done with Ajax
+		});
+
+		// no trace of Ajax module here
+	});
+
+从这些例子中看到，使用沙箱模式可以通过将代码包裹在回调函数中的方式来保护全局命名空间。
+
+如果需要的话，你也可以利用函数也是对象这一事实，将一些数据作为静态属性存放到`Sandbox()`构造函数。
+
+最后，你可以根据需要的模块类型创建不同的实例，这些实例都是相互独立的。
+
+现在我们来看一下如何实现`Sandbox()`构造函数和它的模块来支持上面讲到的所有功能。
+
+
