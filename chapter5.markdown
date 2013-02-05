@@ -546,13 +546,13 @@ MYAPP.utilities.array = (function () {
 
 作为这种模式的一个常见的变种，你可以给包裹模块的立即执行的函数传递参数。你可以传递任何值，但通常会传递全局变量甚至是全局对象本身。引入全局上下文可以加快函数内部的全局变量的解析，因为引入之后会作为函数的本地变量：
 
-MYAPP.utilities.module = (function (app, global) {
+	MYAPP.utilities.module = (function (app, global) {
 
-	// references to the global object
-	// and to the global app namespace object
-	// are now localized
-	
-}(MYAPP, this));
+		// references to the global object
+		// and to the global app namespace object
+		// are now localized
+		
+	}(MYAPP, this));
 
 ## 沙箱模式
 
@@ -716,15 +716,89 @@ MYAPP.utilities.module = (function (app, global) {
 
 这个实现中的一些关键点：
 
-- 有一个检查`this`是否是`Sandbox`实现的过程，如果不是（也就是调用`Sandbox()`时没有加`new`），我们将这个函数作为构造函数再调用一次。
+- 有一个检查`this`是否是`Sandbox`实例的过程，如果不是（也就是调用`Sandbox()`时没有加`new`），我们将这个函数作为构造函数再调用一次。
 - 你可以在构造函数中给`this`添加属性，也可以给构造函数的原型添加属性。
 - 被依赖的模块可以以数组的形式传递，也可以作为单独的参数传递，甚至以`*`通配符（或者省略）来表示加载所有可用的模块。值得注意的是，我们在这个示例实现中并没有考虑从外部文件中加载模块，但明显这是一个值得考虑的事情。比如YUI3就支持这种情况，你可以只加载最基本的模块（作为“种子”），其余需要的任何模块都通过将模块名和文件名对应的方式从外部文件中加载。
 - 当我们知道依赖的模块之后就初始化它们，也就是调用实现每个模块的函数。
 - 构造函数的最后一个参数是回调函数。这个回调函数会在最后使用新创建的实例来调用。事实上这个回调函数就是用户的沙箱，它被传入一个`box`对象，这个对象包含了所有依赖的功能。
 
+## 静态成员
 
+静态属性和方法是指那些在所有的实例中保持一致的成员。在基于类的语言中，表态成员是用专门的语法来创建，使用时就像是类自己的成员一样。比如`MathUtils`类的`max()`方法会被像这样调用：`MathUtils.max(3, 5)`。这是一个公有静态成员的示例，即可以在不实例化类的情况下使用。同样也可以有私有的静态方法，即对类的使用者不可见，而在类的所有实例间是共享的。我们来看一下如何在JavaScript中实现公有和私有静态成员。
 
+### 公有静态成员
 
+在JavaScript中没有专门用于静态成员的语法。但通过给构造函数添加属性的方法，可以拥有和基于类的语言一样的使用语法。之所有可以这样做是因为构造函数和其它的函数一样，也是对象，可以拥有属性。前一章讨论过的Memoization模式也使用了同样的方法，即给函数添加属性。
+
+下面的例子定义了一个构造函数`Gadget`，它有一个静态方法`isShiny()`和一个实例方法`setPrice()`。`isShiny()`是一个静态方法，因为它不需要指定一个对象才能工作（就像你不需要先指定一个工具（gadget）才知道所有的工具是不是有光泽的（shiny））。但setPrice()却需要一个对象，因为工具可能有不同的定价：
+
+	// constructor
+	var Gadget = function () {};
+
+	// a static method
+	Gadget.isShiny = function () {
+		return "you bet";
+	};
+
+	// a normal method added to the prototype Gadget.prototype.setPrice = function (price) {
+		this.price = price;
+	};
+
+现在我们来调用这些方法。静态方法`isShiny()`可以直接在构造函数上调用，但其它的常规方法需要一个实例：
+
+	// calling a static method
+	Gadget.isShiny(); // "you bet"
+
+	// creating an instance and calling a method
+	var iphone = new Gadget();
+	iphone.setPrice(500);
+
+使用静态方法的调用方式去调用实例方法并不能正常工作，同样，用调用实例方法的方式来调用静态方法也不能正常工作：
+
+	typeof Gadget.setPrice; // "undefined"
+	typeof iphone.isShiny; // "undefined"
+
+有时候让静态方法也能用在实例上会很方便。我们可以通过在原型上加一个新方法来很容易地做到这点，这个新方法作为原来的静态方法的一个包装：
+
+	Gadget.prototype.isShiny = Gadget.isShiny;
+	iphone.isShiny(); // "you bet"
+
+在这种情况下，你需要很小心地处理静态方法内的`this`。当你运行`Gadget.isShiny()`时，在`isShiny()`内部的`this`指向`Gadget`构造函数。而如果你运行`iphone.isShiny()`，那么`this`会指向`iphone`。
+
+最后一个例子展示了同一个方法被静态调用和非静态调用时明显不同的行为，这取决于调用的方式。这里的`instanceof`用于获方法是如何被调用的：
+
+	// constructor
+	var Gadget = function (price) {
+		this.price = price;
+	};
+
+	// a static method
+	Gadget.isShiny = function () {
+
+		// this always works
+		var msg = "you bet";
+
+		if (this instanceof Gadget) {
+			// this only works if called non-statically
+			msg += ", it costs $" + this.price + '!';
+		}
+
+		return msg;
+	};
+
+	// a normal method added to the prototype
+	Gadget.prototype.isShiny = function () {
+		return Gadget.isShiny.call(this);
+	};
+
+测试一下静态方法调用：
+
+	Gadget.isShiny(); // "you bet"
+
+测试一下实例中的非静态调用：
+
+	var a = new Gadget('499.99');
+	a.isShiny(); // "you bet, it costs $499.99!"
 
 
 
