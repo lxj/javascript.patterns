@@ -633,4 +633,100 @@ MYAPP.utilities.module = (function (app, global) {
 
 现在我们来看一下如何实现`Sandbox()`构造函数和它的模块来支持上面讲到的所有功能。
 
+### 添加模块
+
+在动手实现构造函数之前，我们来看一下如何添加模块。
+
+`Sandbox()`构造函数也是一个对象，所以可以给它添加一个`modules`静态属性。这个属性也是一个包含名值（key-value）对的对象，其中key是模块的名字，value是模块的功能实现。
+
+	Sandbox.modules = {};
+
+	Sandbox.modules.dom = function (box) {
+		box.getElement = function () {};
+		box.getStyle = function () {};
+		box.foo = "bar";
+	};
+
+	Sandbox.modules.event = function (box) {
+		// access to the Sandbox prototype if needed:
+		// box.constructor.prototype.m = "mmm";
+		box.attachEvent = function () {};
+		box.dettachEvent = function () {};
+	};
+
+	Sandbox.modules.ajax = function (box) {
+		box.makeRequest = function () {};
+		box.getResponse = function () {};
+	};
+
+在这个例子中我们添加了`dom`、`event`和`ajax`模块，这些都是在每个类库或者复杂的web应用中很常见的代码片段。
+
+实现每个模块功能的函数接受一个实例`box`作为参数，并给这个实例添加属性和方法。
+
+### 实现构造函数
+
+最后，我们来实现`Sandbox()`构造函数（你可能会很自然地想将这类构造函数命名为对你的类库或者应用有意义的名字）：
+
+	function Sandbox() {
+			// turning arguments into an array
+		var args = Array.prototype.slice.call(arguments),
+			// the last argument is the callback
+			callback = args.pop(),
+			// modules can be passed as an array or as individual parameters
+			modules = (args[0] && typeof args[0] === "string") ? args : args[0], i;
+
+		// make sure the function is called
+		// as a constructor
+		if (!(this instanceof Sandbox)) {
+			return new Sandbox(modules, callback);
+		}
+
+		// add properties to `this` as needed:
+		this.a = 1;
+		this.b = 2;
+
+		// now add modules to the core `this` object
+		// no modules or "*" both mean "use all modules"
+		if (!modules || modules === '*') {
+			modules = [];
+			for (i in Sandbox.modules) {
+				if (Sandbox.modules.hasOwnProperty(i)) {
+					modules.push(i);
+				}
+			}
+		}
+
+		// initialize the required modules
+		for (i = 0; i < modules.length; i += 1) {
+			Sandbox.modules[modules[i]](this);
+		}
+
+		// call the callback
+		callback(this);
+	}
+
+	// any prototype properties as needed
+	Sandbox.prototype = {
+		name: "My Application",
+		version: "1.0",
+		getName: function () {
+			return this.name;
+		}
+	};
+
+这个实现中的一些关键点：
+
+- 有一个检查`this`是否是`Sandbox`实现的过程，如果不是（也就是调用`Sandbox()`时没有加`new`），我们将这个函数作为构造函数再调用一次。
+- 你可以在构造函数中给`this`添加属性，也可以给构造函数的原型添加属性。
+- 被依赖的模块可以以数组的形式传递，也可以作为单独的参数传递，甚至以`*`通配符（或者省略）来表示加载所有可用的模块。值得注意的是，我们在这个示例实现中并没有考虑从外部文件中加载模块，但明显这是一个值得考虑的事情。比如YUI3就支持这种情况，你可以只加载最基本的模块（作为“种子”），其余需要的任何模块都通过将模块名和文件名对应的方式从外部文件中加载。
+- 当我们知道依赖的模块之后就初始化它们，也就是调用实现每个模块的函数。
+- 构造函数的最后一个参数是回调函数。这个回调函数会在最后使用新创建的实例来调用。事实上这个回调函数就是用户的沙箱，它被传入一个`box`对象，这个对象包含了所有依赖的功能。
+
+
+
+
+
+
+
+
 
