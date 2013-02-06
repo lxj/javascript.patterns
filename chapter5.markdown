@@ -864,7 +864,90 @@ MYAPP.utilities.array = (function () {
 
 静态属性（包括私有和公有）有时候会非常方便，它们可以包含和具体实例无关的方法和数据，而不用在每次实例中再创建一次。当我们在第七章中讨论单例模式时，你可以看到使用静态属性实现类式单例构造函数的例子。
 
+## 对象常量
 
+JavaScript中是没有常量的，尽管在一些比较现代的环境中可能会提供`const`来创建常量。
 
+一种常用的解决办法是通过命名规范，让不应该变化的变量使用全大写。这个规范实际上也用在JavaScript原生对象中：
 
+	Math.PI; // 3.141592653589793
+	Math.SQRT2; // 1.4142135623730951
+	Number.MAX_VALUE; // 1.7976931348623157e+308
 
+你自己的常量也可以用这种规范，然后将它们作为静态属性加到构造函数中：
+
+	// constructor
+	var Widget = function () {
+		// implementation...
+	};
+
+	// constants
+	Widget.MAX_HEIGHT = 320;
+	Widget.MAX_WIDTH = 480;
+
+同样的规范也适用于使用字面量创建的对象，常量会是使用大写名字的普通名字。
+
+如果你真的希望有一个不能被改变的值，那么可以创建一个私有属性，然后提供一个取值的方法（getter），但不给赋值的方法（setter）。这种方法在很多可以用命名规范解决的情况下可能有些矫枉过正，但不失为一种选择。
+
+下面是一个通过的`constant`对象的实现，它提供了这些方法：
+
+- set(name, value)
+	
+	定义一个新的常量
+- isDefined(name)
+
+	检查一个常量是否存在
+- get(name)
+
+	取常量的值
+
+在这个实现中，只允许基本类型的值成为常量。同时还要使用`hasOwnproperty()`小心地处理那些恰好是原生属性的常量名，比如`toString`或者`hasOwnProperty`，然后给所有的常量名加上一个随机生成的前缀：
+
+	var constant = (function () {
+		var constants = {},
+			ownProp = Object.prototype.hasOwnProperty,
+			allowed = {
+				string: 1,
+				number: 1,
+				boolean: 1
+			},
+			prefix = (Math.random() + "_").slice(2);
+		return {
+			set: function (name, value) {
+				if (this.isDefined(name)) {
+					return false;
+				}
+				if (!ownProp.call(allowed, typeof value)) {
+					return false;
+				}
+				constants[prefix + name] = value;
+				return true;
+			},
+			isDefined: function (name) {
+				return ownProp.call(constants, prefix + name);
+			},
+			get: function (name) {
+				if (this.isDefined(name)) {
+					return constants[prefix + name];
+				}
+				return null;
+			}
+		};
+	}());
+
+测试这个实现：
+
+	// check if defined
+	constant.isDefined("maxwidth"); // false
+
+	// define
+	constant.set("maxwidth", 480); // true
+
+	// check again
+	constant.isDefined("maxwidth"); // true
+
+	// attempt to redefine
+	constant.set("maxwidth", 320); // false
+
+	// is the value still intact?
+	constant.get("maxwidth"); // 480
