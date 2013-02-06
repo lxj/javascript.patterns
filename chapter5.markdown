@@ -951,3 +951,51 @@ JavaScript中是没有常量的，尽管在一些比较现代的环境中可能�
 
 	// is the value still intact?
 	constant.get("maxwidth"); // 480
+
+## 链式调用模式
+
+使用链式调用模式可以让你在一对个象上连续调用多个方法，不需要将前一个方法的返回值赋给变量，也不需要将多个方法调用分散在多行：
+
+	myobj.method1("hello").method2().method3("world").method4();
+
+当你创建了一个没有有意义的返回值的方法时，你可以让它返回this，也就是这些方法所属的对象。这使得对象的使用者可以将下一个方法的调用和前一次调用链起来：
+
+	var obj = {
+		value: 1,
+		increment: function () {
+			this.value += 1;
+			return this;
+		},
+		add: function (v) {
+			this.value += v;
+			return this;
+		},
+		shout: function () {
+			alert(this.value);
+		}
+	};
+
+	// chain method calls
+	obj.increment().add(3).shout(); // 5
+
+	// as opposed to calling them one by one
+	obj.increment();
+	obj.add(3);
+	obj.shout(); // 5
+
+### 链式调用模式的利弊
+
+使用链式调用模式的一个好处就是可以节省代码量，使得代码更加简洁和易读，读起来就像在读句子一样。
+
+另外一个好处就是帮助你思考如何拆分你的函数，创建更小、更有针对性的函数，而不是一个什么都做的函数。长时间来看，这会提升代码的可维护性。
+
+一个弊端是调用这样写的代码会更困难。你可能知道一个错误出现在某一行，但这一行要做很多的事情。当链式调用的方法中的某一个出现问题而又没报错时，你无法知晓到底是哪一个出问题了。《代码整洁之道》的作者Robert Martion甚至叫这种模式为“train wreck”模式。（译注：直译为“火车事故”，指负面影响比较大。）
+
+不管怎样，认识这种模式总是好的，当你写的方法没有明显的有意义的返回值时，你就可以返回`this`。这个模式应用得很广泛，比如jQuery库。如果你去看DOM的API的话，你会发现它也会以这样的形式倾向于链式调用：
+
+	document.getElementsByTagName('head')[0].appendChild(newnode);
+
+
+
+
+
