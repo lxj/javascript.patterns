@@ -800,6 +800,70 @@ MYAPP.utilities.array = (function () {
 	var a = new Gadget('499.99');
 	a.isShiny(); // "you bet, it costs $499.99!"
 
+### 私有静态成员
+
+到目前为止，我们都只讨论了公有的静态方法，现在我们来看一下如何实现私有静态成员。所谓私有静态成员是指：
+
+- 被所有由同一构造函数创建的对象共享
+- 不允许在构造函数外部访问
+
+我们来看一个例子，`counter`是`Gadget`构造函数的一个私有静态属性。在本章中我们已经讨论过私有属性，这里的做法也是一样，需要一个函数提供的闭包来包裹私有成员。然后让这个包裹函数立即执行并返回一个新的函数。将这个返回的函数赋值给`Gadget`作为构造函数。
+
+	var Gadget = (function () {
+
+		// static variable/property
+		var counter = 0;
+
+		// returning the new implementation
+		// of the constructor
+		return function () {
+			console.log(counter += 1);
+		};
+
+	}()); // execute immediately
+
+这个`Gadget`构造函数只简单地增加私有的`counter`的值然后打印出来。用多个实例测试的话你会看到`counter`在实例之间是共享的：
+
+	var g1 = new Gadget();// logs 1
+	var g2 = new Gadget();// logs 2
+	var g3 = new Gadget();// logs 3
+
+因为我们在创建每个实例的时候`counter`的值都会加1，所以它实际上成了唯一标识使用`Gadget`构造函数创建的对象的ID。这个唯一标识可能会很有用，那为什么不把它通用一个特权方法暴露出去呢？（译注：其实这里不能叫ID，只是一个记录有多少个实例的数字而已，因为如果有多个实例被创建的话，其实已经没办法取到前面实例的标识了。）下面的例子是基于前面的例子，增加了用于访问私有静态属性的`getLastId()`方法：
+
+	// constructor
+	var Gadget = (function () {
+
+		// static variable/property
+		var counter = 0,
+			NewGadget;
+
+		// this will become the
+		// new constructor implementation
+		NewGadget = function () {
+			counter += 1;
+		};
+
+		// a privileged method
+		NewGadget.prototype.getLastId = function () {
+			return counter;
+		};
+
+		// overwrite the constructor
+		return NewGadget;
+
+	}()); // execute immediately
+
+测试这个新的实现：
+
+	var iphone = new Gadget(); 
+	iphone.getLastId(); // 1
+	var ipod = new Gadget(); 
+	ipod.getLastId(); // 2
+	var ipad = new Gadget(); 
+	ipad.getLastId(); // 3
+
+静态属性（包括私有和公有）有时候会非常方便，它们可以包含和具体实例无关的方法和数据，而不用在每次实例中再创建一次。当我们在第七章中讨论单例模式时，你可以看到使用静态属性实现类式单例构造函数的例子。
+
 
 
 
