@@ -995,6 +995,55 @@ JavaScript中是没有常量的，尽管在一些比较现代的环境中可能�
 
 	document.getElementsByTagName('head')[0].appendChild(newnode);
 
+## method()方法
+
+JavaScript对于习惯于用类来思考的人来说可能会比较费解，这也是很多开发者希望将JavaScript代码变得更像基于类的语言的原因。其中的一种尝试就是由Douglas Crockford提出来的`method()`方法。其实，他也承认将JavaScript变得像基于类的语言是不推荐的方法，但不管怎样，这都是一种有意思的模式，你可能会在一些应用中见到。
+
+使用构造函数主须Java中使用类一样。它也允许你在构造函数体的`this`中添加实例属性。但是在`this`中添加方法却是不高效的，因为最终这些方法会在每个实例中被重新创建一次，这样会花费更多的内存。这也是为什么可重用的方法应该被放到构造函数的`prototype`属性（原型）中的原因。但对很多开发者来说，`prototype`可能跟个外星人一样陌生，所以你可以通过一个方法将它隐藏起来。
+
+> 给语言添加一个使用起来更方便的方法一般叫作“语法糖”。在这个例子中，你可以将`method()`方法称为一个语法糖方法。
+
+使用这个语法糖方法`method()`来定义一个“类”是像这样：
+
+	var Person = function (name) {
+		this.name = name;
+	}.
+		method('getName', function () {
+			return this.name;
+		}).
+		method('setName', function (name) {
+			this.name = name;
+			return this;
+		});
+
+注意构造函数和调用`method()`是如何链起来的，接下来又链式调用了下一个`method()`方法。这就是我们前面讨论的链式调用模式，可以帮助我们用一个语句完成对整个“类”的定义。
+
+`method()`方法接受两个参数：
+
+- 新方法的名字
+- 新方法的实现
+
+然后这个新方法被添加到`Person`“类”。新方法的实现也只是一个函数，在这个函数里面`this`指向由`Person`创建的对象，正如我们期望的那样。
+
+下面是使用`Person()`创建和使用新对象的代码：
+
+	var a = new Person('Adam');
+	a.getName(); // 'Adam'
+	a.setName('Eve').getName(); // 'Eve'
+
+同样地注意链式调用，因为`setName()`返回了`this`就可以链式调用了。
+
+最后是`method()`方法的实现：
+
+	if (typeof Function.prototype.method !== "function") {
+		Function.prototype.method = function (name, implementation) {
+			this.prototype[name] = implementation;
+			return this;
+		};
+	}
+
+在`method()`的实现中，我们首先检查这个方法是否已经被实现过，如果没有则继续，将传入的参数`implementation`加到构造函数的原型中。在这里`this`指向构造函数，而我们要增加的功能正在在这个构造函数的原型上。
+
 
 
 
