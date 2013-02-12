@@ -183,7 +183,8 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 			return this.myprop;
 		}
 	};
-	console.log(myobj.myprop); // `myprop` is publicly accessible console.log(myobj.getProp()); // getProp() is public too
+	console.log(myobj.myprop); // `myprop` is publicly accessible
+	console.log(myobj.getProp()); // getProp() is public too
 
 当你使用构造函数创建对象的时候也是一样的，所有的成员都是公有的：
 
@@ -194,7 +195,8 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 		};
 	}
 	var toy = new Gadget();
-	console.log(toy.name); // `name` is public console.log(toy.stretch()); // stretch() is public
+	console.log(toy.name); // `name` is public
+	console.log(toy.stretch()); // stretch() is public
 
 ### 私有成员
 
@@ -336,7 +338,8 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 	}());
 
 	var toy = new Gadget();
-	console.log(toy.getName()); // privileged "own" method console.log(toy.getBrowser()); // privileged prototype method
+	console.log(toy.getName()); // privileged "own" method 
+	console.log(toy.getBrowser()); // privileged prototype method
 
 ### 将私有函数暴露为公有方法
 
