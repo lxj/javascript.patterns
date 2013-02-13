@@ -427,11 +427,11 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 如果需要的话，你可以在立即执行的函数提供的闭包中声明私有属性和私有方法。函数顶部也是声明依赖的地方。在变量声明的下方，你可以选择性地放置辅助初始化模块的一次性代码。函数最终返回的是一个包含模块公共API的对象：
 
-MYAPP.namespace('MYAPP.utilities.array');
-MYAPP.utilities.array = (function () {
+	MYAPP.namespace('MYAPP.utilities.array');
+	MYAPP.utilities.array = (function () {
 	
 		// dependencies
-	var uobj = MYAPP.utilities.object,
+		var uobj = MYAPP.utilities.object,
 		ulang = MYAPP.utilities.lang,
 
 		// private properties
@@ -442,26 +442,26 @@ MYAPP.utilities.array = (function () {
 		// ...
 		// end var
 
-	// optionally one-time init procedures
-	// ...
+		// optionally one-time init procedures
+		// ...
 
-	// public API
-	return {
-
-		inArray: function (needle, haystack) {
-			for (var i = 0, max = haystack.length; i < max; i += 1) {
-				if (haystack[i] === needle) {
-					return true;
+		// public API
+		return {
+	
+			inArray: function (needle, haystack) {
+				for (var i = 0, max = haystack.length; i < max; i += 1) {
+					if (haystack[i] === needle) {
+						return true;
+					}
 				}
+			},
+	
+			isArray: function (a) {
+				return ops.call(a) === array_string;
 			}
-		},
-
-		isArray: function (a) {
-			return ops.call(a) === array_string;
-		}
-		// ... more methods and properties
-	};
-}());
+			// ... more methods and properties
+		};
+	}());
 
 模块模式被广泛使用，这是一种值得强烈推荐的模式，它可以帮助组织代码，尤其是代码量在不断增长的时候。
 
