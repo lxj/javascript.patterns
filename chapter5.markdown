@@ -537,7 +537,8 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 		};
 
 		// return the constructor
-		// to be assigned to the new namespace return Constr;
+		// to be assigned to the new namespace 
+		return Constr;
 
 	}());
 
