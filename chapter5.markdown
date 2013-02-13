@@ -732,7 +732,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 ### 公有静态成员
 
-在JavaScript中没有专门用于静态成员的语法。但通过给构造函数添加属性的方法，可以拥有和基于类的语言一样的使用语法。之所有可以这样做是因为构造函数和其它的函数一样，也是对象，可以拥有属性。前一章讨论过的Memoization模式也使用了同样的方法，即给函数添加属性。
+在JavaScript中没有专门用于静态成员的语法。但通过给构造函数添加属性的方法，可以拥有和基于类的语言一样的使用语法。之所以可以这样做是因为构造函数和其它的函数一样，也是对象，可以拥有属性。前一章讨论过的Memoization模式也使用了同样的方法，即给函数添加属性。
 
 下面的例子定义了一个构造函数`Gadget`，它有一个静态方法`isShiny()`和一个实例方法`setPrice()`。`isShiny()`是一个静态方法，因为它不需要指定一个对象才能工作（就像你不需要先指定一个工具（gadget）才知道所有的工具是不是有光泽的（shiny））。但setPrice()却需要一个对象，因为工具可能有不同的定价：
 
@@ -744,7 +744,8 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 		return "you bet";
 	};
 
-	// a normal method added to the prototype Gadget.prototype.setPrice = function (price) {
+	// a normal method added to the prototype 
+	Gadget.prototype.setPrice = function (price) {
 		this.price = price;
 	};
 
