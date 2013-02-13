@@ -432,11 +432,11 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 	
 		// dependencies
 		var uobj = MYAPP.utilities.object,
-		ulang = MYAPP.utilities.lang,
+			ulang = MYAPP.utilities.lang,
 
 		// private properties
-		array_string = "[object Array]",
-		ops = Object.prototype.toString;
+			array_string = "[object Array]",
+			ops = Object.prototype.toString;
 
 		// private methods
 		// ...
@@ -473,23 +473,23 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 	MYAPP.utilities.array = (function () {
 
-			// private properties
+		// private properties
 		var array_string = "[object Array]",
 			ops = Object.prototype.toString,
 
-			// private methods
-			inArray = function (haystack, needle) {
-				for (var i = 0, max = haystack.length; i < max; i += 1) {
-					if (haystack[i] === needle) {
-						return i;
-					}
+		// private methods
+		inArray = function (haystack, needle) {
+			for (var i = 0, max = haystack.length; i < max; i += 1) {
+				if (haystack[i] === needle) {
+					return i;
 				}
-				return −1;
-			},
-			isArray = function (a) {
-				return ops.call(a) === array_string;
-			};
-			// end var
+			}
+			return −1;
+		},
+		isArray = function (a) {
+			return ops.call(a) === array_string;
+		};
+		// end var
 
 		// revealing public API
 		return {
@@ -508,33 +508,33 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 	MYAPP.utilities.Array = (function () {
 
-			// dependencies
+		// dependencies
 		var uobj = MYAPP.utilities.object,
 			ulang = MYAPP.utilities.lang,
 
-			// private properties and methods...
-			Constr;
+		// private properties and methods...
+		Constr;
 
-			// end var
+		// end var
 
-			// optionally one-time init procedures
-			// ...
+		// optionally one-time init procedures
+		// ...
 
-			// public API -- constructor
-			Constr = function (o) {
-				this.elements = this.toArray(o);
-			};
-			// public API -- prototype
-			Constr.prototype = {
-				constructor: MYAPP.utilities.Array,
-				version: "2.0",
-				toArray: function (obj) {
-					for (var i = 0, a = [], len = obj.length; i < len; i += 1) {
-						a[i] = obj[i];
-					}
-					return a;
+		// public API -- constructor
+		Constr = function (o) {
+			this.elements = this.toArray(o);
+		};
+		// public API -- prototype
+		Constr.prototype = {
+			constructor: MYAPP.utilities.Array,
+			version: "2.0",
+			toArray: function (obj) {
+				for (var i = 0, a = [], len = obj.length; i < len; i += 1) {
+					a[i] = obj[i];
 				}
-			};
+				return a;
+			}
+		};
 
 		// return the constructor
 		// to be assigned to the new namespace return Constr;
@@ -671,7 +671,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 最后，我们来实现`Sandbox()`构造函数（你可能会很自然地想将这类构造函数命名为对你的类库或者应用有意义的名字）：
 
 	function Sandbox() {
-			// turning arguments into an array
+		// turning arguments into an array
 		var args = Array.prototype.slice.call(arguments),
 			// the last argument is the callback
 			callback = args.pop(),
