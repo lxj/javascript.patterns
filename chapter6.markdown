@@ -754,7 +754,7 @@ Object.create()接收一个额外的参数——一个对象。这个额外对�
 	
 	one.say.apply(two, ['hello']); // "hello, another object"
 	
-在这个例子中，say()方法中的this指向了two，this.name是“another object”。但是如果在某些场景下你将th函数赋值给了全局变量或者是将这个函数作为回调，会发生什么？在客户端编程中有非常多的事件和回调，所以这种情况经常发生：
+在这个例子中，say()方法中的this指向了two，this.name是“another object”。但是如果在某些场景下你将函数赋值给了全局变量或者是将这个函数作为回调，会发生什么？在客户端编程中有非常多的事件和回调，所以这种情况经常发生：
 
 	// assigning to a variable
 	// `this` will point to the global object
