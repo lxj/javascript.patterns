@@ -721,8 +721,8 @@ Object.create()接收一个额外的参数——一个对象。这个额外对�
 
 	function f() {
 		var args = [].slice.call(arguments, 1, 3);
-			return args;
-		}
+		return args;
+	}
 		
 	// example
 	f(1, 2, 3, 4, 5, 6); // returns [2,3]
