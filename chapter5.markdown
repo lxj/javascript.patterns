@@ -260,7 +260,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 在Firebug控制台中打印出来的结果如图5-2：
 
-![图5-2 私有对象被修改了](./figure/chapter5/5-2.jpg)
+![图5-2 私有对象被修改了](./Figure/chapter5/5-2.jpg)
 
 图5-2 私有对象被修改了
 
