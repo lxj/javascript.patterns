@@ -199,17 +199,17 @@ uni.constructor不再和Universe()相同的原因是uni.constructor仍然是指�
 		var instance;
 		
 		Universe = function Universe() {
-		
-		if (instance) {
-			return instance;
-		}
-		
-		instance = this;
-		
-		// all the functionality
-		this.start_time = 0;
-		this.bang = "Big";
-		
+			
+			if (instance) {
+				return instance;
+			}
+			
+			instance = this;
+			
+			// all the functionality
+			this.start_time = 0;
+			this.bang = "Big";
+			
 		};
 	
 	}());
