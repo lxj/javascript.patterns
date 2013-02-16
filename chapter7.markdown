@@ -458,7 +458,7 @@ Object()也是一个工厂这一事实可能没有太多实际用处，仅仅是
 Sale()构造函数现在有了一个作为自己属性的装饰器列表：
 
 	function Sale(price) {
-		this.price = (price > 0) || 100;
+		this.price = price || 100;
 		this.decorators_list = [];
 	}
 	
