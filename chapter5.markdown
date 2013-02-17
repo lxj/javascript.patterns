@@ -121,7 +121,7 @@ JavaScript默认语法并不支持命名空间，但很容易可以实现此特�
 
 图5-1 展示了上述代码创建的命名空间对象在Firebug下的可视结果
 
-![MYAPP命名空间在Firebug下的可视结果](http://img04.taobaocdn.com/tps/i4/T1_8m_Xd8iXXXXXXXX-434-216.png)
+![MYAPP命名空间在Firebug下的可视结果](./Figure/chapter5/5-1.jpg)
 
 图5-1 MYAPP命名空间在Firebug下的可视结果
 
