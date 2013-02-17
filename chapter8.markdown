@@ -246,7 +246,7 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 
 我们来的睦一个实例，三个按钮放在一个div元素中（图8-1）。你可以在<http://jspatterns.com/book/8/click-delegate.html>看到这个事件委托的实例。
 
-![图8-1 事件委托示例：三个在点击时增加计数器值的按钮](./figure/chapter8/8-1.jpg)
+![图8-1 事件委托示例：三个在点击时增加计数器值的按钮](./Figure/chapter8/8-1.jpg)
 
 图8-1 事件委托示例：三个在点击时增加计数器值的按钮
 
@@ -444,7 +444,7 @@ getdata.php可以是任何类型的页面或者脚本。callback参数指定用�
 
 你可以在<http://jspatterns.com/book/8/ttt.html>玩这个游戏。
 
-![图8-2 使用JSONP的井字棋游戏](./figure/chapter8/8-2.jpg)
+![图8-2 使用JSONP的井字棋游戏](./Figure/chapter8/8-2.jpg)
 
 图8-2 使用JSONP的井字棋游戏
 
