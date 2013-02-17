@@ -1123,7 +1123,7 @@ paper对象也可以提供unsubscribe()方法，它可以将订阅者从数组�
 		}
 	};
 
-下面这个函数接受一个对象作为参数，并通过复制通用的发布者的方法将这个对象墨迹成发布者：
+下面这个函数接受一个对象作为参数，并通过复制通用的发布者的方法将这个对象转变成发布者：
 
 	function makePublisher(o) {
 		var i;
@@ -1277,35 +1277,35 @@ scoreboard对象和原来一样，它只是简单地将当前分数显示出来�
 
 game对象会关注所有的玩家，这样它就可以给出分数并且触发scorechange事件。它也会订阅浏览吕中所有的keypress事件，这样它就会知道按钮对应的玩家：
 
-var game = {
+	var game = {
 
-	keys: {},
+		keys: {},
 
-	addPlayer: function (player) {
-		var key = player.key.toString().charCodeAt(0);
-		this.keys[key] = player;
-	},
+		addPlayer: function (player) {
+			var key = player.key.toString().charCodeAt(0);
+			this.keys[key] = player;
+		},
 
-	handleKeypress: function (e) {
-		e = e || window.event; // IE
-		if (game.keys[e.which]) {
-			game.keys[e.which].play();
-		}
-	},
-
-	handlePlay: function (player) {
-		var i,
-			players = this.keys,
-			score = {};
-
-		for (i in players) {
-			if (players.hasOwnProperty(i)) {
-				score[players[i].name] = players[i].points;
+		handleKeypress: function (e) {
+			e = e || window.event; // IE
+			if (game.keys[e.which]) {
+				game.keys[e.which].play();
 			}
+		},
+
+		handlePlay: function (player) {
+			var i,
+				players = this.keys,
+				score = {};
+
+			for (i in players) {
+				if (players.hasOwnProperty(i)) {
+					score[players[i].name] = players[i].points;
+				}
+			}
+			this.fire('scorechange', score);
 		}
-		this.fire('scorechange', score);
-	}
-};
+	};
 
 用于将任意对象转变为订阅者的makePublisher()还是和之前一样。game对象会变成发布者（这样它才可以触发scorechange事件），Player.prototype也会变成发布者，以使得每个玩家对象可以触发play和newplayer事件：
 
