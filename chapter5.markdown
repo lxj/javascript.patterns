@@ -127,7 +127,7 @@ JavaScript默认语法并不支持命名空间，但很容易可以实现此特�
 
 ## 声明依赖
 
-JavaScript库往往是模块化而且有用到命名空间的，这使用你可以只使用你需要的模块。比如在YUI2中，全局变量YAHOO就是一个命名空间，各个模块作为全局变量的属性，比如YAHOO.util.Dom（DOM模块）、YAHOO.util.Event（事件模块）。
+JavaScript库往往是模块化而且有用到命名空间的，这使得你可以只使用你需要的模块。比如在YUI2中，全局变量YAHOO就是一个命名空间，各个模块作为全局变量的属性，比如YAHOO.util.Dom（DOM模块）、YAHOO.util.Event（事件模块）。
 
 将你的代码依赖在函数或者模块的顶部进行声明是一个好主意。声明就是创建一个本地变量，指向你需要用到的模块：
 
@@ -430,6 +430,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 	MYAPP.namespace('MYAPP.utilities.array');
 	MYAPP.utilities.array = (function () {
 	
+<<<<<<< HEAD
 		// dependencies
 		var uobj = MYAPP.utilities.object,
 			ulang = MYAPP.utilities.lang,
@@ -437,11 +438,23 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 		// private properties
 			array_string = "[object Array]",
 			ops = Object.prototype.toString;
+=======
+			// dependencies
+		var uobj = MYAPP.utilities.object,
+			ulang = MYAPP.utilities.lang,
+>>>>>>> 合并改动
 
-		// private methods
-		// ...
-		// end var
+			// private properties
+			array_string = "[object Array]",
+			ops = Object.prototype.toString;
 
+<<<<<<< HEAD
+=======
+			// private methods
+			// ...
+			// end var
+
+>>>>>>> 合并改动
 		// optionally one-time init procedures
 		// ...
 
@@ -455,7 +468,11 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 					}
 				}
 			},
+<<<<<<< HEAD
 	
+=======
+			
+>>>>>>> 合并改动
 			isArray: function (a) {
 				return ops.call(a) === array_string;
 			}
