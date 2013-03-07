@@ -286,86 +286,83 @@ JSLint提示你这样做，是因为`++`和`--`实际上降低了代码的可读
 
 这些小改进只能体现在对性能要求比较苛刻的地方，此外，JSLint不推荐使用`i--`。
 
-================校对分割线================
-## for-in 循环
+## for-in循环
 
-for-in 循环用于对非数组对象作遍历。通过for-in进行循环也被称作“枚举”。
+`for-in`循环用于对非数组对象进行遍历。通过`for-in`进行循环也被称作“枚举”（enumeration）。
 
-从技术角度讲，for-in循环同样可以用于数组（JavaScript中数组即是对象），但不推荐这样做。当使用自定义函数扩充了数组对象时，这时更容易产生逻辑错误。另外，for-in循环中属性的遍历顺序是不固定的，所以最好数组使用普通的for循环，对象使用for-in循环。
+从技术上讲，`for-in`循环同样可以用于数组（JavaScript中数组也是对象），但不推荐这样做。当数组对象被扩充了自定义函数时，可能会产生逻辑错误。另外，`for-in`循环中属性的遍历顺序是不固定的，所以最好数组使用普通的`for`循环，对象使用`for-in`循环。
 
-可以使用对象的hasOwnProperty()方法将从原型链中继承来的属性过滤掉，这一点非常重要。看一下这段代码：
+可以使用对象的`hasOwnProperty()`方法过来从原型链中继承来的属性，这一点非常重要。看一下这段代码：
 
-	// the object
+	// 对象
 	var man = {
 		hands: 2,
 		legs: 2,
 		heads: 1
 	};
-	// somewhere else in the code
-	// a method was added to all objects
+	// 在代码的另一个地方给所有的对象添加了一个方法
 	if (typeof Object.prototype.clone === "undefined") {
 		Object.prototype.clone = function () {};
 	}
 
-在这段例子中，我们定义了一个名叫man的对象直接量。在代码中的某个地方（可以是man定义之前也可以是之后），给Object的原型中增加了一个方法clone()。原型链是实时的，这意味着所有的对象都可以访问到这个新方法。要想在枚举man的时候避免枚举出clone()方法，则需要调用hasOwnProperty()来对原型属性进行过滤。如果不做过滤，clone()也会被遍历到，而这不是我们所希望的：
+在这个例子中，我们使用对象字面量定义了一个名叫`man`的对象。在代码中的某个地方（可以是`man`定义之前也可以是之后），给`Object`的原型增加了一个方法`clone()`。原型链是实时的，这意味着所有的对象都可以访问到这个新方法。要想在枚举`man`的时候避免枚举出`clone()`方法，就需要调用`hasOwnProperty()`来过滤来自原型的属性。如果不做过滤，`clone()`也会被遍历到，这是我们不希望看到的：
 
-	// 1.
-	// for-in loop
+	// 1.for-in循环
 	for (var i in man) {
 		if (man.hasOwnProperty(i)) { // filter
 			console.log(i, ":", man[i]);
 		}
 	}
 	/*
-	result in the console
+	控制台中的结果
 	hands : 2
 	legs : 2
 	heads : 1
 	*/
 
-	// 2.
-	// antipattern:
-	// for-in loop without checking hasOwnProperty()
+	// 2.反模式:
+	// 不使用hasOwnProperty()过滤的for-in循环
 	for (var i in man) {
 		console.log(i, ":", man[i]);
 	}
 	/*
-	result in the console
+	控制台中的结果
 	hands : 2
 	legs : 2
 	heads : 1
 	clone: function()
 	*/
 
-另外一种的写法是通过Object.prototype直接调用hasOwnProperty()方法，像这样：
+另外一种调用`hasOwnProperty()`的方法是通过`Object.prototype`来调用，像这样：
 
 	for (var i in man) {
-		if (Object.prototype.hasOwnProperty.call(man, i)) { // filter
+		if (Object.prototype.hasOwnProperty.call(man, i)) { // 过滤
 			console.log(i, ":", man[i]);
 		}
 	}
 
-这种做法的好处是，当man对象中重新定义了hasOwnProperty方法时，可以避免调用时的命名冲突（译注：明确指定调用的是Object.prototype上的方法而不是实例对象中的方法），这种做法同样可以避免冗长的属性查找过程（译注：这种查找过程多是在原型链上进行查找），一直查找到Object中的方法，你可以定义一个变量来“缓存”住它（译注：这里所指的是缓存住Object.prototype.hasOwnProperty）：
+这种做法的好处是，在`man`对象中重新定义了`hasOwnProperty`方法的情况下，可以避免调用时的命名冲突。为了避免查找属性时从`Object`对象一路找到原型的冗长过程，你可以定义一个变量来“缓存”住它：
 
 	var i,
 		hasOwn = Object.prototype.hasOwnProperty;
 	for (i in man) {
-		if (hasOwn.call(man, i)) { // filter
+		if (hasOwn.call(man, i)) { // 过滤
 			console.log(i, ":", man[i]);
 		}
 	}
 
->严格说来，省略hasOwnProperty()并不是一个错误。根据具体的任务以及你对代码的自信程度，你可以省略掉它以提高一些程序执行效率。但当你对当前要遍历的对象不确定的时候，添加hasOwnProperty()则更加保险些。
+> 严格说来，省略`hasOwnProperty()`并不是一个错误。根据具体的任务以及你对代码的自信程度，你可以省略掉它以提高一些程序执行效率。但当你对当前要遍历的对象不确定的时候，添加hasOwnProperty()则更加保险些。
 
-这里提到一种格式上的变化写法（这种写法无法通过JSLint检查），这种写法在for循环所在的行加入了if判断条件，他的好处是能让循环语句读起来更完整和通顺（“如果元素包含属性X，则拿X做点什么”）：
+这里介绍一种格式上的变种（这种写法无法通过JSLint检查），这种写法在`for`循环所在的行加入了`if`判断条件，他的好处是能让循环语句读起来更完整和通顺（“如果元素包含属性X，则对X做点什么”）：
 
-	// Warning: doesn't pass JSLint
+	// 警告：无法通过JSLint检查
 	var i,
 		hasOwn = Object.prototype.hasOwnProperty;
-	for (i in man) if (hasOwn.call(man, i)) { // filter
+	for (i in man) if (hasOwn.call(man, i)) { // 过滤
 		console.log(i, ":", man[i]);
 	}
 
+================校对分割线================
 <a name="a11"></a>
 ## （不）扩充内置原型
 
