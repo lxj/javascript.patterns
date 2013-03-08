@@ -409,87 +409,84 @@ JSLint提示你这样做，是因为`++`和`--`实际上降低了代码的可读
 - 避免连续执行多个case语句块（省略break时），如果你坚持认为连续执行多个`case`语句块是最好的方法，请务必补充文档说明，对于其他人来说，会觉得这种情况是错误的写法。
 - 以`default`结束整个`switch`，以确保即便是在找不到匹配项时也有合理的结果。
 
-================校对分割线================
-<a name="a13"></a>
 ## 避免隐式类型转换
 
-在JavaScript的比较操作中会有一些隐式的数据类型转换。比如诸如false == 0或""==0之类的比较都返回true。
+在JavaScript对变量进行比较时会有一些隐式的数据类型转换。比如诸如`false == 0`或`"" == 0`之类的比较都返回`true`。
 
-为了避免隐式类型转换造对程序造成干扰，推荐使用===和!===运算符，它们较除了比较值还会比较类型。
+为了避免隐式类型转换对程序造成干扰，推荐使用`===`和`!==`运算符，它们除了比较值还会比较类型：
 
 	var zero = 0;
 	if (zero === false) {
-		// not executing because zero is 0, not false
+		// 不会执行，因为zero是0，不是false
 	}
-	// antipattern
+	// 反模式
 	if (zero == false) {
-		// this block is executed...
+		// 代码块会执行…
 	}
 
-另外一种观点认为当==够用的时候就不必多余的使用===。比如，当你知道typeof的返回值是一个字符串，就不必使用全等运算符。但JSLint却要求使用全等运算符，这当然会提高代码风格的一致性，并减少了阅读代码时的思考（“这里使用==是故意的还是无意的？”）。
+有一种观点认为当`==`够用的时候就不必使用`===`。比如，当你知道`typeof`的返回值是一个字符串，就不必使用全等运算符。但JSLint却要求使用全等运算符，这无疑会提高代码风格的一致性，并减少了阅读代码时的思考量（“这里使用`==`是故意的还是无意的？”）。
 
-<a name="a14"></a>
 ### 避免使用eval()
 
-当你想使用eval()的时候，不要忘了那句话“eval()是魔鬼”。这个函数的参数是一个字符串，它可以执行任意字符串。如果事先知道要执行的代码是有问题的（在运行之前），则没有理由使用eval()。如果需要在运行时动态生成执行代码，往往都会有更佳的方式达到同样的目的，而非一定要使用eval()。例如，访问动态属性时可以使用方括号：
+当你想使用`eval()`的时候，不要忘了那句话“`eval()` is evil”（`eval()`是魔鬼）。这个函数的参数是一个字符串，它会将传入的字符串作为JavaScript代码执行。如果用来解决问题的代码是事先知道的（在运行之前），则没有理由使用`eval()`。如果需要在运行时动态生成并执行代码，那一般都会有更好的方式达到同样的目的，而非一定要使用`eval()`。例如，访问动态属性时可以使用方括号：
 
-	// antipattern
+	// 反模式
 	var property = "name";
 	alert(eval("obj." + property));
-	// preferred
+	// 更好的方式
 	var property = "name";
 	alert(obj[property]);
 
-eval()同样有安全隐患，因为你需要运行一些容易被干扰的代码（比如运行一段来自于网络的代码）。在处理Ajax请求所返回的JSON数据时会常遇到这种情况，使用eval()是一种反模式。这种情况下最好使用浏览器的内置方法来解析JSON数据，以确保代码的安全性和数据的合法性。如果浏览器不支持JSON.parse()，你可以使用JSON.org所提供的库。
+`eval()`还有安全隐患，因为你有可能会运行一些被干扰过的代码（比如一段来自于网络的代码）。这是一种在处理Ajax请求所返回的JSON数据时比较常见的反模式。这种情况下最好使用浏览器的内置方法来解析JSON数据，以确保代码的安全性和数据的合法性。如果浏览器不支持`JSON.parse()`，你可以使用JSON.org所提供的库。
 
-记住，多数情况下，给setInterval()、setTimeout()和Function()构造函数传入字符串的情形和eval()类似，这种用法也是应当避免的，这一点非常重要，因为这些情形中JavaScript最终还是会执行传入的字符串参数：
+值得一提的是，多数情况下，给`setInterval()`、`setTimeout()`和`Function()`构造函数传入字符串的情形和`eval()`类似，这种用法也是应当避免的，因为这些情形中JavaScript最终还是会执行传入的字符串参数：
 
-	// antipatterns
+	// 反模式
 	setTimeout("myFunc()", 1000);
 	setTimeout("myFunc(1, 2, 3)", 1000);
-	// preferred
+	// 更好的方式
 	setTimeout(myFunc, 1000);
 	setTimeout(function () {
 		myFunc(1, 2, 3);
 	}, 1000);
 
-new Function()的用法和eval()非常类似，应当特别注意。这种构造函数的方式很强大，但往往被误用。如果你不得不使用eval()，你可以尝试用new Function()来代替。这有一个潜在的好处，在new Function()中运行的代码会在一个局部函数作用域内执行，因此源码中所有用var定义的变量不会自动变成全局变量。还有一种方法可以避免eval()中定义的变量转换为全局变量，即是将eval()包装在一个立即执行的匿名函数内（详细内容请参照第四章）。
+`new Function()`的用法和`eval()`非常类似，应当特别注意。这种构造函数的方式很强大，但经常会被误用。如果你不得不使用`eval()`，你可以尝试用`new Function()`来代替。这有一个潜在的好处，在`new Function()`中运行的代码会在一个局部函数作用域内执行，因此源码中所有用`var`定义的变量不会自动变成全局变量。还有一种方法可以避免`eval()`中定义的变量被转换为全局变量，即是将`eval()`包装在一个即时函数内（详细内容请参见第四章）。
 
-看一下这个例子，这里只有un成为了全局变量，污染了全局命名空间：
+看一下这个例子，这里只有`un`成为全局变量污染了全局命名空间：
 
 	console.log(typeof un);// "undefined"
 	console.log(typeof deux); // "undefined"
 	console.log(typeof trois); // "undefined"
 
 	var jsstring = "var un = 1; console.log(un);";
-	eval(jsstring); // logs "1"
+	eval(jsstring); // 打印出 "1"
 
 	jsstring = "var deux = 2; console.log(deux);";
-	new Function(jsstring)(); // logs "2"
+	new Function(jsstring)(); // 打印出 "2"
 
 	jsstring = "var trois = 3; console.log(trois);";
 	(function () {
 		eval(jsstring);
-	}()); // logs "3"
+	}()); // 打印出 "3"
 
 	console.log(typeof un); // "number"
 	console.log(typeof deux); // "undefined"
 	console.log(typeof trois); // "undefined"
 
-eval()和Function构造函数还有一个区别，就是eval()可以修改作用域链，而Function更像是一个沙箱。不管在什么地方执行Function，它只能看到全局作用域。因此它不会太严重的污染局部变量。在下面的示例代码中，eval()可以访问且修改其作用域之外的变量，而Function不能（注意，使用Function和new Function是完全一样的）。
+`eval()`和`Function()`构造函数还有一个区别，就是`eval()`可以修改作用域链，而`Function`更像是一个沙箱。不管在什么地方执行`Function()`，它都只能看到全局作用域。因此它不会太严重的污染局部变量。在下面的示例代码中，`eval()`可以访问并修改其作用域之外的变量，而`Function()`则不能（注意，使用`Function()`和`new Function()`是完全一样的）。
 
 	(function () {
 		var local = 1;
-		eval("local = 3; console.log(local)"); // logs 3
-		console.log(local); // logs 3
+		eval("local = 3; console.log(local)"); // 打印出 3
+		console.log(local); // 打印出 3
 	}());
 
 	(function () {
 		var local = 1;
-		Function("console.log(typeof local);")(); // logs undefined
+		Function("console.log(typeof local);")(); // 打印出 undefined
 	}());
 
-<a name="a15"></a>
+================校对分割线================
 ## 使用parseInt()进行数字转换
 
 可以使用parseInt()将字符串转换为数字。函数的第二个参数是转换基数（译注：“基数”指的是数字进制的方式），这个参数通常被省略。但当字符串以0为前缀时转换就会出错，例如，在表单中输入日期的一个字段。ECMAScript3中以0为前缀的字符串会被当作八进制数处理（基数为8）。但在ES5中不是这样。为了避免转换类型不一致而导致的意外结果，应当总是指定第二个参数：
