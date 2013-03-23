@@ -771,24 +771,23 @@ ECMAScript的属性和方法均使用驼峰式命名，尽管包含多个单词�
 
 如你所见，`@param`是用来说明输入参数的标签，`@return`是用来说明返回值的标签，文档生成工具最终会将这种带注释的源代码解析成HTML文档。
 
-================校对分割线================
-### 一个例子：YUIDoc
+### 示例：YUIDoc
 
-YUIDoc最初的目的是为YUI库（Yahoo! User Interface）生成文档，但也可以应用于任何项目，为了更充分的使用YUIDoc你需要学习它的注释规范，比如模块和类的写法（当然在JavaScript中是没有类的概念的）。
+YUIDoc的初衷是为YUI（Yahoo! User Interface）库生成文档，但其实它也可以应用于任何项目。为了更充分的使用YUIDoc，你需要学习它的注释规范，比如模块和类的写法。（尽管在JavaScript中其实是没有类的概念的）。
 
 让我们看一个用YUIDoc生成文档的完整例子。
 
-图2-1展示了最终生成的文档的模样，你可以根据项目需要随意定制HTML模板，让生成的文档更加友好和个性化。
+图2-1展示了最终生成的文档的样子，你可以根据项目需要定制HTML模板，让生成的文档更加友好和个性化。
 
-这里同样提供了在线的demo，请参照 http://jspatterns.com/book/2/。
+这里提供了在线的demo，请参照<http://jspatterns.com/book/2/>。
 
 这个例子中所有的应用作为一个模块（myapp）放在一个文件里（app.js），后续的章节会更详细的介绍模块，现在只需知道用可以用一个YUIDoc的标签来表示模块即可。
 
 图2-1 YUIDoc生成的文档
 
-![pic](http://img02.taobaocdn.com/tps/i2/T1fSCgXdBsXXXXXXXX-781-647.png)
+![YUIDoc生成的文档](./Figure/cahpter2/2-1.jpg)
 
-app.js的开始部分：
+`app.js`的开始部分：
 
 	/**
 	 * My JavaScript application
@@ -800,7 +799,7 @@ app.js的开始部分：
 
 	var MYAPP = {};
 
-紧接着定义了一个包含两个方法的对象math_stuff，这两个方法分别是sum()和multi()：
+紧接着定义了一个包含两个方法的对象`math_stuff`，这两个方法分别是`sum()`和`multi()`：
 
 	/**
 	* A math utility
@@ -833,29 +832,29 @@ app.js的开始部分：
 		}
 	};
 
-这样就结束了第一个“类”的定义，注意粗体表示的标签。
+这样就完成了第一个“类”的定义，注意以下标签：
 
-@namespace
+- `@namespace`
 
-指向你的对象的全局引用
+	包含对象的全局引用
 
-@class
+- `@class`
 
-代表一个对象或构造函数的不恰当的称谓（JavaScript中没有类）
+	代表一个对象或构造函数（JavaScript中没有类）
 
-@method
+- `@method`
 
-定义对象的方法，并指定方法的名称
+	定义对象的方法，并指定方法的名称
 
-@param
+- `@param`
 
-列出函数需要的参数，参数的类型放在一对花括号内，跟随其后的是参数名和描述
+	列出函数需要的参数，参数的类型放在一对花括号内，后面跟参数名和描述
 
-@return
+- `@return`
 
-和@param类似，用以描述方法的返回值，可以不带名字
+	和@param类似，用以描述方法的返回值，可以不带名字
 
-我们用构造函数来实现第二个“类”，给这个类的原型添加一个方法，能够体会到YUIDoc采用了不同的方式来创建对象：
+我们来实现第二个“类”，使用一个构造函数，并给这个构造函数的原型添加一个方法，看看YUIDoc在面对不同的对象创建方式时是如何工作的：
 
 	/**
 	* Constructs Person objects
@@ -889,13 +888,14 @@ app.js的开始部分：
 		return this.first_name + ' ' + this.last_name;
 	};
 
-在图2-1中可以看到生成的文档中Person构造函数的生成结果，粗体的部分是：
+在图2-1中可以看到生成的文档中`Person`构造函数的生成结果，值得注意的部分是：
 
-- @constructor 暗示了这个“类”其实是一个构造函数
-- @prototype 和 @type 用来描述对象的属性
+- `@constructor` 说明这个“类”其实是一个构造函数
+- `@prototype` 和 `@type` 用来描述对象的属性
 
-YUIDoc工具是语言无关的，只解析注释块，而不是JavaScript代码。它的缺点是必须要在注释中指定属性、参数和方法的名字，比如，@property first_name。好处是一旦你熟练掌握YUIDoc，就可以用它对任何语言源码进行注释的文档化。
+YUIDoc工具是与语言无关的，只解析注释块，而不是JavaScript代码。它的缺点是必须要在注释中指定属性、参数和方法的名字，比如，`@property first_name`。好处是一旦你熟练掌握YUIDoc，就可以用它对任何语言源码生成文档。
 
+================校对分割线================
 <a name="a28"></a>
 ## 编写易读的代码
 
