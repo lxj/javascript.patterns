@@ -171,33 +171,30 @@ JavaScript中没有类的概念，这给JavaScript带来了极大的灵活性，
 
 在后续章节会进一步讨论`Object.create()`。
 
--------------------校对分隔线-----------------
-<a name="a7"></a>
 ### 构造函数的返回值
 
-用new调用的构造函数总是会返回一个对象，默认返回this所指向的对象。如果构造函数内没有给this赋任何属性，则返回一个“空”对象（除了继承构造函数的原型之外，没有“自己的”属性）。
+当使用`new`调用的时候，构造函数总是会返回一个对象，默认情况下返回`this`所指向的对象。如果构造函数内没有给`this`赋任何属性，则返回一个“空”对象（除了继承构造函数的原型之外，没有自有属性）。
 
-尽管我们不会在构造函数内写return语句，也会隐式返回this。但我们是可以返回任意指定的对象的，在下面的例子中就返回了新创建的that对象。
+尽管在构造函数中没有`return`语句的情况下，也会隐式返回`this`。但事实上我们是可以返回任意指定的对象的，在下面的例子中就返回了新创建的`that`对象。
 
 	var Objectmaker = function () {
 
-		// this `name` property will be ignored
-		// because the constructor
-		// decides to return another object instead
+		// name属性会被忽略，因为返回的是另一个对象
 		this.name = "This is it";
 
-		// creating and returning a new object
+		// 创建并返回一个新对象
 		var that = {};
 		that.name = "And that's that";
 		return that;
 	};
 
-	// test
+	// 测试
 	var o = new Objectmaker();
 	console.log(o.name); // "And that's that"
 
-我们看到，构造函数中其实是可以返回任意对象的，只要你返回的东西是对象即可。如果返回值不是对象（字符串、数字或布尔值），程序不会报错，但这个返回值被忽略，最终还是返回this所指的对象。
+可以看到，构造函数中其实是可以返回任意对象的，只要你返回的东西是对象即可。如果返回值不是对象（字符串、数字或布尔值），程序不会报错，但这个返回值被忽略，最终还是返回`this`所指的对象。
 
+-------------------校对分隔线-----------------
 <a name="a8"></a>
 ## 强制使用new的模式
 
