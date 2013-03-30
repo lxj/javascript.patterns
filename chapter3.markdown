@@ -335,25 +335,24 @@ ECMAScript5中修正了这种出乎意料的行为逻辑。在严格模式中，
 
 ### 检查是否数组
 
-如果typeof的操作数是数组的话，将返回“object”。
+如果`typeof`的操作数是数组的话，将返回“object”。
 
 	console.log(typeof [1, 2]); // "object"
 
-这个结果勉强说得过去，毕竟数组是一种对象，但对我们用处不大。往往你需要知道一个值是不是真正的数组。你可能见到过这种检查数组的方法：检查length属性、检查数组方法比如slice()等等。但这些方法非常脆弱，非数组的对象也可以拥有这些同名的属性。还有些人使用instanceof Array来判断数组，但这种方法在某些版本的IE里的多个iframe的场景中会出问题（译注：原因就是在不同iframe中创建的数组不会相互共享其prototype属性）。
+这个结果勉强说得过去，毕竟数组也是一种对象，但对我们来说这个结果却没什么用，实际上你往往是需要知道一个值是不是真正的数组。有时候你会见到一些检查数组的方法：检查`length`属性、检查数组方法比如`slice()`等等，但这些方法非常脆弱，非数组的对象也可以拥有这些同名的属性。还有些人使用`instanceof Array`来判断数组，但这种方法在某些版本的IE里的多个iframe的场景中会出问题（译注：原因就是在不同iframe中创建的数组不会相互共享其`prototype`属性）。
 
-ECMAScript 5定义了一个新的方法Array.isArray()，如果参数是数组的话就返回true。比如：
+ECMAScript5定义了一个新的方法`Array.isArray()`，如果参数是数组的话就返回true。比如：
 
 	Array.isArray([]); // true
 
-	// trying to fool the check
-	// with an array-like object
+	// 尝试用一个类似数组的对象去测试
 	Array.isArray({
 		length: 1,
 		"0": 1,
 		slice: function () {}
 	}); // false
 
-如果你的开发环境不支持ECMAScript5，可以通过Object.prototype.toString()方法来代替。如调用toString的call()方法并传入数组上下文，将返回字符串“[object Array]”。如果传入对象上下文，则返回字符串“[object Object]”。因此可以这样做：
+如果你的开发环境不支持ECMAScript5，可以通过`Object.prototype.toString()`方法来代替。如调用`toString`的`call()`方法并传入数组上下文，将返回字符串“[object Array]”。如果传入对象上下文，则返回字符串“[object Object]”。因此可以这样做：
 
 	if (typeof Array.isArray === "undefined") {
 		Array.isArray = function (arg) {
@@ -361,20 +360,19 @@ ECMAScript 5定义了一个新的方法Array.isArray()，如果参数是数组�
 		};
 	}
 
--------------------校对分隔线-----------------
-<a name="a16"></a>
 ## JSON
 
-上文我们刚刚讨论过对象和数组字面量，你已经对此很熟悉了，现在我们将目光转向JSON。JSON（JavaScript Object Notation）是一种轻量级的数据交换格式。很多语言中都实现了JSON，特别是在JavaScript中。
+我们刚刚讨论了对象和数组字面量，你应该很熟悉了，现在我们来看一看JSON。JSON（JavaScript Object Notation）是一种轻量级的数据交换格式，可以很容易地用在多种语言中，尤其是在JavaScript中。
 
 JSON格式及其简单，它只是数组和对象字面量的混合写法，看一个JSON字符串的例子：
 
 	{"name": "value", "some": [1, 2, 3]}
 
-JSON和对象字面量在语法上的唯一区别是，合法的JSON属性名均用引号包含。而在对象字面量中，只有属性名是非法的标识符时采用引号包含，比如，属性名中包含空格`{"first name": "Dave"}`。
+JSON和对象字面量在语法上的唯一区别是，合法的JSON属性名均需要用引号包含。而在对象字面量中，只有属性名是非法的标识符时才使用引号包含，比如，属性名中包含空格`{"first name": "Dave"}`。
 
 在JSON字符串中，不能使用函数和正则表达式字面量。
 
+-------------------校对分隔线-----------------
 <a name="a17"></a>
 ### 使用JSON
 
