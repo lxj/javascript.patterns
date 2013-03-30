@@ -217,24 +217,21 @@ JavaScript中没有类的概念，这给JavaScript带来了极大的灵活性，
 
 ECMAScript5中修正了这种出乎意料的行为逻辑。在严格模式中，`this`不再指向全局对象。如果在不支持ES5的JavaScript环境中，也有一些方法可以确保有没有`new`时构造函数的行为都保持一致。
 
--------------------校对分隔线-----------------
-<a name="a9"></a>
-### 命名约定
+### 命名规范
 
-最简单的选择是使用命名约定，前面的章节已经提到，构造函数名首字母大写（MyConstructor），普通函数和方法名首字母小写（myFunction）。
+一种简单解决上述问题的方法就是命名规范，前面的章节已经讨论过，构造函数首字母大写（`MyConstructor()`），普通函数和方法首字母小写（`myFunction`）。
 
-<a name="a10"></a>
 ### 使用that
 
-遵守命名约定的确能帮上一些忙，但约定毕竟不是强制，不能完全避免出错。这里给出了一种模式可以确保构造函数一定会按照构造函数的方式执行。不要将所有成员挂在this上，将它们挂在that上，并返回that。
+遵守命名规范有一定的作用，但规范毕竟不是强制，不能完全避免出现错误。这里给出了一种模式可以确保构造函数一定会按照构造函数的方式执行，那就是不要将所有成员添加到`this`上，而是将它们添加到`that`上，并返回`that`。
 
 	function Waffle() {
-	var that = {};
+		var that = {};
 		that.tastes = "yummy";
 		return that;
 	}
 
-如果要创建简单的实例对象，甚至不需要定义一个局部变量that，可以直接返回一个对象字面量，就像这样：
+如果要创建更简单一点的对象，甚至不需要局部变量`that`，直接返回一个对象字面量即可，就像这样：
 
 	function Waffle() {
 		return {
@@ -242,21 +239,20 @@ ECMAScript5中修正了这种出乎意料的行为逻辑。在严格模式中，
 		};
 	}
 
-不管用什么方式调用它（使用new或直接调用），它同都会返回一个实例对象：
+不管用什么方式调用它（使用`new`或直接调用），它都会返回一个实例对象：
 
 	var first = new Waffle(),
 		second = Waffle();
 	console.log(first.tastes); // "yummy"
 	console.log(second.tastes); // "yummy"
 
-这种模式的问题是丢失了原型，因此在Waffle()的原型上的成员不会继承到这些实例对象中。
+这种模式的问题是会丢失原型，因此在`Waffle()`的原型上的成员不会被继承到这些对象中。
 
-> 需要注意的是，这里用的that只是一种命名约定，that不是语言的保留字，可以将它替换为任何你喜欢的名字，比如self或me。
+> 需要注意的是，这里用的`that`只是一种命名规范，`that`并不是语言特性的一部分，它可以被替换为任何你喜欢的名字，比如`self`或`me`。
 
-<a name="a11"></a>
 ### 调用自身的构造函数
 
-为了解决上述模式的问题，能够让实例对象继承原型属性，我们使用下面的方法。在构造函数中首先检查this是否是构造函数的实例，如果不是，再通过new调用构造函数，并将new的结果返回：
+为了解决上述模式的问题，能够让对象继承原型上的属性，我们使用下面的方法：在构造函数中首先检查`this`是否是构造函数的实例，如果不是，则通过`new`再次调用自己：
 
 	function Waffle() {
 
@@ -268,7 +264,7 @@ ECMAScript5中修正了这种出乎意料的行为逻辑。在严格模式中，
 	}
 	Waffle.prototype.wantAnother = true;
 
-	// testing invocations
+	// 测试
 	var first = new Waffle(),
 		second = Waffle();
 
@@ -278,14 +274,15 @@ ECMAScript5中修正了这种出乎意料的行为逻辑。在严格模式中，
 	console.log(first.wantAnother); // true
 	console.log(second.wantAnother); // true
 
-另一种检查实例的通用方法是使用arguments.callee，而不是直接将构造函数名写死在代码中：
+还有一种比较通用的用来检查实例的方法是使用`arguments.callee`，而不是直接将构造函数名写死在代码中：
 
 	if (!(this instanceof arguments.callee)) {
 		return new arguments.callee();
 	}
 
-这里需要说明的是，在任何函数内部都会自行创建一个arguments对象，它包含函数调用时传入的参数。同时arguments包含一个callee属性，指向它所在的正在被调用的函数。需要注意，ES5严格模式中是禁止使用arguments.callee的，因此最好对它的使用加以限制，并删除任何你能在代码中找到的实例（译注：这里作者的表述很委婉，其实作者更倾向于全面禁止使用arguments.callee）。
+这种模式利用了一个事实，即在任何函数内部都会创建一个`arguments`对象，它包含函数调用时传入的参数。同时`arguments`包含一个`callee`属性，指向正在被调用的函数。需要注意，ES5严格模式中已经禁止了`arguments.callee`的使用，因此最好对它的使用加以限制，并尽可能删除现有代码中已经用到的地方。
 
+-------------------校对分隔线-----------------
 <a name="a12"></a>
 ## 数组字面量
 
