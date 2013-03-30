@@ -372,44 +372,41 @@ JSON和对象字面量在语法上的唯一区别是，合法的JSON属性名均
 
 在JSON字符串中，不能使用函数和正则表达式字面量。
 
--------------------校对分隔线-----------------
-<a name="a17"></a>
 ### 使用JSON
 
-在前面的章节中讲到，出于安全考虑，不推荐使用eval()来“粗糙的”解析JSON字符串。最好使用JSON.parse()方法，ES5中已经包含了这个方法，而且在现代浏览器的JavaScript引擎中已经内置支持JSON了。对于老旧的JavaScript引擎来说，你可以使用JSON.org所提供的JS文件（http://www.json.org/json2.js）来获得JSON对象和方法。
+在前面的章节中讲到，出于安全考虑，不推荐使用`eval()`来粗暴地解析JSON字符串。最好是使用`JSON.parse()`方法，ES5中已经包含了这个方法，并且现代浏览器的JavaScript引擎中也已经内置支持JSON了。对于老旧的JavaScript引擎来说，你可以使用JSON.org所提供的JS文件（<http://www.json.org/json2.js>）来获得JSON对象和方法。
 
-	// an input JSON string
+	// 输入JSON字符串
 	var jstr = '{"mykey": "my value"}';
 	
-	// antipattern
+	// 反模式
 	var data = eval('(' + jstr + ')');
 
-	// preferred
+	// 更好的方式
 	var data = JSON.parse(jstr);
 
 	console.log(data.mykey); // "my value"
 
-如果你已经在使用某个JavaScript库了，很可能库中提供了解析JSON的方法，就不必再额外引入JSON.org的库了，比如，如果你已经使用了YUI3，你可以这样：
+如果你已经在使用某个JavaScript库了，很可能这个库中已经提供了解析JSON的方法，就不必再额外引入JSON.org的库了，比如，如果你已经使用了YUI3，你可以这样：
 
-	// an input JSON string
+	// 输入JSON字符串
 	var jstr = '{"mykey": "my value"}';
 
-	// parse the string and turn it into an object
-	// using a YUI instance
+	// 使用YUI来解析并将结果返回为一个对象
 	YUI().use('json-parse', function (Y) {
 		var data = Y.JSON.parse(jstr);
 		console.log(data.mykey); // "my value"
 	});
 
-如果你使用的是jQuery，可以直接使用它提供的parseJSON()方法：
+如果你使用的是jQuery，可以直接使用它提供的`parseJSON()`方法：
 
-	// an input JSON string
+	// 输入JSON字符串
 	var jstr = '{"mykey": "my value"}';
 
 	var data = jQuery.parseJSON(jstr);
 	console.log(data.mykey); // "my value"
 
-和JSON.parse()方法相对应的是JSON.stringify()。它将对象或数组（或任何原始值）转换为JSON字符串。
+和`JSON.parse()`方法相对应的是`JSON.stringify()`。它将对象或数组（或任何原始值）转换为JSON字符串。
 
 	var dog = {
 		name: "Fido",
@@ -419,10 +416,10 @@ JSON和对象字面量在语法上的唯一区别是，合法的JSON属性名均
 
 	var jsonstr = JSON.stringify(dog);
 
-	// jsonstr is now:
+	// jsonstr的值为
 	// {"name":"Fido","dob":"2010-04-11T22:36:22.436Z","legs":[1,2,3,4]}
 
-<a name="a18"></a>
+-------------------校对分隔线-----------------
 ## 正则表达式字面量
 
 JavaScript中的正则表达式也是对象，可以通过两种方式创建它们：
