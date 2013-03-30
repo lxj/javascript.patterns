@@ -194,32 +194,30 @@ JavaScript中没有类的概念，这给JavaScript带来了极大的灵活性，
 
 可以看到，构造函数中其实是可以返回任意对象的，只要你返回的东西是对象即可。如果返回值不是对象（字符串、数字或布尔值），程序不会报错，但这个返回值被忽略，最终还是返回`this`所指的对象。
 
--------------------校对分隔线-----------------
-<a name="a8"></a>
 ## 强制使用new的模式
 
-我们知道，构造函数和普通的函数无异，只是通过new调用而已。那么如果调用构造函数时忘记new会发生什么呢？漏掉new不会产生语法错误也不会有运行时错误，但可能会造成逻辑错误，导致执行结果不符合预期。这是因为如果不写new的话，函数内的this会指向全局对象（在浏览器端this指向window）。
+我们知道，构造函数和普通的函数本质一样，只是通过`new`调用而已。那么如果调用构造函数时忘记`new`会发生什么呢？漏掉`new`不会产生语法错误也不会有运行时错误，但可能会造成逻辑错误，导致执行结果不符合预期。这是因为如果不写`new`的话，函数内的`this`会指向全局对象（在浏览器端`this`指向`window`）。
 
-当构造函数内包含this.member之类的代码，并直接调用这个函数（省略new），实际会创建一个全局对象的属性member，可以通过window.member或member访问到它。这必然不是我们想要的结果，因为我们要努力确保全局命名空间的整洁干净。
+当构造函数内包含`this.member`之类的代码，并直接调用这个函数（省略`new`），实际上会创建一个全局对象的属性`member`，可以通过`window.member`或`member`访问到。这不是我们想要的结果，因为我们要努力确保全局命名空间干净。
 
-	// constructor
+	// 构造函数
 	function Waffle() {
 		this.tastes = "yummy";
 	}
 
-	// a new object
+	// 新对象
 	var good_morning = new Waffle();
 	console.log(typeof good_morning); // "object"
 	console.log(good_morning.tastes); // "yummy"
 
-	// antipattern:
-	// forgotten `new`
+	// 反模式，漏掉new
 	var good_morning = Waffle();
 	console.log(typeof good_morning); // "undefined"
 	console.log(window.tastes); // "yummy"
 
-ECMAScript5中修正了这种非正常的行为逻辑。在严格模式中，this是不能指向全局对象的。如果在不支持ES5的JavaScript环境中，仍然后很多方法可以确保构造函数的行为即便在省略new调用时也不会出问题。
+ECMAScript5中修正了这种出乎意料的行为逻辑。在严格模式中，`this`不再指向全局对象。如果在不支持ES5的JavaScript环境中，也有一些方法可以确保有没有`new`时构造函数的行为都保持一致。
 
+-------------------校对分隔线-----------------
 <a name="a9"></a>
 ### 命名约定
 
