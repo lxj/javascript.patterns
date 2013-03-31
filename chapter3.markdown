@@ -476,64 +476,61 @@ JavaScript中的正则表达式也是对象，可以通过两种方式创建它�
 
 最后需要提一点，不带`new`调用`RegExp()`（作为普通的函数）和带`new`调用`RegExp()`是完全一样的。
 
--------------------校对分隔线-----------------
-<a name="a20"></a>
 ## 原始值的包装对象
 
-JavaScript中有五种原始类型：数字、字符串、布尔值、null和undefined。除了null和undefined之外，其他三种都有对应的“包装对象”（wrapper objects）。可以通过内置构造函数来生成包装对象，Number()、String()、和Boolean()。
+JavaScript中有五种原始类型：数字、字符串、布尔值、`null`和`undefined`。除了`null`和`undefined`之外，其他三种都有对应的“包装对象”（primitive wrapper object）。可以通过内置构造函数`Number()`、`String()`和`Boolean()`来生成包装对象。
 
 为了说明数字原始值和数字对象之间的区别，看一下下面这个例子：
 
-	// a primitive number
+	// 一个数字原始值
 	var n = 100;
 	console.log(typeof n); // "number"
 
-	// a Number object
+	// 一个Number对象
 	var nobj = new Number(100);
 	console.log(typeof nobj); // "object"
 
-包装对象带有一些有用的属性和方法，比如，数字对象就带有toFixed()和toExponential()之类的方法。字符串对象带有substring()、chatAt()和toLowerCase()等方法以及length属性。这些方法非常方便，和原始值相比，这让包装对象具备了一定优势。其实原始值也可以调用这些方法，因为原始值会首先转换为一个临时对象，如果转换成功，则调用包装对象的方法。
+包装对象带有一些有用的属性和方法。比如，数字对象就带有`toFixed()`和`toExponential()`之类的方法，字符串对象带有`substring()`、`chatAt()`和`toLowerCase()`等方法以及`length`属性。这些方法非常方便，和原始值相比，这是包装对象的优势，但其实原始值也可以调用这些方法，因为原始值会首先转换为一个临时对象，如果转换成功，则调用包装对象的方法。
 
-	// a primitive string be used as an object
+	// 像使用对象一样使用一个字符串原始值
 	var s = "hello";
 	console.log(s.toUpperCase()); // "HELLO"
 
-	// the value itself can act as an object
+	// 值本身也可以像对象一样
 	"monkey".slice(3, 6); // "key"
 
-	// same for numbers
+	// 数字也是一样
 	(22 / 7).toPrecision(3); // "3.14"
 
 因为原始值可以根据需要转换成对象，这样的话，也不必为了用包装对象的方法而将原始值手动“包装”成对象。比如，不必使用new String("hi")，直接使用"hi"即可。
 
-	// avoid these:
+	// 避免这些：
 	var s = new String("my string");
 	var n = new Number(101);
 	var b = new Boolean(true);
 
-	// better and simpler:
+	// 更好更简洁的办法：
 	var s = "my string";
 	var n = 101;
 	var b = true;
 
-不得不使用包装对象的一个原因是，有时我们需要对值进行扩充并保持值的状态。原始值毕竟不是对象，不能直接对其进行扩充（译注：比如`1.property = 2`会报错）。
+不得不使用包装对象的一个场景是，有时我们需要对值进行扩充并保持值的状态。原始值毕竟不是对象，不能直接对其进行扩充。
 
-	// primitive string
+	// 字符串原始值
 	var greet = "Hello there";
 
-	// primitive is converted to an object
-	// in order to use the split() method
+	// 为使用split方法，原始值被转换为对象
 	greet.split(' ')[0]; // "Hello"
 
-	// attemting to augment a primitive is not an error
+	// 给原始值添加属性并不会报错
 	greet.smile = true;
 
-	// but it doesn't actually work
+	// 但实际上却没有作用
 	typeof greet.smile; // "undefined"
 
-在这段示例代码中，greet只是临时转换成了对象，以保证访问其属性/方法时不会出错。另一方面，如果greet通过new String()定义为一个对象，那么扩充smile属性就会按照期望的那样执行。对字符串、数字或布尔值的扩充并不常见，除非你清楚自己想要什么，否则不必使用包装对象。
+在这段示例代码中，`greet`只是临时被转换成了对象，以保证访问其属性、方法时不会出错。而如果是另一种情况，`greet`通过`new String()`被定义为一个对象，那么扩充`smile`属性的过程就会像我们预期的那样。对字符串、数字或布尔值进行扩充的情况很少见，因此建议只在确实有必要的情况下使用包装对象。
 
-当省略new时，包装器将传给它的参数转换为原始值：
+当省略`new`时，包装对象的构造函数将传给它的参数转换为原始值：
 
 	typeof Number(1); // "number"
 	typeof Number("1"); // "number"
@@ -541,7 +538,7 @@ JavaScript中有五种原始类型：数字、字符串、布尔值、null和und
 	typeof String(1); // "string"
 	typeof Boolean(1); // "boolean"
 
-<a name="a21"></a>
+-------------------校对分隔线-----------------
 ## Error 对象
 
 JavaScript中有很多内置的Error构造函数，比如Error()、SyntaxError()，TypeError()等等，这些“错误”通常和throw语句一起使用。这些构造函数创建的错误对象包含这些属性：
