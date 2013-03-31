@@ -538,42 +538,41 @@ JavaScript中有五种原始类型：数字、字符串、布尔值、`null`和`
 	typeof String(1); // "string"
 	typeof Boolean(1); // "boolean"
 
--------------------校对分隔线-----------------
-## Error 对象
+## 错误处理对象
 
-JavaScript中有很多内置的Error构造函数，比如Error()、SyntaxError()，TypeError()等等，这些“错误”通常和throw语句一起使用。这些构造函数创建的错误对象包含这些属性：
+JavaScript中有很多内置的错误处理构造函数，比如`Error()`、`SyntaxError()`，`TypeError()`等等，它们通常和`throw`语句一起被使用。这些构造函数创建的错误对象包含这些属性：
 
-**name**
+- `name`
 
-name属性是指创建这个对象的构造函数的名字，通常是“Errora”，有时会有特定的名字比如“RangeError”
+	name属性是指产生这个对象的构造函数的名字，通常是“Error”，有时会有特定的名字比如“RangeError”
 
-**message**
+- `message`
 
-创建这个对象时传入构造函数的字符串
+	创建这个对象时传入构造函数的字符串
 
-错误对象还有其他一些属性，比如产生错误的行号和文件名，但这些属性是浏览器自行实现的，不同浏览器的实现也不一致，因此出于兼容性考虑，并不推荐使用这些属性。
+错误对象还有一些其他的属性，比如产生错误的行号和文件名，但这些属性是浏览器自行实现的，不同浏览器的实现也不一致，因此出于兼容性考虑，并不推荐使用这些属性。
 
-另一方面，throw可以抛出任何对象，并不限于“错误对象”，因此你可以根据需要抛出自定义的对象。这些对象包含属性“name”和“message”或其他你希望传递给异常处理逻辑的信息，异常处理逻辑由catch语句指定。你可以灵活运用抛出的错误对象，将程序从错误状态恢复至正常状态。
+`throw`可以抛出任何对象，并不限于“错误对象”，因此你可以根据需要抛出自定义的对象。这些对象包含属性“name”和“message”或其他你希望传递给异常处理逻辑的信息，异常处理逻辑由`catch`语句指定。你可以灵活运用抛出的错误对象，将程序从错误状态恢复至正常状态。
 
 	try {
-		// something bad happened, throw an error
+		// 一些不好的事情发生了，抛出错误
 		throw {
-			name: "MyErrorType", // custom error type
+			name: "MyErrorType", // 自定义错误类型
 			message: "oops",
 			extra: "This was rather embarrassing",
-			remedy: genericErrorHandler // who should handle it
+			remedy: genericErrorHandler // 应该由谁处理
 		};
 	} catch (e) {
-		// inform the user
+		// 通知用户
 		alert(e.message); // "oops"
 
-		// gracefully handle the error
-		e.remedy(); // calls genericErrorHandler()
+		// 优雅地处理错误
+		e.remedy(); // 调用genericErrorHandler()
 	}
 
-通过new调用和省略new调用错误构造函数是一模一样的，他们都返回相同的错误对象。
+使用`new`调用和省略`new`调用错误构造函数是一模一样的，他们都返回相同的错误对象。
 
-<a name="a22"></a>
+-------------------校对分隔线-----------------
 ## 小结
 
 在本章里，我们讨论了多种字面量模式，它们是使用构造函数写法的替代方案，本章讲述了这些内容：
