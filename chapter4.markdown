@@ -164,45 +164,41 @@ JavaScript的函数具有两个主要特性，正是这两个特性让它们与�
 - 函数是对象
 - 函数提供本地变量作用域
 
-
----------校对分割线---------
-<a name="a7"></a>
 ## 回调模式
 
-函数是对象，也就意味着函数可以当作参数传入另外一个函数中。当你给函数writeCode()传入一个函数参数introduceBugs()，在某个时刻writeCode()执行了（或调用了）introduceBugs()。在这种情况下，我们说introduceBugs()是一个“回调函数”，简称“回调”：
+函数是对象，也就意味着函数可以当作参数传入另外一个函数中。给函数`writeCode()`传入一个函数参数`introduceBugs()`，在某个时刻`writeCode()`执行了（或调用了）`introduceBugs()`，在这种情况下，我们称`introduceBugs()`是一个“回调函数”，简称“回调”：
 
 	function writeCode(callback) {
-		// do something...
+		// 做点什么……
 		callback();
-		// ...
+		// ……
 	}
 
 	function introduceBugs() {
-		// ... make bugs
+		// ……
 	}
 
 	writeCode(introduceBugs);
 
-注意introduceBugs()是如何作为参数传入writeCode()的，当作参数的函数不带括号。括号的意思是执行函数，而这里我们希望传入一个引用，让writeCode()在合适的时机执行它（调用它）。
+注意`introduceBugs()`作为参数传入`writeCode()`时，函数后面是不带括号的。括号的意思是执行函数，而这里我们希望传入一个引用，让`writeCode()`在合适的时机执行它（调用它）。
 
-<a name="a8"></a>
-### 一个回调的例子
+### 回调的例子
 
-我们从一个例子开始，首先介绍无回调的情况，然后在作修改。假设你有一个通用的函数，用来完成某种复杂的逻辑并返回一大段数据。假设我们用findNodes()来命名这个通用函数，这个函数用来对DOM树进行遍历，并返回我所感兴趣的页面节点：
+我们从一个例子开始，首先介绍无回调的情况，然后再进行修改。假设你有一个通用的函数，用来完成某种复杂的逻辑并返回一大段数据。假设这个通用函数叫`findNodes()`，用来对DOM树进行遍历，并返回页面节点：
 
 	var findNodes = function () {
-		var i = 100000, // big, heavy loop
-			nodes = [], // stores the result
-			found; // the next node found
+		var i = 100000, // 大量耗时的循环
+			nodes = [], // 存储结果
+			found; // 标示下找到的节点
 		while (i) {
 			i -= 1;
-			// complex logic here...
+			// 这里是复杂的逻辑……
 			nodes.push(found);
 		}
 		return nodes;
 	};
 
-保持这个函数的功能的通用性并一贯返回DOM节点组成的数组，并不会发生对节点的实际操作，这是一个不错的注意。可以将操作节点的逻辑放入另外一个函数中，比如放入一个hide()函数中，这个函数用来隐藏页面中的节点元素：
+保持这个函数的功能的通用性，让它只返回DOM节点组成的数组，而不对节点进行操作是一个很好的思想。可以将操作节点的逻辑放入另外一个函数中，比如`hide()`函数，这个函数用来隐藏页面中的节点元素：
 
 	var hide = function (nodes) {
 		var i = 0, max = nodes.length;
@@ -211,27 +207,27 @@ JavaScript的函数具有两个主要特性，正是这两个特性让它们与�
 		}
 	};
 
-	// executing the functions
+	// 执行函数
 	hide(findNodes());
 
-这个实现的效率并不高，因为它将findNodes()所返回的节点数组重新遍历了一遍。最好在findNodes()中选择元素的时候就直接应用hide()操作，这样就能避免第二次的遍历，从而提高效率。但如果将hide()的逻辑写死在findNodes()的函数体内，findNodes()就变得不再通用了（译注：如果我将hide()的逻辑替换成其他逻辑怎么办呢？），因为修改逻辑和遍历逻辑耦合在一起了。如果使用回调模式，则可以将隐藏节点的逻辑写入回调函数，将其传入findNodes()中适时执行：
+这个实现的效率并不高，因为它将`findNodes()`所返回的节点数组重新遍历了一遍。更高效的办法是在`findNodes()`中选择元素的时候就直接应用`hide()`操作，这样就能避免第二次的遍历，从而提高效率。但如果将`hide()`的逻辑写死在`findNodes()`的函数体内，`findNodes()`就变得不再通用了，因为修改逻辑和遍历逻辑耦合在一起了。这时候如果使用回调模式，就可以将隐藏节点的逻辑写入回调函数，将其传入`findNodes()`中适时执行：
 
-	// refactored findNodes() to accept a callback
+	// 重构后的findNodes()接受一个回调函数
 	var findNodes = function (callback) {
 		var i = 100000,
 			nodes = [],
 			found;
 		
-		// check if callback is callable
+		// 检查回调函数是否可以执行
 		if (typeof callback !== "function") {
 			callback = false;
 		}
 		while (i) {
 			i -= 1;
 
-			// complex logic here...
+			// 这里是复杂的逻辑……
 
-			// now callback:
+			// 回调：
 			if (callback) {
 				callback(found);
 			}
@@ -241,25 +237,26 @@ JavaScript的函数具有两个主要特性，正是这两个特性让它们与�
 		return nodes;
 	};
 
-这里的实现比较直接，findNodes()多作了一个额外工作，就是检查回调函数是否存在，如果存在的话就执行它。回调函数是可选的，因此修改后的findNodes()也是和之前一样使用，是可以兼容旧代码和旧API的。
+这里的实现比较直接，`findNodes()`多作了一个额外工作，就是检查回调函数是否存在，如果存在的话就执行它。回调函数是可选的，因此修改后的`findNodes()`仍然可以和之前一样使用，是可以兼容旧代码和旧API的。
 
-这时hide()的实现就非常简单了，因为它不用对元素列表做任何遍历了：
+这时`hide()`的实现就非常简单了，因为它不用对元素列表做任何遍历了：
 
-	// a callback function
+	// 回调函数
 	var hide = function (node) {
 		node.style.display = "none";
 	};
 
-	// find the nodes and hide them as you go
+	// 找到节点并隐藏它们
 	findNodes(hide);
 
-正如代码中所示，回调函数可以是事先定义好的，也可以是一个匿名函数，你也可以将其称作main函数，比如这段代码，我们利用同样的通用函数findNodes()来完成显示元素的操作：
+回调函数可以是事先定义好的，像上面的代码一样，也可以是一个在调用函数时创建的匿名函数，比如这段代码，我们利用同样的通用函数`findNodes()`来完成显示元素的操作：
 
-	// passing an anonymous callback
+	// 传入匿名回调函数
 	findNodes(function (node) {
 		node.style.display = "block";
 	});
 
+---------校对分割线---------
 <a name="a9"></a>
 ### 回调和作用域
 
