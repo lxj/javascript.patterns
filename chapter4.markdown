@@ -256,17 +256,15 @@ JavaScript的函数具有两个主要特性，正是这两个特性让它们与�
 		node.style.display = "block";
 	});
 
----------校对分割线---------
-<a name="a9"></a>
 ### 回调和作用域
 
 在上一个例子中，执行回调函数的写法是：
 
 	callback(parameters);
 
-尽管这种写法可以适用大多数的情况，而且足够简单，但还有一些场景，回调函数不是匿名函数或者全局函数，而是对象的方法。如果回调函数中使用this指向它所属的对象，则回调逻辑往往并不像我们希望的那样执行。
+尽管这种写法很简单，而且可以适用于大多数的情况，但还有一些场景，回调函数不是匿名函数或者全局函数，而是对象的方法，如果这种情况下回调函数中使用了`this`指向它所属的对象，则回调逻辑就可能不是我们期望的那样。
 
-假设回调函数是paint()，它是myapp的一个方法：
+假设回调函数是`paint()`，它是`myapp`的一个方法：
 
 	var myapp = {};
 	myapp.color = "green";
@@ -284,13 +282,13 @@ JavaScript的函数具有两个主要特性，正是这两个特性让它们与�
 		// ...
 	};
 
-当你调用findNodes(myapp.paint)，运行结果和我们期望的不一致，因为this.color未定义。因为findNodes()是全局函数，this指向的是全局对象。如果findNodes()是dom对象的方法（类似dom.findNodes()），那么回调函数内的this则指向dom，而不是myapp。
+当你调用`findNodes(myapp.paint)`时，运行结果和我们期望的不一致，因为`this.color`未定义。这时候`this`指向的是全局对象，因为`findNodes()`是全局函数。如果`findNodes()`是dom对象的方法（类似`dom.findNodes()`），那么回调函数内的`this`指向该dom，而不是`myapp`。
 
 解决办法是，除了传入回调函数，还需将回调函数所属的对象当作参数传进去：
 
 	findNodes(myapp.paint, myapp);
 
-同样需要修改findNodes()的逻辑，增加对传入的对象的绑定：
+同样需要修改`findNodes()`的逻辑，增加对传入的对象的绑定：
 
 	var findNodes = function (callback, callback_obj) {
 		//...
@@ -300,9 +298,9 @@ JavaScript的函数具有两个主要特性，正是这两个特性让它们与�
 		// ...
 	};
 
-在后续的章节会对call()和apply()有更详细的讲述。
+在后续的章节会对`call()`和`apply()`有更详细的讲述。
 
-其实还有一种替代写法，就是将函数当作字符串传入findNodes()，这样就不必再写一次对象了，换句话说：
+其实还有一种替代写法，就是将函数名称以字符串传入`findNodes()`，这样就不必再写一次对象了，也就是说：
 
 	findNodes(myapp.paint, myapp);
 
@@ -310,7 +308,7 @@ JavaScript的函数具有两个主要特性，正是这两个特性让它们与�
 	
 	findNodes("paint", myapp);
 
-在findNodes()中的逻辑则需要修改为：
+在`findNodes()`中的逻辑则需要修改为：
 
 	var findNodes = function (callback, callback_obj) {
 
@@ -325,7 +323,7 @@ JavaScript的函数具有两个主要特性，正是这两个特性让它们与�
 		// ...
 	};
 
-<a name="a10"></a>
+---------校对分割线---------
 ### 异步事件监听
 
 JavaScript中的回调模式已经是我们的家常便饭了，比如，如果你给网页中的元素绑定事件，则需要提供回调函数的引用，以便事件发生时能调用到它。这里有一个简单的例子，我们将console.log()作为回调函数绑定了document的点击事件：
