@@ -609,45 +609,43 @@ JavaScript中的回调模式已经是我们的家常便饭了，比如，如果�
 > 这种模式主要用于一些一次性的工作，并且在`init()`方法执行完后就无法再次访问到这个对象。如果希望在这些工作完成后保持对对象的引用，只需要简单地在`init()`的末尾加上`return this;`即可。
 
 
----------校对分割线---------
-<a name="a20"></a>
 ## 条件初始化
 
 条件初始化（也叫条件加载）是一种优化模式。当你知道某种条件在整个程序生命周期中都不会变化的时候，那么对这个条件的探测只做一次就很有意义。浏览器探测（或者特征检测）是一个典型的例子。
 
-举例说明，当你探测到XMLHttpRequest被作为一个本地对象支持时，就知道浏览器不会在程序执行过程中改变这一情况，也不会出现突然需要去处理ActiveX对象的情况。当环境不发生变化的时候，你的代码就没有必要在需要在每次XHR对象时探测一遍（并且得到同样的结果）。
+举例说明，当你探测到`XMLHttpRequest`被作为一个本地对象支持时，就知道浏览器不会在程序执行过程中改变这一情况，也不会出现突然需要去处理ActiveX对象的情况。当环境不发生变化的时候，你的代码就没有必要在需要在每次初始化XHR对象时探测一遍（并且得到同样的结果）。
 
-另外一些可以从条件初始化中获益的场景是获得一个DOM元素的computed styles或者是绑定事件处理函数。大部分程序员在他们的客户端编程生涯中都编写过事件绑定和取消绑定相关的组件，像下面的例子：
+另外一些可以从条件初始化中获益的场景是获得一个DOM元素的computed styles或者是绑定事件处理函数。大部分程序员在他们的编程生涯中都编写过事件绑定和取消绑定相关的组件，像下面的例子：
 
-	// BEFORE
+	// 优化前的代码
 	var utils = {
 		addListener: function (el, type, fn) {
 			if (typeof window.addEventListener === 'function') {
 				el.addEventListener(type, fn, false);
 			} else if (typeof document.attachEvent === 'function') { // IE
 				el.attachEvent('on' + type, fn);
-			} else { // older browsers
+			} else { // 老的浏览器
 				el['on' + type] = fn;
 			}
 		},
 		removeListener: function (el, type, fn) {
-			// pretty much the same...
+			// 和上面很类似的代码……
 		}
 	};
 
-这段代码的问题就是效率不高。每当你执行utils.addListener()或者utils.removeListener()时，同样的检查都会被重复执行。
+这段代码的问题就是效率不高。每当你执行`utils.addListener()`或者`utils.removeListener()`时，同样的检查都会被重复执行。
 
 如果使用条件初始化，那么浏览器探测的工作只需要在初始化代码的时候执行一次。在初始化的时候，代码探测一次环境，然后重新定义这个函数在剩下来的程序生命周期中应该怎样工作。下面是一个例子，看看如何达到这个目的：
 
-	// AFTER
+	// 优化后的代码
 	
-	// the interface
+	// 接口
 	var utils = {
 		addListener: null,
 		removeListener: null
 	};
 	
-	// the implementation
+	// 实现
 	if (typeof window.addEventListener === 'function') {
 		utils.addListener = function (el, type, fn) {
 			el.addEventListener(type, fn, false);
@@ -671,9 +669,10 @@ JavaScript中的回调模式已经是我们的家常便饭了，比如，如果�
 		};
 	}
 
-说到这里，要特别提醒一下关于浏览器探测的事情。当你使用这个模式的时候，不要对浏览器特性过度假设。举个例子，如果你探测到浏览器不支持window.addEventListener，不要假设这个浏览器是IE，也不要认为它不支持原生的XMLHttpRequest，虽然这个结论在整个浏览器历史上的某个点是正确的。当然，也有一些情况是可以放心地做一些特性假设的，比如.addEventListener和.removeEventListerner，但是通常来讲，浏览器的特性在发生变化时都是独立的。最好的策略就是分别探测每个特性，然后使用条件初始化，使这种探测只做一次。
+说到这里，要特别提醒一下关于浏览器探测的事情。当你使用这个模式的时候，不要对浏览器特性过度假设。举个例子，如果你探测到浏览器不支持`window.addEventListener`时，不要假设这个浏览器是IE，也不要认为它不支持原生的`XMLHttpRequest`，虽然这个结论在整个浏览器历史上的某个时间点是正确的。当然，也有一些情况是可以放心地做一些特性假设的，比如`.addEventListener`和`.removeEventListerner`，但是通常来讲，浏览器的特性在发生变化时都是独立的。最好的策略就是分别探测每个特性，然后使用条件初始化，使这种探测只做一次。
 
 
+---------校对分割线---------
 <a name="a21"></a>
 ## 函数属性——Memoization模式
 
