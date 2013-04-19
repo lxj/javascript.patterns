@@ -672,32 +672,30 @@ JavaScript中的回调模式已经是我们的家常便饭了，比如，如果�
 说到这里，要特别提醒一下关于浏览器探测的事情。当你使用这个模式的时候，不要对浏览器特性过度假设。举个例子，如果你探测到浏览器不支持`window.addEventListener`时，不要假设这个浏览器是IE，也不要认为它不支持原生的`XMLHttpRequest`，虽然这个结论在整个浏览器历史上的某个时间点是正确的。当然，也有一些情况是可以放心地做一些特性假设的，比如`.addEventListener`和`.removeEventListerner`，但是通常来讲，浏览器的特性在发生变化时都是独立的。最好的策略就是分别探测每个特性，然后使用条件初始化，使这种探测只做一次。
 
 
----------校对分割线---------
-<a name="a21"></a>
-## 函数属性——Memoization模式
+## 函数属性——记忆模式（Memoization）
 
-函数也是对象，所以它们可以有属性。事实上，函数也确实本来就有一些属性。比如，对一个函数来说，不管是用什么语法创建的，它会自动拥有一个length属性来标识这个函数期待接受的参数个数：
+函数也是对象，所以它们可以有属性。事实上，函数也确实本来就有一些属性。比如，对一个函数来说，不管是用什么语法创建的，它会自动拥有一个`length`属性来标识这个函数期待接受的参数个数：
 
 	function func(a, b, c) {}
 	console.log(func.length); // 3
 
-任何时候都可以给函数添加自定义属性。添加自定义属性的一个有用场景是缓存函数的执行结果（返回值），这样下次同样的函数被调用的时候就不需要再做一次那些可能很复杂的计算。缓存一个函数的运行结果也就是为大家所熟知的Memoization。
+任何时候都可以给函数添加自定义属性。添加自定义属性的一个有用场景是缓存函数的执行结果（返回值），这样下次同样的函数被调用的时候就不需要再做一次那些可能很复杂的计算。缓存一个函数的运行结果也就是为大家所熟知的记忆模式。
 
-在下面的例子中，myFunc函数创建了一个cache属性，可以通过myFunc.cache访问到。这个cache属性是一个对象（hash表），传给函数的参数会作为对象的key，函数执行结果会作为对象的值。函数的执行结果可以是任何的复杂数据结构：
+在下面的例子中，`myFunc`函数创建了一个`cache`属性，可以通过`myFunc.cache`访问到。这个`cache`属性是一个对象（hash表），传给函数的参数会作为对象的key，函数执行结果会作为对象的值。函数的执行结果可以是任何的复杂数据结构：
 
 	var myFunc = function (param) {
 		if (!myFunc.cache[param]) {
 			var result = {};
-			// ... expensive operation ...
+			// ……复杂的计算……
 			myFunc.cache[param] = result;
 		}
 		return myFunc.cache[param];
 	};
 
-	// cache storage
+	// 缓存
 	myFunc.cache = {};
 
-上面的代码假设函数只接受一个参数param，并且这个参数是基本类型（比如字符串）。如果你有更多更复杂的参数，则通常需要对它们进行序列化。比如，你需要将arguments对象序列化为JSON字符串，然后使用JSON字符串作为cache对象的key：
+上面的代码假设函数只接受一个参数`param`，并且这个参数是原始类型（比如字符串）。如果你有更多更复杂的参数，则通常需要对它们进行序列化。比如，你需要将`arguments`对象序列化为JSON字符串，然后使用JSON字符串作为`cache`对象的key：
 
 	var myFunc = function () {
 
@@ -706,18 +704,18 @@ JavaScript中的回调模式已经是我们的家常便饭了，比如，如果�
 	
 		if (!myFunc.cache[cachekey]) {
 			result = {};
-			// ... expensive operation ...
+			// ……复杂的计算……
 			myFunc.cache[cachekey] = result;
 		}
 		return myFunc.cache[cachekey];
 	};
 	
-	// cache storage
+	// 缓存
 	myFunc.cache = {};
 
 需要注意的是，在序列化的过程中，对象的“标识”将会丢失。如果你有两个不同的对象，却碰巧有相同的属性，那么他们会共享同样的缓存内容。
 
-前面代码中的函数名还可以使用arguments.callee来替代，这样就不用将函数名硬编码。不过尽管现阶段这个办法可行，但是仍然需要注意，arguments.callee在ECMAScript 5的严格模式中是不被允许的：
+前面代码中的函数名还可以使用`arguments.callee`来替代，这样就不用将函数名硬编码。不过尽管现阶段这个办法可行，但是仍然需要注意，`arguments.callee`在ECMAScript5的严格模式中是不被允许的：
 
 	var myFunc = function (param) {
 	
@@ -726,16 +724,17 @@ JavaScript中的回调模式已经是我们的家常便饭了，比如，如果�
 	
 		if (!f.cache[param]) {
 			result = {};
-			// ... expensive operation ...
+			// ……复杂的计算……
 			f.cache[param] = result;
 		}
 		return f.cache[param];
 	};
 	
-	// cache storage
+	// 缓存
 	myFunc.cache = {};
 
 
+---------校对分割线---------
 <a name="a22"></a>
 ## 配置对象
 
