@@ -472,25 +472,25 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 	MYAPP.utilities.array = (function () {
 
-		// private properties
+			// 私有属性
 		var array_string = "[object Array]",
 			ops = Object.prototype.toString,
 
-		// private methods
-		inArray = function (haystack, needle) {
-			for (var i = 0, max = haystack.length; i < max; i += 1) {
-				if (haystack[i] === needle) {
-					return i;
+			// 私有方法
+			inArray = function (haystack, needle) {
+				for (var i = 0, max = haystack.length; i < max; i += 1) {
+					if (haystack[i] === needle) {
+						return i;
+					}
 				}
-			}
-			return −1;
-		},
-		isArray = function (a) {
-			return ops.call(a) === array_string;
-		};
-		// end var
+				return −1;
+			},
+			isArray = function (a) {
+				return ops.call(a) === array_string;
+			};
+			// 结束变量定义
 
-		// revealing public API
+		// 暴露公有API
 		return {
 			isArray: isArray,
 			indexOf: inArray
@@ -499,7 +499,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 ### 创建构造函数的模块
 
-前面的例子创建了一个对象`MYAPP.utilities.array`，但有时候使用构造函数来创建对象会更方便。你也可以同样使用模块模式来做。唯一的区别是包裹模块的立即执行的函数会在最后返回一个函数，而不是一个对象。
+前面的例子创建了一个对象`MYAPP.utilities.array`，但有时候使用构造函数来创建对象会更方便。你也可以同样使用模块模式来做。唯一的区别是包裹模块的即时函数会在最后返回一个函数，而不是一个对象。
 
 看下面的模块模式的例子，创建了一个构造函数`MYAPP.utilities.Array`：
 
@@ -507,23 +507,23 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 	MYAPP.utilities.Array = (function () {
 
-		// dependencies
+			// 声明依赖
 		var uobj = MYAPP.utilities.object,
 			ulang = MYAPP.utilities.lang,
 
-		// private properties and methods...
-		Constr;
+			// 私有属性和方法……
+			Constr;
 
-		// end var
+			// 结束变量定义
 
-		// optionally one-time init procedures
-		// ...
+		// 选择性放置一次性初始化代码
+		// ……
 
-		// public API -- constructor
+		// 公有API——构造函数
 		Constr = function (o) {
 			this.elements = this.toArray(o);
 		};
-		// public API -- prototype
+		// 公有API——原型
 		Constr.prototype = {
 			constructor: MYAPP.utilities.Array,
 			version: "2.0",
@@ -535,8 +535,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 			}
 		};
 
-		// return the constructor
-		// to be assigned to the new namespace 
+		// 返回构造函数
 		return Constr;
 
 	}());
@@ -547,13 +546,11 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 ### 在模块中引入全局上下文
 
-作为这种模式的一个常见的变种，你可以给包裹模块的立即执行的函数传递参数。你可以传递任何值，但通常会传递全局变量甚至是全局对象本身。引入全局上下文可以加快函数内部的全局变量的解析，因为引入之后会作为函数的本地变量：
+作为这种模式的一个常见的变种，你可以给包裹模块的即时函数传递参数。你可以传递任何值，但通常情况下会传递全局变量甚至是全局对象本身。引入全局上下文可以加快函数内部的全局变量的解析，因为引入之后会作为函数的本地变量：
 
 	MYAPP.utilities.module = (function (app, global) {
 
-		// references to the global object
-		// and to the global app namespace object
-		// are now localized
+		// 全局对象和全局命名空间都作为本地变量存在
 		
 	}(MYAPP, this));
 
