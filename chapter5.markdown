@@ -127,27 +127,26 @@ JavaScript没有原生的命名空间语法，但很容易可以实现这个特�
 
 ## 声明依赖
 
-JavaScript库往往是模块化而且有用到命名空间的，这使得你可以只使用你需要的模块。比如在YUI2中，全局变量YAHOO就是一个命名空间，各个模块作为全局变量的属性，比如YAHOO.util.Dom（DOM模块）、YAHOO.util.Event（事件模块）。
+JavaScript库往往是模块化而且有用到命名空间的，这使得你可以只使用你需要的模块。比如在YUI2中，全局变量`YAHOO`就是一个命名空间，各个模块都是全局变量的属性，比如`YAHOO.util.Dom`（DOM模块）、`YAHOO.util.Event`（事件模块）。
 
 将你的代码依赖在函数或者模块的顶部进行声明是一个好主意。声明就是创建一个本地变量，指向你需要用到的模块：
 
 	var myFunction = function () {
-		// dependencies
+		// 依赖
 		var event = YAHOO.util.Event,
 			dom = YAHOO.util.Dom;
 
-		// use event and dom variables
-		// for the rest of the function...
+		// 在函数后面的代码中使用event和dom……
 	};
 
 这是一个相当简单的模式，但是有很多的好处：
 
-- 明确的声明依赖是告知你代码的用户，需要保证指定的脚本文件被包含在页面中。
+- 明确的声明依赖是告知使用你代码的开发者，需要保证指定的脚本文件被包含在页面中。
 - 将声明放在函数顶部使得依赖很容易被查找和解析。
-- 本地变量（如dom）永远会比全局变量（如YAHOO）要快，甚至比全局变量的属性（如YAHOO.util.Dom）还要快，这样会有更好的性能。使用了依赖声明模式之后，全局变量的解析在函数中只会进行一次，在此之后将会使用更快的本地变量。
-- 一些高级的代码压缩工具比如YUI Compressor和Google Closure compiler会重命名本地变量（比如event可能会被压缩成一个字母，如A），这会使代码更精简，但这个操作不会对全局变量进行，因为这样做不安全。
+- 本地变量（如`dom`）永远会比全局变量（如`YAHOO`）要快，甚至比全局变量的属性（如`YAHOO.util.Dom`）还要快，这样会有更好的性能。使用了依赖声明模式之后，全局变量的解析在函数中只会进行一次，在此之后将会使用更快的本地变量。
+- 一些高级的代码压缩工具比如YUI Compressor和Google Closure compiler会重命名本地变量（比如`event`可能会被压缩成一个字母，如`A`），这会使代码更精简，但这个操作不会对全局变量进行，因为这样做不安全。
 
-下面的代码片段是关于是否使用依赖声明模式对压缩影响的展示。尽管使用了依赖声明模式的test2()看起来复杂，因为需要更多的代码行数和一个额外的变量，但在压缩后它的代码量却会更小，意味着用户只需要下载更少的代码：
+下面的代码片段是关于是否使用依赖声明模式对压缩影响的展示。尽管使用了依赖声明模式的`test2()`看起来复杂，因为需要更多的代码行数和一个额外的变量，但在压缩后它的代码量却会更小，意味着用户只需要下载更少的代码：
 
 	function test1() {
 		alert(MYAPP.modules.m1);
@@ -156,7 +155,7 @@ JavaScript库往往是模块化而且有用到命名空间的，这使得你可�
 	}
 
 	/*
-	minified test1 body:
+	test1()压缩后的函数体：
 	alert(MYAPP.modules.m1);alert(MYAPP.modules.m2);alert(MYAPP.modules.m51)
 	*/
 
@@ -168,7 +167,7 @@ JavaScript库往往是模块化而且有用到命名空间的，这使得你可�
 	}
 
 	/*
-	minified test2 body:
+	test2()压缩后的函数体：
 	var a=MYAPP.modules;alert(a.m1);alert(a.m2);alert(a.m51)
 	*/
 
@@ -183,8 +182,8 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 			return this.myprop;
 		}
 	};
-	console.log(myobj.myprop); // `myprop` is publicly accessible
-	console.log(myobj.getProp()); // getProp() is public too
+	console.log(myobj.myprop); // myprop是公有的
+	console.log(myobj.getProp()); // getProp()也是公有的
 
 当你使用构造函数创建对象的时候也是一样的，所有的成员都是公有的：
 
@@ -195,60 +194,60 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 		};
 	}
 	var toy = new Gadget();
-	console.log(toy.name); // `name` is public
-	console.log(toy.stretch()); // stretch() is public
+	console.log(toy.name); // name是公有的
+	console.log(toy.stretch()); // stretch()也是公有的
 
 ### 私有成员
 
-尽管语言并没有用于私有成员的专门语法，但你可以通过闭包来实现。在构造函数中创建一个闭包，任何在这个闭包中的部分都不会暴露到构造函数之外。但是，这些私有变量却可以被公有方法访问，也就是在构造函数中定义的并且作为返回对象一部分的那些方法。我们来看一个例子，name是一个私有成员，在构造函数之外不能被访问：
+尽管语言并没有用于私有成员的专门语法，但你可以通过闭包来实现。在构造函数中创建一个闭包，任何在这个闭包中的部分都不会暴露到构造函数之外。但是，这些私有变量却可以被公有方法访问，也就是在构造函数中定义的并且作为返回对象一部分的那些方法。我们来看一个例子，`name`是一个私有成员，在构造函数之外不能被访问：
 
 	function Gadget() {
-		// private member
+		// 私有成员
 		var name = 'iPod';
-		// public function
+		// 公有函数
 		this.getName = function () {
 			return name;
 		};
 	}
 	var toy = new Gadget();
 
-	// `name` is undefined, it's private
+	// name是是私有的
 	console.log(toy.name); // undefined
-	// public method has access to `name`
+	// 公有方法可以访问到name
 	console.log(toy.getName()); // "iPod"
 
 如你所见，在JavaScript创建私有成员很容易。你需要做的只是将私有成员放在一个函数中，保证它是函数的本地变量，也就是说让它在函数之外不可以被访问。
 
 ### 特权方法
 
-特权方法的概念不涉及到任何语法，它只是一个给可以访问到私有成员的公有方法的名字（就像它们有更多权限一样）。
+特权方法的概念不涉及到任何语法，它只是一个给可以访问到私有成员的公有方法的名字（就好像它们有更多权限一样）。
 
-在前面的例子中，getName()就是一个特权方法，因为它有访问name属性的特殊权限。
+在前面的例子中，`getName()`就是一个特权方法，因为它有访问`name`属性的特殊权限。
 
 ### 私有成员失效
 
 当你使用私有成员时，需要考虑一些极端情况：
 
-- 在Firefox的一些早期版本中，允许通过给eval()传递第二个参数的方法来指定上下文对象，从而允许访问函数的私有作用域。比如在Mozilla Rhino（译注：一个JavaScript引擎）中，允许使用`__parent__`来访问私有作用域。现在这些极端情况并没有被广泛应用到浏览器中。
+- 在Firefox的一些早期版本中，允许通过给`eval()`传递第二个参数的方法来指定上下文对象，从而允许访问函数的私有作用域。比如在Mozilla Rhino（译注：一个JavaScript引擎）中，允许使用`__parent__`来访问私有作用域。这些极端情况现在并没有广泛存在于浏览器中。
 - 当你直接通过特权方法返回一个私有变量，而这个私有变量恰好是一个对象或者数组时，外部的代码可以修改这个私有变量，因为它是按引用传递的。
 
-我们来看一下第二种情况。下面的Gadget的实现看起来没有问题：
+我们来看一下第二种情况。下面的`Gadget`的实现看起来没有问题：
 
 	function Gadget() {
-		// private member
+		// 私有成员
 		var specs = {
-		screen_width: 320,
-		screen_height: 480,
-		color: "white"
+			screen_width: 320,
+			screen_height: 480,
+			color: "white"
 		};
 
-		// public function
+		// 公有函数
 		this.getSpecs = function () {
 			return specs;
 		};
 	}
 
-这里的问题是getSpecs()返回了一个specs对象的引用。这使得Gadget的使用者可以修改貌似隐藏起来的私有成员specs：
+这里的问题是`getSpecs()`返回了一个`specs`对象的引用。这使得`Gadget()`的使用者可以修改貌似隐藏起来的私有成员`specs`：
 
 	var toy = new Gadget(),
 		specs = toy.getSpecs();
@@ -264,25 +263,24 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 图5-2 私有对象被修改了
 
-这个意外的问题的解决方法就是不要将你想保持私有的对象或者数组的引用传递出去。达到这个目标的一种方法是让getSpecs()返回一个新对象，这个新对象只包含对象的使用者感兴趣的数据。这也是众所周知的“最低授权原则”（Principle of Least Authority，简称POLA），指永远不要给出比需求更多的东西。在这个例子中，如果Gadget的使用者关注它是否适应一个特定的盒子，它只需要知道尺寸即可。所以你应该创建一个getDimensions()，用它返回一个只包含width和height的新对象，而不是把什么都给出去。也就是说，也许你根本不需要实现getSpecs()方法。
+这个问题有点出乎意料，解决方法就是不要将你想保持私有的对象或者数组的引用传递出去。达到这个目标的一种方法是让`getSpecs()`返回一个新对象，这个新对象只包含对象的使用者需要的数据。这也是众所周知的“最低授权原则”（Principle of Least Authority，简称POLA），指永远不要给出比真实需要更多的东西。在这个例子中，如果`Gadget()`的使用者关注它是否适应一个特定的盒子，它只需要知道尺寸即可。所以你应该创建一个`getDimensions()`，用它返回一个只包含`width`和`height`的新对象，而不是把什么都给出去。也就是说，也许你根本不需要实现`getSpecs()`方法。
 
-当你需要传递所有的数据时，有另外一种方法，就是使用通用的对象复制函数创建specs对象的一个副本。下一章提供了两个这样的函数——一个叫extend()，它会浅复制一个给定的对象（只复制顶层的成员）。另一个叫extendDeep()，它会做深复制，遍历所有的属性和嵌套的属性。
+当你需要传递所有的数据时，有另外一种方法，就是使用通用的对象复制函数创建`specs`对象的一个副本。下一章提供了两个这样的函数——一个叫`extend()`，它会浅复制一个给定的对象（只复制顶层的成员），另一个叫`extendDeep()`，它会做深复制，遍历所有的属性和嵌套的属性。
 
 ### 对象字面量和私有成员
 
 到目前为止，我们只看了使用构建函数创建私有成员的示例。如果使用对象字面量创建对象时会是什么情况呢？是否有可能含有私有成员？
 
-如你前面所看到的那样，私有数据使用一个函数来包裹。所以在使用对象字面量时，你也可以使用一个立即执行的匿名函数创建的闭包。例如：
+如你前面所看到的那样，私有数据使用一个函数来包裹。所以在使用对象字面量时，你也可以使用一个即时函数创建的闭包。例如：
 
-	var myobj; // this will be the object
+	var myobj; // 一个对象
 	(function () {
-		// private members
+		// 私有成员
 		var name = "my, oh my";
 
-		// implement the public part
-		// note -- no `var`
+		// 实现公有部分，注意没有var
 		myobj = {
-			// privileged method
+			// 特权方法
 			getName: function () {
 				return name;
 			}
@@ -294,10 +292,10 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 还有一个原理一样但看起来不一样的实现示例：
 
 	var myobj = (function () {
-		// private members
+		// 私有成员
 		var name = "my, oh my";
 
-		// implement the public part
+		// 实现公有部分
 		return {
 			getName: function () {
 				return name;
@@ -313,23 +311,23 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 使用构造函数创建私有成员的一个弊端是，每一次调用构造函数创建对象时这些私有成员都会被创建一次。
 
-这对在构建函数中添加到`this`的成员来说是一个问题。为了避免重复劳动，节省内存，你可以将共用的属性和方法添加到构造函数的`prototype`（原型）属性中。这样的话这些公共的部分会在使用同一个构造函数创建的所有实例中共享。你也同样可以在这些实例中共享私有成员。你可以将两种模式联合起来达到这个目的：构造函数中的私有属性和对象字面量中的私有属性。因为`prototype`属性也只是一个对象，可以使用对象字面量创建。
+这对在构建函数中添加到`this`的成员来说是一个问题。为了避免重复劳动，节省内存，你可以将共用的属性和方法添加到构造函数的`prototype`（原型）属性中。这样的话这些公共的部分会在使用同一个构造函数创建的所有实例中共享。你也同样可以在这些实例中共享私有成员，甚至可以将两种模式联合起来达到这个目的，同时使用构造函数中的私有属性和对象字面量中的私有属性。因为`prototype`属性也只是一个对象，可以使用对象字面量创建。
 
 这是一个示例：
 
 	function Gadget() {
-		// private member
+		// 私有成员
 		var name = 'iPod';
-		// public function
+		// 公有函数
 		this.getName = function () {
 			return name;
 		};
 	}
 
 	Gadget.prototype = (function () {
-		// private member
+		// 私有成员
 		var browser = "Mobile Webkit";
-		// public prototype members
+		// 公有函数
 		return {
 			getBrowser: function () {
 				return browser;
@@ -338,8 +336,8 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 	}());
 
 	var toy = new Gadget();
-	console.log(toy.getName()); // privileged "own" method 
-	console.log(toy.getBrowser()); // privileged prototype method
+	console.log(toy.getName()); // 自有的特权方法 
+	console.log(toy.getBrowser()); // 来自原型的特权方法
 
 ### 将私有函数暴露为公有方法
 
