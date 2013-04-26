@@ -722,33 +722,33 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 ## 静态成员
 
-静态属性和方法是指那些在所有的实例中保持一致的成员。在基于类的语言中，静态成员是用专门的语法来创建，使用时就像是类自己的成员一样。比如`MathUtils`类的`max()`方法会被像这样调用：`MathUtils.max(3, 5)`。这是一个公有静态成员的示例，即可以在不实例化类的情况下使用。同样也可以有私有的静态方法，即对类的使用者不可见，而在类的所有实例间是共享的。我们来看一下如何在JavaScript中实现公有和私有静态成员。
+静态属性和方法是指那些在所有的实例中都一样的成员。在基于类的语言中，静态成员是用专门的语法来创建，使用时就像是类自己的成员一样。比如`MathUtils`类的`max()`方法会被像这样调用：`MathUtils.max(3, 5)`。这是一个公有静态成员的示例，即可以在不实例化类的情况下使用。同样也可以有私有的静态方法，即对类的使用者不可见，而在类的所有实例间是共享的。我们来看一下如何在JavaScript中实现公有和私有静态成员。
 
 ### 公有静态成员
 
-在JavaScript中没有专门用于静态成员的语法。但通过给构造函数添加属性的方法，可以拥有和基于类的语言一样的使用语法。之所以可以这样做是因为构造函数和其它的函数一样，也是对象，可以拥有属性。前一章讨论过的Memoization模式也使用了同样的方法，即给函数添加属性。
+在JavaScript中没有专门用于静态成员的语法。但通过给构造函数添加属性的方法，可以拥有和基于类的语言一样的使用语法。之所以可以这样做是因为构造函数和其它的函数一样，也是对象，可以拥有属性。前一章讨论过的记忆模式也使用了同样的方法，即给函数添加属性。
 
-下面的例子定义了一个构造函数`Gadget`，它有一个静态方法`isShiny()`和一个实例方法`setPrice()`。`isShiny()`是一个静态方法，因为它不需要指定一个对象才能工作（就像你不需要先指定一个工具（gadget）才知道所有的工具是不是有光泽的（shiny））。但setPrice()却需要一个对象，因为工具可能有不同的定价：
+下面的例子定义了一个构造函数`Gadget()`，它有一个静态方法`isShiny()`和一个实例方法`setPrice()`。`isShiny()`是一个静态方法，因为它不需要指定一个具体的对象就能工作（你不需要先拿到一个特定的小工具（gadget）才知道所有小工具是不是有光泽的（shiny））。但setPrice()却需要一个对象，因为小工具可能有不同的定价：
 
-	// constructor
+	// 构造函数
 	var Gadget = function () {};
 
-	// a static method
+	// 静态方法
 	Gadget.isShiny = function () {
 		return "you bet";
 	};
 
-	// a normal method added to the prototype 
+	// 添加到原型的普通方法
 	Gadget.prototype.setPrice = function (price) {
 		this.price = price;
 	};
 
-现在我们来调用这些方法。静态方法`isShiny()`可以直接在构造函数上调用，但其它的常规方法需要一个实例：
+现在我们来调用这些方法。静态方法`isShiny()`可以直接在构造函数上调用，但其它的方法需要一个实例：
 
-	// calling a static method
+	// 调用静态方法
 	Gadget.isShiny(); // "you bet"
 
-	// creating an instance and calling a method
+	// 创建实例并调用方法
 	var iphone = new Gadget();
 	iphone.setPrice(500);
 
@@ -764,28 +764,28 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 在这种情况下，你需要很小心地处理静态方法内的`this`。当你运行`Gadget.isShiny()`时，在`isShiny()`内部的`this`指向`Gadget`构造函数。而如果你运行`iphone.isShiny()`，那么`this`会指向`iphone`。
 
-最后一个例子展示了同一个方法被静态调用和非静态调用时明显不同的行为，这取决于调用的方式。这里的`instanceof`用于获方法是如何被调用的：
+下面的例子展示了同一个方法被静态调用和非静态调用时明显不同的行为，这取决于调用的方式。这里的`instanceof`用于获取方法是如何被调用的：
 
-	// constructor
+	// 构造函数
 	var Gadget = function (price) {
 		this.price = price;
 	};
 
-	// a static method
+	// 静态方法
 	Gadget.isShiny = function () {
 
-		// this always works
+		// 这句始终正常工作
 		var msg = "you bet";
 
 		if (this instanceof Gadget) {
-			// this only works if called non-statically
+			// 这句只有在非静态方式调用时正常工作
 			msg += ", it costs $" + this.price + '!';
 		}
 
 		return msg;
 	};
 
-	// a normal method added to the prototype
+	// 原型上添加的方法
 	Gadget.prototype.isShiny = function () {
 		return Gadget.isShiny.call(this);
 	};
