@@ -394,7 +394,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 模块模式是我们目前讨论过的好几种模式的组合，即：
 
 - 命名空间模式
-- 立即执行的函数模式
+- 即时函数模式
 - 私有和特权成员模式
 - 依赖声明模式
 
@@ -402,7 +402,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 	MYAPP.namespace('MYAPP.utilities.array');
 
-下一步是定义模块。使用一个立即执行的函数来提供私有作用域供私有成员使用。立即执行的函数返回一个对象，也就是带有公有接口的真正的模块，可以供其它代码使用：
+下一步是定义模块。使用一个即时函数来提供私有作用域供私有成员使用。即时函数返回一个对象，也就是带有公有接口的真正的模块，可以供其它代码使用：
 
 	MYAPP.utilities.array = (function () {
 		return {
@@ -423,40 +423,28 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 		};
 	}());
 
-如果需要的话，你可以在立即执行的函数提供的闭包中声明私有属性和私有方法。函数顶部也是声明依赖的地方。在变量声明的下方，你可以选择性地放置辅助初始化模块的一次性代码。函数最终返回的是一个包含模块公共API的对象：
+如果需要的话，你可以在即时函数提供的闭包中声明私有属性和私有方法。同样，声明依赖放置在函数顶部，在变量声明的下方可以选择性地放置辅助初始化模块的一次性代码。函数最终返回的是一个包含模块公共API的对象：
 
 	MYAPP.namespace('MYAPP.utilities.array');
 	MYAPP.utilities.array = (function () {
 	
-<<<<<<< HEAD
-		// dependencies
+			// 声明依赖
 		var uobj = MYAPP.utilities.object,
 			ulang = MYAPP.utilities.lang,
 
-		// private properties
-			array_string = "[object Array]",
-			ops = Object.prototype.toString;
-=======
-			// dependencies
-		var uobj = MYAPP.utilities.object,
-			ulang = MYAPP.utilities.lang,
->>>>>>> 合并改动
-
-			// private properties
+			// 私有属性
 			array_string = "[object Array]",
 			ops = Object.prototype.toString;
 
-<<<<<<< HEAD
-=======
-			// private methods
-			// ...
-			// end var
+			// 私有方法
+			// ……
 
->>>>>>> 合并改动
-		// optionally one-time init procedures
-		// ...
+			// 结束变量声明
 
-		// public API
+		// 选择性放置一次性初始化的代码
+		// ……
+
+		// 公有API
 		return {
 	
 			inArray: function (needle, haystack) {
@@ -466,19 +454,15 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 					}
 				}
 			},
-<<<<<<< HEAD
-	
-=======
-			
->>>>>>> 合并改动
+
 			isArray: function (a) {
 				return ops.call(a) === array_string;
 			}
-			// ... more methods and properties
+			// ……更多的方法和属性
 		};
 	}());
 
-模块模式被广泛使用，这是一种值得强烈推荐的模式，它可以帮助组织代码，尤其是代码量在不断增长的时候。
+模块模式被广泛使用，是一种值得强烈推荐的模式，它可以帮助我们组织代码，尤其是代码量在不断增长的时候。
 
 ### 暴露模块模式
 
