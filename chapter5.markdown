@@ -5,7 +5,7 @@
 JavaScript语言本身很简单、直观，也没有其他语言的一些语言特性：命名空间、模块、包、私有属性以及静态成员。本章将介绍一些常用的模式，以此实现这些语言特性。
 
 我们将对命名空间、依赖声明、模块模式以及沙箱模式进行初探——它们可以帮助我们更好地组织应用程序的代码，有效地减少全局污染的问题。除此之外，还会讨论私有和特权成员、静态和私有静态成员、对象常量、链式调用以及一种像类式语言一样定义构造函数的方法等话题。  
-
+/Users/TooBug/github/javascript.patterns/chapter5.markdown
 ## 命名空间模式
 
 使用命名空间可以减少全局变量的数量，与此同时，还能有效地避免命名冲突和前缀的滥用。
@@ -634,7 +634,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 ### 添加模块
 
-在动手实现构造函数之前，我们来看一下如何添加模块。
+在动手实现构造函数之前，我们先来看一下如何添加模块。
 
 `Sandbox()`构造函数也是一个对象，所以可以给它添加一个`modules`静态属性。这个属性也是一个包含名值（key-value）对的对象，其中key是模块的名字，value是模块的功能实现。
 
@@ -647,7 +647,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 	};
 
 	Sandbox.modules.event = function (box) {
-		// access to the Sandbox prototype if needed:
+		// 如果有需要的话可以访问Sandbox的原型
 		// box.constructor.prototype.m = "mmm";
 		box.attachEvent = function () {};
 		box.dettachEvent = function () {};
@@ -658,34 +658,33 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 		box.getResponse = function () {};
 	};
 
-在这个例子中我们添加了`dom`、`event`和`ajax`模块，这些都是在每个类库或者复杂的web应用中很常见的代码片段。
+在这个例子中我们添加了`dom`、`event`和`ajax`模块，这些模块在每个类库或者复杂的web应用中都很常见。
 
-实现每个模块功能的函数接受一个实例`box`作为参数，并给这个实例添加属性和方法。
+每个模块功能函数接受一个实例`box`作为参数，并给这个实例添加属性和方法。
 
 ### 实现构造函数
 
 最后，我们来实现`Sandbox()`构造函数（你可能会很自然地想将这类构造函数命名为对你的类库或者应用有意义的名字）：
 
 	function Sandbox() {
-		// turning arguments into an array
+		// 将参数转换为数组
 		var args = Array.prototype.slice.call(arguments),
-			// the last argument is the callback
+			// 最后一个参数是回调函数
 			callback = args.pop(),
-			// modules can be passed as an array or as individual parameters
+			// 参数可以作为数组或者单独的参数传递
 			modules = (args[0] && typeof args[0] === "string") ? args : args[0], i;
 
-		// make sure the function is called
-		// as a constructor
+		// 保证函数是作为构造函数被调用
 		if (!(this instanceof Sandbox)) {
 			return new Sandbox(modules, callback);
 		}
 
-		// add properties to `this` as needed:
+		// 根据需要给this添加属性
 		this.a = 1;
 		this.b = 2;
 
-		// now add modules to the core `this` object
-		// no modules or "*" both mean "use all modules"
+		// 给this对象添加模块
+		// 未指明模块或者*都表示“使用所有模块”
 		if (!modules || modules === '*') {
 			modules = [];
 			for (i in Sandbox.modules) {
@@ -695,16 +694,16 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 			}
 		}
 
-		// initialize the required modules
+		// 初始化指定的模块
 		for (i = 0; i < modules.length; i += 1) {
 			Sandbox.modules[modules[i]](this);
 		}
 
-		// call the callback
+		// 调用回调函数
 		callback(this);
 	}
 
-	// any prototype properties as needed
+	// 需要添加在原型上的属性
 	Sandbox.prototype = {
 		name: "My Application",
 		version: "1.0",
@@ -715,7 +714,7 @@ JavaScript不像Java或者其它语言，它没有专门的提供私有、保护
 
 这个实现中的一些关键点：
 
-- 有一个检查`this`是否是`Sandbox`实例的过程，如果不是（也就是调用`Sandbox()`时没有加`new`），我们将这个函数作为构造函数再调用一次。
+- 有一个检查`this`是否是`Sandbox()`实例的过程，如果不是（也就是调用`Sandbox()`时没有加`new`），我们将这个函数作为构造函数再调用一次。
 - 你可以在构造函数中给`this`添加属性，也可以给构造函数的原型添加属性。
 - 被依赖的模块可以以数组的形式传递，也可以作为单独的参数传递，甚至以`*`通配符（或者省略）来表示加载所有可用的模块。值得注意的是，我们在这个示例实现中并没有考虑从外部文件中加载模块，但明显这是一个值得考虑的事情。比如YUI3就支持这种情况，你可以只加载最基本的模块（作为“种子”），其余需要的任何模块都通过将模块名和文件名对应的方式从外部文件中加载。
 - 当我们知道依赖的模块之后就初始化它们，也就是调用实现每个模块的函数。
