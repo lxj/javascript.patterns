@@ -377,15 +377,15 @@
 	
 ## Klass
 
-有很多JavaScript类库模拟了类，创造了新的语法糖。具体的实现方式可能会不一样，但是基本上都有一些共性，包括：
+有很多JavaScript类库模拟了类，创造了新的语法糖。这些类库具体的实现方式可能会不一样，但是基本上都有一些共性，包括：
 
-- 有一个约定好名字的方法，如initialize、_init或者其它相似的名字，会被自动调用，来充当类的构造函数。
+- 有一个约定好的方法，如`initialize`、`_init`或者其它相似的名字，会被自动调用，来充当类的构造函数
 - 类可以从其它类继承
 - 在子类中可以访问到父类（superclass）
 
-> 我们在这里做一下变化，在本章的这部分自由地使用“class”单词，因为主题就是模拟类。
+> 我们在这里做一点变化，在本章的这部分自由地使用“class”这个词，因为主题就是模拟类。
 
-为避免讨论太多细节，我们来看一下JavaScript中一种模拟类的实现。首先，这种解决方案从客户的角度来看将如何被使用？
+为避免讨论太多细节，我们来看一下JavaScript中一种模拟类的实现。首先，看一下这种方案将如何被使用？
 
 	var Man = klass(null, {
 		__construct: function (what) {
@@ -397,14 +397,14 @@
 		}
 	});
 	
-这种语法糖的形式是一个名为klass()的函数。在一些实现方式中，它可能是Klass()构造函数或者是增强的Object.prototype，但是在这个例子中，我们让它只是一个简单的函数。
+这种语法糖的形式是一个名为`klass()`的函数。在一些其它的实现方式中，它可能是`Klass()`构造函数或者是增强的`Object.prototype`，但是在这个例子中，我们让它只是一个简单的函数。
 
-这个函数接受两个参数：一个被继承的类和通过对象字面量提供的新类的实现。受PHP的影响，我们约定类的构造函数必须是一个名为\_\_construct的方法。在前面的代码片段中，建立了一个名为Man的新类，并且它不继承任何类（意味着继承自Object）。Man类有一个在\_\_construct建立的自己的属性name和一个方法getName()。这个类是一个构造函数，所以下面的代码将正常工作（并且看起来像类实例化的过程）：
+这个函数接受两个参数：一个被继承的类和通过对象字面量提供的新类的实现。受PHP的影响，我们约定类的构造函数必须是一个名为`__construct()`的方法。在前面的代码片段中，建立了一个名为`Man`的新类，并且它不继承任何类（意味着继承自`Object`）。`Man`类有一个在`__construct()`建立的自有属性`name`和一个方法`getName()`。这个类是一个构造函数，所以下面的代码将正常工作（并且看起来像类实例化的过程）：
 
 	var first = new Man('Adam'); // logs "Man's constructor"
 	first.getName(); // "Adam"
 	
-现在我们来扩展这个类，创建一个SuperMan类：
+现在我们来扩展这个类，创建一个`SuperMan`类：
 
 	var SuperMan = klass(Man, {
 		__construct: function (what) {
@@ -416,26 +416,25 @@
 		}
 	});
 	
-这里，klass()的第一个参数是将被继承的Man类。值得注意的是，在getName()中，父类的getName()方法首先通过SuperMan类的uber静态属性被调用。我们来测试一下：
+这里，`klass()`的第一个参数是将被继承的`Man`类。值得注意的是，在`getName()`中，父类的`getName()`方法首先通过`SuperMan`类的`uber`静态属性被调用。我们来测试一下：
 
 	var clark = new SuperMan('Clark Kent');
 	clark.getName(); // "I am Clark Kent"
 	
-第一行在console中记录了“Man's constructor”，然后是“Superman's constructor”。在一些语言中，父类的构造函数在子类构造函数被调用的时候会自动执行，这个特性也可以模拟。
+第一行在console中记录了“Man's constructor”，然后是“Superman's constructor”，在一些语言中，父类的构造函数在子类构造函数被调用的时候会自动执行，这个特性也被模拟了。
 
-用instanceof运算符测试返回希望的结果：
+用`instanceof`运算符测试返回希望的结果：
 
 	clark instanceof Man; // true
 	clark instanceof SuperMan; // true
 	
-最后，我们来看一下klass()函数是怎样实现的：
+最后，我们来看一下`klass()`函数是怎样实现的：
 
 	var klass = function (Parent, props) {
 	
 		var Child, F, i;
 		
-		// 1.
-		// new constructor
+		// 1. 构造函数
 		Child = function () {
 			if (Child.uber && Child.uber.hasOwnProperty("__construct")) {
 				Child.uber.__construct.apply(this, arguments);
@@ -445,8 +444,7 @@
 			}
 		};
 		
-		// 2.
-		// inherit
+		// 2. 继承
 		Parent = Parent || Object;
 		F = function () {};
 		F.prototype = Parent.prototype;
@@ -454,25 +452,24 @@
 		Child.uber = Parent.prototype;
 		Child.prototype.constructor = Child;
 	
-		// 3.
-		// add implementation methods
+		// 3. 添加方法实现
 		for (i in props) {
 			if (props.hasOwnProperty(i)) {
 				Child.prototype[i] = props[i];
 			}
 		}
 		
-		// return the "class"
+		// 返回“类”
 		return Child;
 	};
 	
-这个klass()实现有三个明显的部分：
+这个`klass()`实现有三个明显的部分：
 
-1. 创建Child()构造函数，这也是最后返回的将被作为类使用的函数。在这个函数里面，如果\_\_construct方法存在的话将被调用。同样是在父类的\_\_construct（如果存在）被调用前使用静态的uber属性。也可能存在uber没有定义的情况——比如从Object继承，因为它是在Man类中被定义的。
-2. 第二部分主要完成继承。只是简单地使用前面章节讨论过的Holy Grail类式继承模式。只有一个东西是新的：如果Parent没有传值的话，设定Parent为Object。
-3. 最后一部分是类真正定义的地方，循环需要实现的方法（如例子中的\_\_constructt和getName），并将它们添加到Child的原型中。
+1. 创建`Child()`构造函数，这也是最后返回的将被作为类使用的函数。在这个函数里面，如果`__construct()`方法存在的话将被调用，同样，如果父类的`__construct()`存在，也将被调用（通过使用静态属性`uber`）。也可能存在`uber`没有定义的情况——比如从`Object`继承，前例中`Man`类即是如此。
+2. 第二部分主要完成继承。只是简单地使用前面章节讨论过的Holy Grail类式继承模式。只有一个东西是新的：如果`Parent`没有传值的话，设定`Parent`为`Object`。
+3. 最后一部分是真正定义类的地方，遍历需要实现的方法（如例子中的`__constructor()`和`getName()`），并将它们添加到`Child()`的原型中。
 
-什么时候使用这种模式？其实，最好是能避免则避免，因为它带来了在这门语言中不存在的完整的类的概念，会让人疑惑。使用它需要学习新的语法和新的规则。也就是说，如果你或者你的团队对类感到习惯并且同时对原型感到不习惯，这种模式可能是一个可以探索的方向。这种模式允许你完全忘掉原型，好处就是你可以将语法变种得像其它你所喜欢的语言一样。
+什么时候使用这种模式呢？其实，最好是能避免则避免，因为它带来了在这门语言中不存在的完整的类的概念，会让人疑惑。使用它需要学习新的语法和新的规则，也就是说，如果你或者你的团队习惯于使用类并且对原型感到不习惯，这种模式可能是一个可以探索的方向。这种模式允许你完全忘掉原型，好处就是你可以使用像其它语言那样的（变种）语法。
 
 <a name="a17"></a>
 ## 原型继承
