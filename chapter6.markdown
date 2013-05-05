@@ -471,25 +471,24 @@
 
 什么时候使用这种模式呢？其实，最好是能避免则避免，因为它带来了在这门语言中不存在的完整的类的概念，会让人疑惑。使用它需要学习新的语法和新的规则，也就是说，如果你或者你的团队习惯于使用类并且对原型感到不习惯，这种模式可能是一个可以探索的方向。这种模式允许你完全忘掉原型，好处就是你可以使用像其它语言那样的（变种）语法。
 
-<a name="a17"></a>
 ## 原型继承
 
-现在，让我们从一个叫作“原型继承”的模式来讨论没有类的现代继承模式。在这种模式中，没有任何类进来，在这里，一个对象继承自另外一个对象。你可以这样理解它：你有一个想复用的对象，然后你想创建第二个对象，并且获得第一个对象的功能。下面是这种模式的用法：
+现在，让我们从一个叫作“原型继承”的模式来讨论没有类的现代继承模式。在这种模式中，没有任何类牵涉进来，一个对象继承自另外一个对象。你可以这样理解它：你有一个想复用的对象，然后你想创建第二个对象，并且获得第一个对象的功能。下面是这种模式的用法：
 
-	//需要继承的对象
+	// 需要继承的对象
 	var parent = {
 		name: "Papa"
 	};
 	
-	//新对象
+	// 新对象
 	var child = object(parent);
 
-	//测试
+	// 测试
 	alert(child.name); // "Papa"
 	
-在这个代码片段中，有一个已经存在的使用对象字面量创建的对象叫parent，我们想创建一个和parent有相同的属性和方法的对象叫child。child对象使用object()函数创建。这个函数在JavaScript中并不存在（不要与构造函数Object()混淆），所以我们来看看怎样定义它。
+在这个代码片段中，有一个已经存在的使用对象字面量创建的对象叫`parent`，我们想创建一个和`parent`有相同的属性和方法的对象叫`child`。`child`对象使用`object()`函数创建。这个函数在JavaScript中并不存在（不要与构造函数`Object()`混淆），所以我们来看看怎样定义它。
 
-与Holy Grail类式继承相似，可以使用一个空的临时构造函数F()，然后设定F()的原型为parent对象。最后，返回一个临时构造函数的新实例。
+与Holy Grail类式继承相似，可以使用一个空的临时构造函数`F()`，然后设定`F()`的原型为`parent`对象。最后，返回一个临时构造函数的新实例。
 
 	function object(o) {
 		function F() {}
@@ -497,69 +496,66 @@
 		return new F();
 	}
 
-图6-9展示了使用原型继承时的原型链。在这里child总是以一个空对象开始，它没有自己的属性但通过原型链（\_\_proto\_\_）拥有父对象的所有功能。
+图6-9展示了使用原型继承时的原型链。这样创建的`child`总是一个空对象，它没有自有属性但通过原型链（`__proto__`）拥有父对象的所有功能。
 
 ![图6-9 原型继承模式](./Figure/chapter6/6-9.jpg)
 
 图6-9 原型继承模式
 
-<a name="a18"></a>
 ### 讨论
 
-在原型继承模式中，parent不需要使用对象字面量来创建。（尽管这是一种更常用的方式。）可以使用构造函数来创建parent。注意，如果你这样做，那么自己的属性和原型上的属性都将被继承：
+在原型继承模式中，`parent`不一定需要使用对象字面量来创建（尽管这是一种常用的方式），也可以使用构造函数来创建。注意，如果你这样做，那么自有属性和原型上的属性都将被继承：
 
-	// parent constructor
+	// 父构造函数
 	function Person() {
-		// an "own" property
+		// 自有属性
 		this.name = "Adam";
 	}
-	// a property added to the prototype
+	// 原型上的属性
 	Person.prototype.getName = function () {
 		return this.name;
 	};
 
-	// create a new person
+	// 使用Person()创建一个新对象
 	var papa = new Person();
-	// inherit
+	// 继承
 	var kid = object(papa);
 
-	// test that both the own property
-	// and the prototype property were inherited
+	// 测试：自有属性和原型上的属性都被继承了
 	kid.getName(); // "Adam"
 	
-在这种模式的另一个变种中，你可以选择只继承已存在的构造函数的原型对象。记住，对象继承自对象，不管父对象是怎么创建的。这是前面例子的一个修改版本：
+也可以使用这种模式的一个变种，只继承已存在的构造函数的原型对象。记住，对象继承自对象，而不管父对象是怎么创建的。这是前面例子的一个修改版本：
 
-	// parent constructor
+	// 父构造函数
 	function Person() {
-		// an "own" property
+		// 自有属性
 		this.name = "Adam";
 	}
-	// a property added to the prototype
+	// 原型上的属性
 	Person.prototype.getName = function () {
 		
 	};
 
-	// inherit
+	// 继承
 	var kid = object(Person.prototype);
 
-	typeof kid.getName; // "function", because it was in the prototype
-	typeof kid.name; // "undefined", because only the prototype was inherited
+	typeof kid.getName; // "function"，因为它在原型中
+	typeof kid.name; // "undefined"，因为只有原型中的成员被继承了
 
-<a name="a19"></a>
-###例外的ECMAScript 5
+### ECMAScript5中的原型继承
 
-在ECMAScript 5中，原型继承已经正式成为语言的一部分。这种模式使用Object.create方法来实现。换句话说，你不再需要自己去写类似object()的函数，它是语言原生的了：
+在ECMAScript5中，原型继承已经正式成为语言的一部分。这种模式使用`Object.create()`方法来实现。换句话说，你不再需要自己去写类似`object()`的函数，它是语言原生的部分了：
 
 	var child = Object.create(parent);
 	
-Object.create()接收一个额外的参数——一个对象。这个额外对象中的属性将被作为自己的属性添加到返回的子对象中。这让我们可以很方便地将继承和创建子对象在一个方法调用中实现。例如：
+`Object.create()`接收一个额外的参数——一个对象。这个额外对象中的属性将被作为自有属性添加到返回的子对象中。这让我们可以很方便地将继承和创建子对象在一个方法调用中实现。例如：
 
 	var child = Object.create(parent, {
-		age: { value: 2 } // ECMA5 descriptor
+		age: { value: 2 } // ES5中的属性描述符
 	});
 	child.hasOwnProperty("age"); // true
 	
-你可能也会发现原型继承模式已经在一些JavaScript类库中实现了，比如，在YUI3中，它是Y.Object()方法：
+你可能也会发现原型继承模式已经在一些JavaScript类库中实现了，比如，在YUI3中，它是`Y.Object()`方法：
 
 	YUI().use('*', function (Y) {
 		var child = Y.Object(parent);
