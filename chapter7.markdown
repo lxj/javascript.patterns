@@ -206,7 +206,6 @@ JavaScript没有类，所以一字一句地说单例的定义并没有什么意�
 	
 	}());
 	
-<a name="a6"></a>
 ## 工厂模式
 
 使用工厂模式的目的就是创建对象。它通常被在类或者类的静态方法中实现，目的是：
@@ -214,15 +213,15 @@ JavaScript没有类，所以一字一句地说单例的定义并没有什么意�
 - 执行在建立相似的对象时进行的一些重复操作
 - 让工厂的使用者在编译阶段创建对象时不必知道它的特定类型（类）
 
-第二点在静态的基于类的语言中更重要，因为在（编译阶段）提前不知道类的情况下，创建类的实例是不普通的行为。但在JavaScript中，这部分的实现却是相当容易的事情。
+第二点在静态的基于类的语言中更重要，因为在（编译阶段）提前不知道类的情况下，创建类的实例是一件多少有些特殊的行为。但在JavaScript中，这部分的实现却是相当容易的事情。
 
-使用工厂方法（或类）创建的对象被设计为从同一个父对象继承；它们是特定的实现一些特殊功能的子类。有些时候这个共同的父对象就是包含工厂方法的同一个类。
+使用工厂方法（或类）创建的对象被设计为从同一个父对象继承；它们是实现一些特定的功能的子类。有些时候这个共同的父对象就是包含工厂方法的同一个类。
 
 我们来看一个示例实现，我们有：
 
-- 一个共同的父构造函数CarMaker。
-- CarMaker的一个静态方法叫factory()，用来创建car对象。
-- 特定的从CarMaker继承而来的构造函数CarMaker.Compact，CarMaker.SUV，CarMaker.Convertible。它们都被定义为父构造函数的静态属性以便保持全局空间干净，同时在需要的时候我们也知道在哪里找到它们。
+- 一个共同的父构造函数`CarMaker()`。
+- `CarMaker()`的一个静态方法叫`factory()`，用来创建`car`对象。
+- 特定的从`CarMaker()`继承而来的构造函数`CarMaker.Compact()`，`CarMaker.SUV()`，`CarMaker.Convertible()`。它们都被定义为父构造函数的静态属性以便保持全局空间干净，同时在需要的时候我们也知道在哪里找到它们。
 
 我们来看一下已经完成的实现会怎么被使用：
 
@@ -237,24 +236,24 @@ JavaScript没有类，所以一字一句地说单例的定义并没有什么意�
 
 	var corolla = CarMaker.factory('Compact');
 	
-可能是工厂模式中最知名的。你有一个方法可以在运行时接受一个表示类型的字符串，然后它创建并返回了一个和请求的类型一样的对象。这里没有使用new的构造函数，也没有看到任何对象字面量，仅仅只有一个函数根据一个字符串指定的类型创建了对象。
+可能是工厂模式中最为人熟知的。你有一个方法可以在运行时接受一个表示类型的字符串，然后它创建并返回了一个和请求的类型一样的对象。这里没有使用`new`的构造函数，也没有看到任何对象字面量，仅仅只有一个函数根据一个字符串指定的类型创建了对象。
 
 这里是一个工厂模式的示例实现，它能让上面的代码片段工作：
 
-	// parent constructor
+	// 父构造函数
 	function CarMaker() {}
 	
-	// a method of the parent
+	// 父构造函数的方法
 	CarMaker.prototype.drive = function () {
 		return "Vroom, I have " + this.doors + " doors";
 	};
 	
-	// the static factory method
+	// 静态工厂方法factory
 	CarMaker.factory = function (type) {
 		var constr = type,
-		newcar;
+			newcar;
 		
-		// error if the constructor doesn't exist
+		// 如果指定类型的构造函数不存在则报错
 		if (typeof CarMaker[constr] !== "function") {
 			throw {
 				name: "Error",
@@ -262,18 +261,18 @@ JavaScript没有类，所以一字一句地说单例的定义并没有什么意�
 			};
 		}
 		
-		// at this point the constructor is known to exist
-		// let's have it inherit the parent but only once
+		// 现在我们确认要用到的构造函数是存在的了
+		// 让它继承自父构造函数，但只继承一次
 		if (typeof CarMaker[constr].prototype.drive !== "function") {
 			CarMaker[constr].prototype = new CarMaker();
 		}
-		// create a new instance
+		// 创建一个新实例
 		newcar = new CarMaker[constr]();
-		// optionally call some methods and then return...
+		// 这里可以选择性地调用一些方法，然后返回实例
 		return newcar;
 	};
 	
-	// define specific car makers
+	// 创建特定类型的构造函数
 	CarMaker.Compact = function () {
 		this.doors = 4;
 	};
@@ -284,27 +283,26 @@ JavaScript没有类，所以一字一句地说单例的定义并没有什么意�
 		this.doors = 24;
 	};
 	
-工厂模式的实现中没有什么是特别困难的。你需要做的仅仅是寻找请求类型的对象的构造函数。在这个例子中，使用了一个简单的名字转换以便映射对象类型和创建对象的构造函数。继承的部分只是一个公共的重复代码片段的示例，它可以被放到工厂方法中而不是被每个构造函数的类型重复。（译注：指通过原型继承的代码可以在factory方法以外执行，而不是放到factory中每调用一次都要执行一次。）
+工厂模式的实现中没有什么是特别困难的，你需要做的仅仅是寻找请求类型的对象构造函数。在这个例子中，使用了一个简单的名字转换以便映射对象类型和创建对象的构造函数。继承的部分只是一个公共的重复代码片段的示例，它可以被放到工厂方法中而不是被每个构造函数的类型所重复。（译注：指原型继承的代码可以在`factory()`方法以外执行，而不是放到`factory()`中每调用一次都要执行一次。）
 
-<a name="a7"></a>
 ### 内置对象工厂
 
-作为一个“野生的工厂”的例子，我们来看一下内置的全局构造函数Object()。它的行为很像工厂，因为它根据不同的输入创建不同的对象。如果传入一个数字，它会使用Number()构造函数创建一个对象。在传入字符串和布尔值的时候也会发生同样的事情。任何其它的值（包括空值）将会创建一个正常的对象。
+为了说明工厂模式应用之广泛，我们来看一下内置的全局构造函数`Object()`。它的行为很像工厂，因为它根据不同的输入创建不同的对象。如果传入一个数字，它会使用`Number()`构造函数创建一个对象。在传入字符串和布尔值的时候也会发生类似的事情。任何其它的值（包括空值）将会创建一个正常的对象。
 
-下面是这种行为的例子和测试，注意Object调用时可以不用加new：
+下面是这种行为的例子和测试，注意`Object()`调用时可以不用加`new`：
 
 	var o = new Object(),
 		n = new Object(1),
 		s = Object('1'),
 		b = Object(true);
 		
-	// test
+	// 测试
 	o.constructor === Object; // true
 	n.constructor === Number; // true
 	s.constructor === String; // true
 	b.constructor === Boolean; // true
 
-Object()也是一个工厂这一事实可能没有太多实际用处，仅仅是觉得值得作为一个例子提一下，告诉我们工厂模式是随处可见的。
+`Object()`也是一个工厂这一事实可能没有太多实际用处，仅仅是觉得值得作为一个例子提一下，告诉我们工厂模式是随处可见的。
 
 
 <a name="a8"></a>
