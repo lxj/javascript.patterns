@@ -488,42 +488,40 @@ JavaScript没有类，所以一字一句地说单例的定义并没有什么意�
 	
 装饰器模式的第二种实现方式更简单一些，并且没有引入继承。装饰的方法也会简单。所有的工作都由“同意”被装饰的方法来做。在这个示例实现中，`getPrice()`是唯一被允许装饰的方法。如果你想有更多可以被装饰的方法，那遍历装饰器列表的工作就需要由每个方法重复去做。但是，这可以很容易地被抽象到一个辅助方法中，给它传一个方法然后使这个方法“可被装饰”。如果这样实现的话，`decorators_list`属性就应该是一个对象，它的属性名字是方法名，值是装饰器对象的数组。
 
-<a name="a13"></a>
 ## 策略模式
 
 策略模式允许在运行的时候选择算法。你的代码的使用者可以在处理特定任务的时候根据即将要做的事情的上下文来从一些可用的算法中选择一个。
 
-使用策略模式的一个例子是解决表单验证的问题。你可以创建一个validator对象，有一个validate()方法。这个方法被调用时不用区分具体的表单类型，它总是会返回同样的结果——一个没有通过验证的列表和错误信息。
+使用策略模式的一个例子是解决表单验证的问题。你可以创建一个`validator`对象，有一个`validate()`方法。这个方法被调用时不用区分具体的表单类型，它总是会返回同样的结果——一个没有通过验证的列表和错误信息。
 
-但是根据具体的需要验证的表单和数据，你代码的使用者可以选择进行不同类别的检查。你的validator选择最佳的策略来处理这个任务，然后将具体的数据检查工作交给合适的算法去做。
+但是根据具体的需要验证的表单和数据，你代码的使用者可以选择进行不同类别的检查。你的`validator`选择最佳的策略来处理这个任务，然后将具体的数据检查工作交给合适的算法去做。
 
-<a name="a14"></a>
 ### 数据验证示例
 
 假设你有一个下面这样的数据，它可能来自页面上的一个表单，你希望验证它是不是有效的数据：
 
 	var data = {
-    	first_name: "Super",
-    	last_name: "Man",
-    	age: "unknown",
-    	username: "o_O"
+		first_name: "Super",
+		last_name: "Man",
+		age: "unknown",
+		username: "o_O"
 	};
 	
-对这个例子中的validator，它需要知道哪个是最佳策略，因此你需要先配置它，给它设定好规则以确定哪些是有效的数据。
+对这个例子中的`validator`而言，它需要知道哪个是最佳策略，因此你需要先配置它，给它设定好规则以确定哪些是有效的数据。
 
 假设你不需要姓，名字可以接受任何内容，但要求年龄是一个数字，并且用户名只允许包含字母和数字。配置可能是这样的：
 
 	validator.config = {
-	    first_name: 'isNonEmpty',
-	    age: 'isNumber',
-	    username: 'isAlphaNum'
+		first_name: 'isNonEmpty',
+		age: 'isNumber',
+		username: 'isAlphaNum'
 	};
 	
-现在validator对象已经有了用来处理数据的配置，你可以调用validate()方法，然后将任何验证错误打印到控制台上：
+现在`validator`对象已经有了用来处理数据的配置，你可以调用`validate()`方法，然后将验证错误打印到控制台上：
 
 	validator.validate(data);
 	if (validator.hasErrors()) {
-	    console.log(validator.messages.join("\n"));
+		console.log(validator.messages.join("\n"));
 	}
 	
 它可能会打印出这样的信息：
@@ -531,89 +529,88 @@ JavaScript没有类，所以一字一句地说单例的定义并没有什么意�
 	Invalid value for *age*, the value can only be a valid number, e.g. 1, 3.14 or 2010
 	Invalid value for *username*, the value can only contain characters and numbers, no special symbols
 
-现在我们来看一下这个validator是如何实现的。所有可用的用来检查的逻辑都是拥有一个validate()方法的对象，它们还有一行辅助信息用来显示错误信息：
+现在我们来看一下这个`validator`是如何实现的。所有可用的用来验证的逻辑都是拥有一个`validate()`方法的对象，它们还有一行辅助信息用来显示错误信息：
 
-	// checks for non-empty values
+	// 验证空值
 	validator.types.isNonEmpty = {
-	    validate: function (value) {
-	        return value !== "";
-	    },
-	    instructions: "the value cannot be empty"
+		validate: function (value) {
+			return value !== "";
+		},
+		instructions: "the value cannot be empty"
 	};
 	
-	// checks if a value is a number
+	// 验证数字
 	validator.types.isNumber = {
-	    validate: function (value) {
-	        return !isNaN(value);
-	    },
-	    instructions: "the value can only be a valid number, e.g. 1, 3.14 or 2010"
+		validate: function (value) {
+			return !isNaN(value);
+		},
+		instructions: "the value can only be a valid number, e.g. 1, 3.14 or 2010"
 	};
 	
-	// checks if the value contains only letters and numbers
+	// 验证是否只包含字母和数字
 	validator.types.isAlphaNum = {
-	    validate: function (value) {
-	        return !/[^a-z0-9]/i.test(value);
-	    },
-	    instructions: "the value can only contain characters and numbers, no special symbols"
+		validate: function (value) {
+			return !/[^a-z0-9]/i.test(value);
+		},
+		instructions: "the value can only contain characters and numbers, no special symbols"
 	};
 	
-最后，validator对象的核心是这样的：
+最后，`validator`对象的核心是这样的：
 
 	var validator = {
 	
-	    // all available checks
-	    types: {},
-	    
-	    // error messages in the current
-	    // validation session
-	    messages: [],
-	    
-	    // current validation config
-	    // name: validation type
-	    config: {},
-	    
-	    // the interface method
-	    // `data` is key => value pairs
-	    validate: function (data) {
-	    
-	        var i, msg, type, checker, result_ok;
+		// 所有可用的验证类型
+		types: {},
+		
+		// 本次验证所有的错误消息
+		messages: [],
+		
+		// 本次验证的配置，格式为：
+		// name: validation type
+		config: {},
+		
+		// 接口方法
+		// `data` 是名值对
+		validate: function (data) {
+		
+			var i, msg, type, checker, result_ok;
 
-			// reset all messages
-	        this.messages = [];
-	        for (i in data) {
-	        
-	        	if (data.hasOwnProperty(i)) {
-	                
-	                type = this.config[i];
-	                checker = this.types[type];
-	                
-	                if (!type) {
-	                    continue; // no need to validate
-	                }
-	                if (!checker) { // uh-oh
-	                    throw {
-	                        name: "ValidationError",
-	                        message: "No handler to validate type " + type
-	                    };
-	                }
-	                
-	                result_ok = checker.validate(data[i]);
-	                if (!result_ok) {
-	                    msg = "Invalid value for *" + i + "*, " + checker.instructions;
-	                    this.messages.push(msg);
-	                }
-	            }
-	        }
-	        return this.hasErrors();
-	    },
-	    
-	    // helper
-	    hasErrors: function () {
-	        return this.messages.length !== 0;
-	    }
+			// 重置所有的错误消息
+			this.messages = [];
+			for (i in data) {
+			
+				if (data.hasOwnProperty(i)) {
+					
+					type = this.config[i];
+					checker = this.types[type];
+					
+					if (!type) {
+						continue; // 不需要验证
+					}
+					if (!checker) { // 没有对应的验证类型
+						throw {
+							name: "ValidationError",
+							message: "No handler to validate type " + type
+						};
+					}
+					
+					result_ok = checker.validate(data[i]);
+					if (!result_ok) {
+						msg = "Invalid value for *" + i + "*, " + checker.instructions;
+						this.messages.push(msg);
+					}
+				}
+			}
+			return this.hasErrors();
+		},
+		
+		// 辅助方法
+		hasErrors: function () {
+			return this.messages.length !== 0;
+		}
 	};
 	
-如你所见，validator对象是通用的，在所有的需要验证的场景下都可以保持这个样子。改进它的办法就是增加更多类型的检查。如果你将它用在很多页面上，每快你就会有一个非常好的验证类型的集合。然后在每个新的使用场景下你需要做的仅仅是配置validator然后调用validate()方法。
+如你所见，`validator`对象是通用的，在所有的需要验证的场景下都可以保持这个样子。改进它的办法就是增加更多类型的检查。如果你将它用在很多页面上，那么很快你就会有一个非常好的验证类型的集合。然后在新的使用场景下使用时你需要做的仅仅是配置`validator`然后调用`validate()`方法。
 
 <a name="a15"></a>
 ## 外观模式
@@ -632,35 +629,35 @@ JavaScript没有类，所以一字一句地说单例的定义并没有什么意�
 这是两个有不同目的的相互独立的方法，他们也应该被保持独立，但与此同时，他们也经常被一起调用。所以为了不在应用中到处重复调用这两个方法，你可以创建一个外观方法来调用它们：
 
 	var myevent =  {
-	    // ...
-	    stop: function (e) {
-	        e.preventDefault();
-	        e.stopPropagation();
-	    }
-	    // ...
+		// ...
+		stop: function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		// ...
 	};
 	
 外观模式也适用于一些浏览器脚本的场景，即将浏览器的差异隐藏在一个外观方法下面。继续前面的例子，你可以添加一些处理IE中事件API的代码：
 
 	var myevent =  {
-	    // ...
-	    stop: function (e) {
-	        // others
-	        if (typeof e.preventDefault === "function") {
-	            e.preventDefault();
-	        }
-	        if (typeof e.stopPropagation === "function") {
-	            e.stopPropagation();
-	        }
-	        // IE
-	        if (typeof e.returnValue === "boolean") {
-	            e.returnValue = false;
-	        }
-	        if (typeof e.cancelBubble === "boolean") {
-	            e.cancelBubble = true;
-	        }
-	    }
-	    // ...
+		// ...
+		stop: function (e) {
+			// others
+			if (typeof e.preventDefault === "function") {
+				e.preventDefault();
+			}
+			if (typeof e.stopPropagation === "function") {
+				e.stopPropagation();
+			}
+			// IE
+			if (typeof e.returnValue === "boolean") {
+				e.returnValue = false;
+			}
+			if (typeof e.cancelBubble === "boolean") {
+				e.cancelBubble = true;
+			}
+		}
+		// ...
 	};
 	
 外观模式在做一些重新设计和重构工作时也很有用。当你想用一个不同的实现来替换某个对象的时候，你可能需要工作相当长一段时间（一个复杂的对象），与此同时，一些使用这个新对象的代码也在被同步编写。你可以先想好新对象的API，然后使用新的API创建一个外观方法在旧的对象前面。使用这种方式，当你完全替换到旧的对象的时候，你只需要修改少量客户代码，因为新的客户代码已经是在使用新的API了。
@@ -852,48 +849,48 @@ proxy对象创建了一个队列来收集50ms之内接受到的视频ID，然后
 下面是proxy对象的代码：
 
 	var proxy = {
-	    ids: [],
-	    delay: 50,
-	    timeout: null,
-	    callback: null,
-	    context: null,
-	    makeRequest: function (id, callback, context) {
-	        // add to the queue
-	        this.ids.push(id);
-	        
-	        this.callback = callback;
-	        this.context  = context;
-	        
-	        // set up timeout
-	        if (!this.timeout) {
-	            this.timeout = setTimeout(function () {
-	                proxy.flush();
-	            }, this.delay);
-	        }
-	    },
-	    flush: function () {
-	    
-	        http.makeRequest(this.ids, "proxy.handler");
-	        
-	        // clear timeout and queue
-	        this.timeout = null;
-	        this.ids = [];
-	        
-	    },
-	    handler: function (data) {
-	        var i, max;
-	        
-	        // single video
-	        if (parseInt(data.query.count, 10) === 1) {
-	            proxy.callback.call(proxy.context, data.query.results.Video);
-	            return;
-	        }
-	        
-	        // multiple videos
-	        for (i = 0, max = data.query.results.Video.length; i < max; i += 1) {
-	            proxy.callback.call(proxy.context, data.query.results.Video[i]);
-	        }
-	    }
+		ids: [],
+		delay: 50,
+		timeout: null,
+		callback: null,
+		context: null,
+		makeRequest: function (id, callback, context) {
+			// add to the queue
+			this.ids.push(id);
+			
+			this.callback = callback;
+			this.context  = context;
+			
+			// set up timeout
+			if (!this.timeout) {
+				this.timeout = setTimeout(function () {
+					proxy.flush();
+				}, this.delay);
+			}
+		},
+		flush: function () {
+		
+			http.makeRequest(this.ids, "proxy.handler");
+			
+			// clear timeout and queue
+			this.timeout = null;
+			this.ids = [];
+			
+		},
+		handler: function (data) {
+			var i, max;
+			
+			// single video
+			if (parseInt(data.query.count, 10) === 1) {
+				proxy.callback.call(proxy.context, data.query.results.Video);
+				return;
+			}
+			
+			// multiple videos
+			for (i = 0, max = data.query.results.Video.length; i < max; i += 1) {
+				proxy.callback.call(proxy.context, data.query.results.Video[i]);
+			}
+		}
 	};
 	
 了解代理模式后就在只简单地改动一下原来的代码的情况下，将多个web service请求合并为一个。
