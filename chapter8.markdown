@@ -160,13 +160,13 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 
 ## 事件
 
-在浏览器脚本编程中，另一块充满兼容性问题并且带来很多不愉快的区域就是浏览器事件，比如click，mouseover等等。同样的，一个JavaScript库可以解决支持IE（9以下）和W3C标准实现的双倍工作量。
+在浏览器脚本编程中，另一块充满兼容性问题并且带来很多不愉快的区域就是浏览器事件，比如`click`，`mouseover`等等。同样的，一个JavaScript库可以解决支持IE（9以下）和W3C标准实现带来的双倍工作量。
 
 我们来看一下一些主要的点，因为你在做一些简单的页面或者快速开发的时候可能不会使用已有的库，当然，也有可能你正在写你自己的库。
 
 ### 事件处理
 
-麻烦是从给元素绑定事件开始的。假设你有一个按钮，点击它的时候增加计数器的值。你可以添加一个内联的onclick属性，这在所有的浏览器中都能正常工作，但是会违反分离和渐进增强的思想。所以你应该尽力在JavaScript中来做绑定，而不是在标签中。
+麻烦是从给元素绑定事件开始的。假设你有一个按钮，点击它的时候增加计数器的值。你可以添加一个内联的`onclick`属性，这在所有的浏览器中都能正常工作，但是会违反分离和渐进增强的思想。所以你应该尽量在JavaScript中来做绑定，而不是在标签中。
 
 假设你有下面的标签：
 
@@ -174,7 +174,7 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 
 你可以将一个函数赋给节点的onclick属性，但你只能这样做一次：
 
-	// suboptimal solution
+	// 不好的解决方案
 	var b = document.getElementById('clickme'),
 		count = 0;
 
@@ -183,20 +183,20 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 		b.innerHTML = "Click me: " + count;
 	};
 
-如果你希望在按钮点击的时候执行好几个函数，那么在维持松耦合的情况下就不能用这种方法来做绑定。从技术上讲，你可以检测onclick是否已经包含一个函数，如果已经包含，就将它加到你自己的函数中，然后替换onclick的值为你的新函数。但是一个更干净的解决方案是使用addEventListener()方法。这个方法在IE8及以下版本中不存在，在这些浏览器需要使用attachEvent()。
+如果你希望在按钮点击的时候执行好几个函数，那么在保持松耦合的情况下就不能用这种方法来做绑定。从技术上讲，你可以检测`onclick`是否已经包含一个函数，如果已经包含，就将它加到你自己的函数中，然后替换`onclick`的值为你的新函数。但是一个更干净的解决方案是使用`addEventListener()`方法。这个方法在IE8及以下版本中不存在，在这些浏览器中需要使用`attachEvent()`。
 
-当我们回头看条件初始化模式（第4章）时，会发现一个示例实现是一个很好的解决跨浏览器事件监听的套件。现在我们不讨论细节，只看一下如何给我们的按钮绑定事件：
+当我们回头看条件初始化模式（第四章）时，会发现其中的一个示例实现就是一个很好的解决跨浏览器事件监听的套件。现在我们不讨论细节，只看一下如何给我们的按钮绑定事件：
 
 	var b = document.getElementById('clickme');
 	if (document.addEventListener) { // W3C
 		b.addEventListener('click', myHandler, false);
 	} else if (document.attachEvent) { // IE
 		b.attachEvent('onclick', myHandler);
-	} else { // last resort
+	} else { // 为保险起见……
 		b.onclick = myHandler;
 	}
 
-现在当按钮被点击时，myHandler会被执行。让我们来让这个函数实现增加按钮文字“Click me: 0”中的数字的功能。为了更有趣一点，我们假设有好几个按钮，一个myHandler()函数来处理所有的按钮点击。如果我们可以从每次点击的事件对象中获取节点和节点对应的计数器值，那为每个按钮保持一个引用和计数器就显得不高效了。
+现在当按钮被点击时，`myHandler()`会被执行。我们来让这个函数实现增加按钮文字“Click me: 0”中的数字的功能。为了更有趣一点，我们假设有好几个按钮，一个`myHandler()`函数来处理所有的按钮点击。如果我们可以从每次点击的事件对象中获取节点和节点对应的计数器值，那为每个按钮保持一个引用和计数器就显得不高效了。
 
 我们先看一下解决方案，稍后再来做些评论：
 
@@ -204,16 +204,16 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 
 		var src, parts;
 
-		// get event and source element 
+		// 获取事件对象和事件来源
 		e = e || window.event;
 		src = e.target || e.srcElement;
 
-		// actual work: update label
+		// 真正工作的部分：更新文字
 		parts = src.innerHTML.split(": ");
 		parts[1] = parseInt(parts[1], 10) + 1;
 		src.innerHTML = parts[0] + ": " + parts[1];
 
-		// no bubble
+		// 阻止冒泡
 		if (typeof e.stopPropagation === "function") {
 			e.stopPropagation();
 		}
@@ -221,7 +221,7 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 			e.cancelBubble = true;
 		}
 
-		// prevent default action
+		// 阻止默认行为
 		if (typeof e.preventDefault === "function") {
 			e.preventDefault();
 		}
@@ -231,24 +231,26 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 
 	}
 
-一个在线的例子可以在<http://jspatterns.com/book/8/click.html>找到。
+在线的例子可以在<http://jspatterns.com/book/8/click.html>找到。
 
 在这个事件处理函数中，有四个部分：
 
-- 首先，我们需要访问事件对象，它包含事件的一些信息以及触发这个事件的页面元素。事件对象会被传到事件处理回调函数中，但是使用onclick属性时需要使用全局属性window.event来获取。
+- 首先，我们需要访问事件对象，它包含事件的一些信息以及触发这个事件的页面元素。事件对象会被传到事件处理回调函数中，但是使用`onclick`属性时需要使用全局属性`window.event`来获取
 - 第二部分是真正用于更新文字的部分
-- 接下来是阻止事件冒泡。在这个例子中它不是必须的，但通常情况下，如果你不阻止的话，事件会一直冒泡到文档根元素甚至window对象。同样的，我们也需要用两种方法来阻止冒泡：W3C标准方式（stopPropagation()）和IE的方式（使用cancelBubble）
-- 最后，如果需要的话，阻止默认行为。有一些事件（点击链接、提交表单）有默认的行为，但你可以使用preventDefault()（IE是通过设置returnValue的值为false的方式）来阻止这些默认行为。
+- 接下来是阻止事件冒泡。在这个例子中它不是必须的，但通常情况下，如果你不阻止的话，事件会一直冒泡到文档根元素甚至`window`对象。同样的，我们也需要用两种方法来阻止冒泡：W3C标准方式（`stopPropagation()`）和IE的方式（使用`cancelBubble`）
+- 最后，如果需要的话，阻止默认行为。有一些事件（点击链接、提交表单）有默认的行为，但你可以使用`preventDefault()`（IE是通过设置`returnValue`的值为`false`的方式）来阻止这些默认行为
 
-如你所见，这里涉及到了很多重复性的工作，所以使用第7章讨论过的外观模式创建自己的事件处理套件是很有意义的。
+如你所见，这里涉及到了很多重复性的工作，所以使用第七章讨论过的外观模式创建自己的事件处理套件是很有意义的。
 
 ### 事件委托
 
-事件委托是通过事件冒泡来实现的，它可以减少分散到各个节点上的事件处理函数的数量。如果有10个按钮在一个div元素中，你可以给div绑定一个事件处理函数，而不是给每个按钮都绑定一个。
+事件委托是通过事件冒泡来实现的，它可以减少分散到各个节点上的事件处理函数的数量。如果有10个按钮在一个`div`元素中，你可以给`div`绑定一个事件处理函数，而不是给每个按钮都绑定一个。
 
-我们来的睦一个实例，三个按钮放在一个div元素中（图8-1）。你可以在<http://jspatterns.com/book/8/click-delegate.html>看到这个事件委托的实例。
+我们来看一个实例，三个按钮放在一个`div`元素中（图8-1）。你可以在<http://jspatterns.com/book/8/click-delegate.html>看到这个事件委托的实例。
 
-> (译注: 上面的URL中的例子在IE下单击会没有反应,问题在于使用document.attachEvernt时传递的第一个参数应该是'onclick',而不是'click'.)
+> 译注: 上面的URL中的例子在IE下单击会没有反应,问题在于使用`document.attachEvernt()`时传递的第一个参数应该是`'onclick'`，而不是`'click'`。
+
+------校对分隔线-----
 
 ![图8-1 事件委托示例：三个在点击时增加计数器值的按钮](./Figure/chapter8/8-1.jpg)
 
