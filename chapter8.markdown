@@ -52,9 +52,9 @@ JavaScript（行为）层的地位不应该很显赫，也就是说它不应该�
 
 ## DOM编程
 
-操作页面的DOM树是在客户端JavaScript编程中最普遍的动作。这也是导致开发者头疼的最主要原因（这也导致了JavaScript名声不好），因为DOM方法在不同的浏览器中实现得有很多差异。这也是为什么使用一个抽象了浏览器差异的JavaScript库能显著提高开发速度的原因。
+操作页面的DOM树是在客户端JavaScript编程中最普遍的行为。这也是导致开发者头疼的最主要原因（这也导致了JavaScript名声不好），因为DOM方法在不同的浏览器中实现得有很多差异。这也是为什么使用一个抽象了浏览器差异的JavaScript库能显著提高开发速度的原因。
 
-我们来看一些在访问和修改DOM树时推荐的模式，主要考虑点是性能方面。
+我们来看一些在访问和修改DOM树时推荐的模式，主要考虑性能方面。
 
 ### DOM访问
 
@@ -62,31 +62,32 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 
 一个原则就是DOM访问的次数应该被减少到最低，这意味者：
 
-- 避免在环境中访问DOM
+- 避免在循环中访问DOM
 - 将DOM引用赋给本地变量，然后操作本地变量
 - 当可能的时候使用selectors API
-- 遍历HTML collections时缓存length（见第2章）
+- 遍历HTML collections时缓存`length`（见第二章）
 
-看下面例子中的第二个（better）循环，尽管它看起来更长一些，但却要快上几十上百倍（取决于具体浏览器）：
+看下面例子中的第二个循环，尽管它看起来更长一些，但却要快上几十上百倍（取决于具体浏览器）：
 
-	// antipattern
+	// 反模式
 	for (var i = 0; i < 100; i += 1) {
 		document.getElementById("result").innerHTML += i + ", ";
 	}
 
-	// better - update a local variable var i, content = "";
+	// 更好的方式 - 更新本地变量
+	var i, content = "";
 	for (i = 0; i < 100; i += 1) {
 		content += i + ",";
 	}
 	document.getElementById("result").innerHTML += content;
 
-在下一个代码片段中，第二个例子（使用了本地变量style）更好，尽管它需要多写一行代码，还需要多定义一个变量：
+在下一个代码片段中，第二个例子（使用了本地变量`style`）更好，尽管它需要多写一行代码，还需要多定义一个变量：
 
-	// antipattern
+	// 反模式
 	var padding = document.getElementById("result").style.padding,
 		margin = document.getElementById("result").style.margin;
 	
-	// better
+	// 更好的方式
 	var style = document.getElementById("result").style,
 		padding = style.padding,
 		margin = style.margin;
@@ -96,22 +97,22 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 	document.querySelector("ul .selected");
 	document.querySelectorAll("#widget .class");
 
-这两个方法接受一个CSS选择器字符串，返回匹配这个选择器的DOM列表（译注：querySelector只返回第一个匹配的DOM）。selectors API在现代浏览器（以及IE8+）可用，它总是会比你使用其它DOM方法来做同样的选择要快。主流的JavaScript库的最近版本都已经使用了这个API，所以你有理由去检查你的项目，确保使用的是最新版本。
+这两个方法接受一个CSS选择器字符串，返回匹配这个选择器的DOM列表（译注：`querySelector`只返回第一个匹配的DOM）。selectors API在现代浏览器（以及IE8+）中可用，它总是会比你使用其它DOM方法来做同样的选择要快。主流的JavaScript库的最新版本都已经使用了这个API，所以你应该去检查你的项目，确保使用的是最新版本。
 
-给你经常访问的元素加上一个id属性也是有好处的，因为document.getElementById(myid)是找到一个DOM元素最容易也是最快的方法。
+给你经常访问的元素加上一个`id`属性也是有好处的，因为`document.getElementById(myid)`是找到一个DOM元素最容易也是最快的方法。
 
 ### DOM操作
 
-除了访问DOM元素之外，你可能经常需要改变它们、删除其中的一些或者是添加新的元素。更新DOM会导致浏览器重绘（repaint）屏幕，也经常导致重排(reflow)（重新计算元素的位置），这些操作代价是很高的。
+除了访问DOM元素之外，你可能经常需要改变它们、删除其中的一些或者是添加新的元素。更新DOM会导致浏览器重绘（repaint）屏幕，也经常导致重排（reflow，重新计算元素的位置），这些操作代价是很高的。
 
-再说一次，通用的原则仍然是尽量少地更新DOM，这意味着我们可以将变化集中到一起，然后在“活动的”（live）文档树之外去执行这些变化。
+还是那句话，原则是尽量少地更新DOM，这意味着我们可以将变化集中到一起，然后在“活动的”（live）文档树之外去执行这些变化。
 
 当你需要添加一棵相对较大的子树的时候，你应该在完成这棵树的构建之后再放到文档树中。为了达到这个目的，你可以使用文档碎片（document fragment）来包含你的节点。
 
 不要这样添加节点：
 
-	// antipattern
-	// appending nodes as they are created
+	// 反模式
+	// 在节点创建后就插入文档
 
 	var p, t;
 
@@ -145,16 +146,16 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 
 	document.body.appendChild(frag);
 
-这个例子和前面例子中每段更新一次相比，文档树只被更新了一下，只导致一次重排/重绘。
+这个例子和前面例子中每段更新一次相比，文档树只被更新了一次，只导致一次重排/重绘。
 
 当你添加新的节点到文档中时，文档碎片很有用。当你需要更新已有的节点时，你也可以将这些变化集中。你可以将你要修改的子树的父节点克隆一份，然后对克隆的这份做修改，完成之后再去替换原来的元素。
 
 	var oldnode = document.getElementById('result'),
 		clone = oldnode.cloneNode(true);
 
-	// work with the clone...
+	// 修改克隆后的节点……
 
-	// when you're done:
+	// 结束修改之后：
 	oldnode.parentNode.replaceChild(clone, oldnode);
 
 ## 事件
