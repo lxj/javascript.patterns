@@ -460,26 +460,26 @@ JSONP的请求URL通常是像这样：
 	<td id="cell-1">&nbsp;</td>
 	<td id="cell-2">&nbsp;</td>
 	<td id="cell-3">&nbsp;</td>
-	...
+	……
 
-整个游戏是在一个全局对象ttt中实现：
+整个游戏是在一个全局对象`ttt`中实现：
 
 	var ttt = { 
-		// cells played so far
+		// 已经下过的棋盘
 		played: [],
 
-		// shorthand 
+		// 快捷函数
 		get: function (id) {
 			return document.getElementById(id);
 		},
 
-		// handle clicks
+		// 处理点击
 		setup: function () {
 			this.get('new').onclick = this.newGame;
 			this.get('server').onclick = this.remoteRequest;
 		},
 
-		// clean the board
+		// 清除棋盘
 		newGame: function () {
 			var tds = document.getElementsByTagName("td"),
 				max = tds.length, 
@@ -490,14 +490,14 @@ JSONP的请求URL通常是像这样：
 			ttt.played = [];
 		},
 
-		// make a request
+		// 发送请求
 		remoteRequest: function () {
 			var script = document.createElement("script");
 			script.src = "server.php?callback=ttt.serverPlay&played=" + ttt.played.join(',');
 			document.body.appendChild(script);
 		},
 
-		// callback, server's turn to play
+		// 回调，服务器下棋
 		serverPlay: function (data) {
 			if (data.error) {
 				alert(data.error);
@@ -511,10 +511,10 @@ JSONP的请求URL通常是像这样：
 
 			setTimeout(function () {
 				ttt.clientPlay();
-			}, 300); // as if thinking hard
+			}, 300); // 假装想破脑袋
 		},
 
-		// client's turn to play
+		// 客户端下棋
 		clientPlay: function () {
 			var data = 5;
 
@@ -523,8 +523,7 @@ JSONP的请求URL通常是像这样：
 				return;
 			}
 
-			// keep coming up with random numbers 1-9 
-			// until one not taken cell is found 
+			// 随机产生数字1 - 9，直到找到空格格
 			while (this.get('cell-' + data).innerHTML !== "&nbsp;") {
 				data = Math.ceil(Math.random() * 9);
 			}
@@ -533,7 +532,7 @@ JSONP的请求URL通常是像这样：
 		} 
 	};
 
-ttt对象维护着一个已经填过的单元格的列表ttt.played，并且将它发送给服务器，这样服务器就可以返回一个没有玩过的数字。如果有错误发生，服务器会像这样响应：
+`ttt`对象维护着一个已经填过的单元格的列表`ttt.played`，并且将它发送给服务器，这样服务器就可以返回一个没有玩过的数字。如果有错误发生，服务器会像这样响应：
 
 	ttt.serverPlay({"error": "Error description here"});
 
@@ -541,17 +540,17 @@ ttt对象维护着一个已经填过的单元格的列表ttt.played，并且将�
 
 	ttt.serverPlay(3);
 
-这里的3是指3号单元格是服务器要下棋的位置。在这种情况下，数据非常简单，甚至都不需要使用JSON格式，只需要一个简单的值就可以了。
+这里的`3`是指3号单元格是服务器要下棋的位置。在这种情况下，数据非常简单，甚至都不需要使用JSON格式，只需要一个简单的值就可以了。
 
 ### 框架（frame）和图片信标(image beacon)
 
-另外一种做远程脚本编程的方式是使用框架。你可以使用JavaScript来创建框架并改变它的src URL。新的URL可以包含数据和函数调用来更新调用者，也就是框架之外的父页面。
+另外一种做远程脚本编程的方式是使用框架。你可以使用JavaScript来创建框架并改变它的`src`属性（URL），新URL的页面中可以包含数据和函数调用来更新调用者，也就是框架之外的父页面。
 
-远程脚本编程中最最简单的情况是你只需要传递一点数据给服务器，而并不需要服务器的响应内容。在这种情况下，你可以创建一个新的图片，然后将它的src指向服务器的脚本：
+远程脚本编程中最最简单的情况是你只需要传递一点数据给服务器，而并不需要服务器的响应内容。在这种情况下，你可以创建一个新的图片，然后将它的`src`指向服务器的脚本：
 
 	new Image().src = "http://example.org/some/page.php";
 
-这种模式叫作图片信标，当你想发送一些数据给服务器记录时很有用，比如做访问统计。因为信标的响应对你来说完全是没有用的，所以通常的做法（不推荐）是让服务器返回一个1x1的GIF图片。更好的做法是让服务器返回一个“204 No Content”HTTP响应。这意味着返回给客户端的响应只有响应头（header）而没有响应体（body）。
+这种模式叫作图片信标，当你想发送一些数据给服务器记录时很有用，比如做访问统计。因为信标的响应对你来说完全是没有用的，所以通常的做法（不推荐）是让服务器返回一个1x1的GIF图片。更好的做法是让服务器返回一个`"204 No Content"`HTTP响应。这意味着返回给客户端的响应只有响应头（header）而没有响应体（body）。
 
 ## 部署JavaScript
 
