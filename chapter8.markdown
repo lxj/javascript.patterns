@@ -351,9 +351,9 @@ web worker使用`postMessage()`来和调用它的程序通讯，调用者通过`
 
 ### XMLHttpRequest
 
-现在，XMLHttpRequest是一个特别的对象（构造函数），绝大多数浏览器都可以用，它使得我们可以从JavaScript来发送HTTP请求。发送一个请求有以下三步：
+现在，`XMLHttpRequest`是一个特别的对象（构造函数），绝大多数浏览器都可以用，它使得我们可以从JavaScript来发送HTTP请求。发送一个请求有以下三步：
 
-1. 初始化一个XMLHttpRequest对象（简称XHR）
+1. 初始化一个`XMLHttpRequest`对象（简称XHR）
 2. 提供一个回调函数，供请求对象状态改变时调用
 3. 发送请求
 
@@ -363,11 +363,11 @@ web worker使用`postMessage()`来和调用它的程序通讯，调用者通过`
 
 但是在IE7之前的版本中，XHR的功能是使用ActiveX对象实现的，所以需要做一下兼容处理。
 
-第二步是给readystatechange事件提供一个回调函数：
+第二步是给`readystatechange`事件提供一个回调函数：
 
 	xhr.onreadystatechange = handleResponse;
 
-最后一步是使用open()和send()两个方法触发请求。open()方法用于初始化HTTP请求的方法（如GET，POST）和URL。send()方法用于传递POST的数据，如果是GET方法，则是一个空字符串。open()方法的最后一个参数用于指定这个请求是不是异步的。异步是指浏览器在等待响应的时候不会阻塞，这明显是更好的用户体验，因此除非必须要同步，否则异步参数应该使用true：
+最后一步是使用`open()`和`send()`两个方法触发请求。`open()`方法用于初始化HTTP请求的方法（如GET，POST）和URL。`send()`方法用于传递POST的数据，如果是GET方法，则是一个空字符串。`open()`方法的最后一个参数用于指定这个请求是不是异步的。异步是指浏览器在等待响应的时候不会阻塞，这明显是更好的用户体验，因此除非必须要同步，否则异步参数应该使用true：
 
 	xhr.open("GET", "page.html", true);
 	xhr.send();
@@ -382,7 +382,7 @@ web worker使用`postMessage()`来和调用它的程序通讯，调用者通过`
 
 	if (typeof XMLHttpRequest === "function") { // native XHR
 		xhr = new XMLHttpRequest();
-	} else { // IE before 7
+	} else { // IE7以下
 		for (i = 0; i < activeXids.length; i += 1) {
 			try {
 				xhr = new ActiveXObject(activeXids[i]);
@@ -406,14 +406,14 @@ web worker使用`postMessage()`来和调用它的程序通讯，调用者通过`
 
 代码中的一些说明：
 
-- 因为IE6及以下版本中，创建XHR对象有一点复杂，所以我们通过一个数组列出ActiveX的名字，然后遍历这个数组，使用try-catch块来尝试创建对象。
-- 回调函数会检查xhr对象的readyState属性。这个属性有0到4一共5个值，4代表“complete”（完成）。如果状态还没有完成，我们就继续等待下一次readystatechange事件。
-- 回调函数也会检查xhr对象的status属性。这个属性和HTTP状态码对应，比如200（OK）或者是404（Not found）。我们只对状态码200感兴趣，而将其它所有的都报为错误（为了简化示例，否则需要检查其它不代表出错的状态码）。
+- 因为IE6及以下版本中，创建XHR对象有一点复杂，所以我们通过一个数组列出ActiveX的名字，然后遍历这个数组，使用`try-catch`块来尝试创建对象。
+- 回调函数会检查`xhr`对象的`readyState`属性。这个属性有0到4一共5个值，4代表“complete”（完成）。如果状态还没有完成，我们就继续等待下一次`readystatechange`事件。
+- 回调函数也会检查xhr对象的`status`属性。这个属性和HTTP状态码对应，比如200（OK）或者是404（Not found）。我们只对状态码200感兴趣，而将其它所有的都报为错误（为了简化示例，否则需要检查其它不代表出错的状态码）。
 - 上面的代码会在每次创建XHR对象时检查一遍支持情况。你可以使用前面提到过的模式（如条件初始化）来重写上面的代码，使得只需要做一次检查。
 
 ### JSONP
 
-JSONP（JSON with padding）是另一种发起远程请求的方式。与XHR不同，它不受浏览器同源策略的限制，所以考虑到加载第三方站点的安全影响的问题，使用它时应该很谨慎。
+JSONP（JSON with padding）是另一种发起远程请求的方式。与XHR不同，它不受浏览器同源策略的限制，所以考虑到加载第三方站点内容的安全问题，使用它时应该很谨慎。
 
 一个XHR请求的返回可以是任何类型的文档：
 
@@ -422,25 +422,23 @@ JSONP（JSON with padding）是另一种发起远程请求的方式。与XHR不�
 - JSON数据（轻量、方便）
 - 简单的文本文件及其它
 
-使用JSONP的话，数据经常是被包裹在一个函数中的JSON，函数名称在请求的时候提供。
+而使用JSONP的话，返回的数据格式经常是被一个函数包裹的JSON，具体的函数名称在请求的时候提供。
 
 JSONP的请求URL通常是像这样：
 
 	http://example.org/getdata.php?callback=myHandler
 
-getdata.php可以是任何类型的页面或者脚本。callback参数指定用来处理响应的JavaScript函数。
+`getdata.php`可以是任何类型的页面或者脚本。`callback`参数指定用来处理响应的JavaScript函数（译注：也就是前面提到的包裹JSON的函数）。
 
-这个URL会被放到一个动态生成的\<script\>元素中，像这样：
+这个URL会被放到一个动态生成的`<script>`元素中，像这样：
 
 	var script = document.createElement("script");
 	script.src = url;
 	document.body.appendChild(script);
 
-服务器返回一些作为参数传递给回调函数的JSON数据。最终的结果实际上是页面中多了一个新的脚本，这个脚本的内容就是一个函数调用，如：
+服务器返回的JSON数据作为参数被传递给回调函数（函数名在请求时指定，也出现在返回的结果中）。最终的结果实际上是页面中多了一个新的脚本，这个脚本的内容就是一个函数调用，如：
 
 	myHandler({"hello": "world"});
-
-（译注：原文这里说得不是太明白。JSONP的返回内容如上面的代码片段，它的工作原理是在页面中动态插入一个脚本，这个脚本的内容是函数调用+JSON数据，其中要调用的函数是在页面中已经定义好的，数据以参数的形式存在。一般情况下数据由服务端动态生成，而函数由页面生成，为了使返回的脚本能调用到正确的函数，在请求的时候一般会带上callback参数以便后台动态返回处理函数的名字。）
 
 #### JSONP示例：井字棋
 
