@@ -300,11 +300,11 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 
 ## 长时间运行的脚本
 
-你可能注意到过，有时候浏览器会提示脚本运行时间过长，询问用户是否要停止执行。这种情况你当然不希望发生在自己的应用中，不管它有多复杂。
+你可能注意到过，有时候浏览器会提示脚本运行时间过长，询问用户是否要停止执行。不管应用有多复杂，你都不希望这种情况发生在自己的应用中。
 
 同时，如果脚本运行时间太长的话，浏览器的UI将变得没有响应，用户不能点击任何东西。这是一种很差的用户体验，应该尽量避免。
 
-在JavaScript中没有线程，但你可以在浏览器中使用setTimeout来模拟，或者在现代浏览器中使用web workers。
+在JavaScript中没有线程，但你可以在浏览器中使用`setTimeout()`来模拟，或者在现代浏览器中使用web workers。
 
 ### setTimeout()
 
@@ -314,7 +314,7 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 
 ### Web Workers
 
-现代浏览器为长时间运行的脚本提供了另一种解决方案：web workers。web workers在浏览器内部提供了后台线程支持，你可以将计算量很大的部分放到一个单独的文件中，比如my_web_worker.js，然后从主程序（页面）中这样调用它：
+现代浏览器为长时间运行的脚本提供了另一种解决方案：web workers。web workers在浏览器内部提供了后台线程支持，你可以将计算量很大的部分放到一个单独的文件中，比如`my_web_worker.js`，然后从主程序（页面）中这样调用它：
 
 	var ww = new Worker('my_web_worker.js');
 	ww.onmessage = function (event) {
@@ -331,14 +331,14 @@ DOM操作性能不好，这是影响JavaScript性能的最主要原因。性能�
 	while (end) {
 		end -= 1;
 		tmp += end;
-		if (end === 5e7) { // 5e7 is the half of 1e8
+		if (end === 5e7) { // 5e7是1e8的一半
 			postMessage('halfway there, `tmp` is now ' + tmp);
 		}
 	}
 
 	postMessage('all done');
 
-web worker使用postMessage()来和调用它的程序通讯，调用者通过onmessage事件来接受更新。onmessage事件处理函数接受一个事件对象作为参数，这个对象含有一个由web worker传过来data属性。类似的，调用者（在这个例子中）也可以使用ww.postMessage()来给web worker传递数据，web worker可以通过一个onmessage事件处理函数来接受这些数据。
+web worker使用`postMessage()`来和调用它的程序通讯，调用者通过`onmessage`事件来接受更新。`onmessage`事件处理函数接受一个事件对象作为参数，这个对象含有一个由web worker传过来`data`属性。类似的，调用者（在这个例子中）也可以使用`ww.postMessage()`来给web worker传递数据，web worker可以通过一个`onmessage`事件处理函数来接受这些数据。
 
 上面的例子会在浏览器中打印出：
 
