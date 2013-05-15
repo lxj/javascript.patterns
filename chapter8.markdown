@@ -590,7 +590,7 @@ JSONP的请求URL通常是像这样：
 
 ### 缓存头
 
-与比较流行的观点相反，其实文件在浏览器缓存中的时间并没有那么久。你可以通过使用Expires头来增加非首次访问时命中缓存的概率：
+与比较流行的观点相反，其实文件在浏览器缓存中的时间并没有那么久。你可以通过使用`Expires`头来增加非首次访问时命中缓存的概率：
 
 这也是一个在`.htaccess`中做的一次性配置工作：
 
@@ -611,34 +611,34 @@ CDN是指“文件分发网络”（Content Delivery Network）。这是一项�
 
 ## 加载策略
 
-怎样在页面上引入脚本，这第一眼看起来是一个简单的问题——使用\<script\>元素，然后要么写内联的JavaScript代码或者是在src属性中指定一个独立的文件：
+怎样在页面上引入脚本，这是一个看起来很简单的问题——使用`<script>`元素，然后要么写内联的JavaScript代码要么在`src`属性中指定一个独立的文件：
 
-	// option 1
+	// 第一种选择
 	<script>
 	console.log("hello world");
 	</script>
-	// option 2
+	// 第二种选择
 	<script src="external.js"></script>
 
 但是，当你的目标是要构建一个高性能的web应用的时候，有些模式和考虑点还是应该知道的。
 
-作为题外话，来看一些比较常见的开发者会用在\<script\>元素上的属性：
+作为题外话，来看一些比较常见的开发者会用在`<script>`元素上的属性：
 
-- language="JavaScript"
+- `language="JavaScript"`
 
-	还有一些不同大小写形式的“JavaScript”，有的时候还会带上一个版本号。language属性不应该被使用，因为默认的语言就是JavaScript。版本号也不像想象中工作得那么好，这应该是一个设计上的错误。
-- type="text/javascript"
+	还有一些不同大小写形式的`"JavaScript"`，有的时候还会带上一个版本号。`language`属性不应该被使用，因为默认的语言就是JavaScript。版本号也不像想象中工作得那么好，这应该是一个设计上的错误。
+- `type="text/javascript"`
 
-	这个属性是HTML4和XHTML1标准所要求的，但它不应该存在，因为浏览器会假设它就是JavaScript。HTML5不再要求这个属性。除非是要强制通过验证，否则没有任何使用type的理由。
-- defer
+	这个属性是HTML4和XHTML1标准所要求的，但它不应该存在，因为浏览器会假设它就是JavaScript。HTML5不再要求这个属性。除非是要强制通过验证，否则没有任何使用`type`的理由。
+- `defer`
 	
-	（或者是HTML5中更好的async）是一种指定浏览器在下载外部脚本时不阻塞页面其它部分的方法，但还没有被广泛支持。关于阻塞的更多内容会在后面提及。
+	（或者是HTML5中更好的`async`）是一种指定浏览器在下载外部脚本时不阻塞页面其它部分的方法，但还没有被广泛支持。关于阻塞的更多内容会在后面提及。
 
-### \<script\>元素的位置
+### <script>元素的位置
 
-script元素会阻塞页面的下载。浏览器会同时下载好几个组件（文件），但遇到一个外部脚本的时候，会停止其它的下载，直到脚本文件被下载、解析、执行完毕。这会严重影响页面的加载时间，尤其是当这样的事件在页面加载时发生多次的时候。
+`script`元素会阻塞页面的下载。浏览器会同时下载好几个组件（文件），但遇到一个外部脚本的时候，会停止其它的下载，直到脚本文件被下载、解析、执行完毕。这会严重影响页面的加载时间，尤其是当页面加载时发生多次阻塞的时候。
 
-为了尽量减小阻塞带来的影响，你可以将script元素放到页面的尾部，在\</body\>之前，这样就没有可以被脚本阻塞的元素了。此时，页面中的其它组件（文件）已经被下载完毕并呈现给用户了。
+为了尽量减小阻塞带来的影响，你可以将script元素放到页面的尾部，在`</body>`之前，这样就没有可以被脚本阻塞的元素了。此时，页面中的其它组件（文件）已经被下载完毕并呈现给用户了。
 
 最坏的“反模式”是在文档的头部使用独立的文件：
 
@@ -646,14 +646,14 @@ script元素会阻塞页面的下载。浏览器会同时下载好几个组件�
 	<html>
 	<head>
 		<title>My App</title>
-		<!-- ANTIPATTERN -->
+		<!-- 反模式 -->
 		<script src="jquery.js"></script>
 		<script src="jquery.quickselect.js"></script>
 		<script src="jquery.lightbox.js"></script>
 		<script src="myapp.js"></script>
 	</head>
 	<body>
-		...
+		……
 	</body>
 	</html>
 
@@ -666,7 +666,7 @@ script元素会阻塞页面的下载。浏览器会同时下载好几个组件�
 		<script src="all_20100426.js"></script>
 	</head>
 	<body>
-		...
+		……
 	</body>
 	</html>
 
@@ -678,32 +678,32 @@ script元素会阻塞页面的下载。浏览器会同时下载好几个组件�
 		<title>My App</title>
 	</head>
 	<body>
-		...
+		……
 		<script src="all_20100426.js"></script>
 	</body>
 	</html>
 
 ### HTTP分块
 
-HTTP协议支持“分块编码”。它允许将页面分成一块一块发送。所以如果你有一个很复杂的页面，你不需要将那些每个站都多多少少会有的（静态）头部信息也等到所有的服务端工作都完成后再开始发送。
+HTTP协议支持“分块编码”，它允许将页面分成一块一块发送。所以如果你有一个很复杂的页面，你不需要将那些（静态）头部信息也等到所有的服务端工作都完成后再开始发送。
 
-一个简单的策略是在组装页面其余部分的时候将页面\<head\>的内容作为第一块发送。也就是像这样子：
+一个简单的策略是在组装页面其余部分的时候将页面`<head>`的内容作为第一块发送。也就是像这样子：
 
 	<!doctype html>
 	<html>
 	<head>
 		<title>My App</title>
 	</head>
-	<!-- end of chunk #1 -->
+	<!-- 第一块结束 -->
 	<body>
-		...
+		……
 		<script src="all_20100426.js"></script> </body>
 	</html>
-	<!-- end of chunk #2 -->
+	<!-- 第二块结束 -->
 
-这种情况下可以做一个简单的发动，将JavaScript移回\<head\>，随着第一块一起发送。
+这种情况下可以做一个简单的改动，将JavaScript移回`<head>`，随着第一块一起发送。
 
-这样的话可以让服务器在拿到head区内容后就开始下载脚本文件，而此时页面的其它部分在服务端还尚未就绪：
+这样的话可以让浏览器在拿到`head`区内容后就开始下载脚本文件，而此时页面的其它部分在服务端还尚未就绪：
 
 	<!doctype html>
 	<html>
@@ -711,13 +711,13 @@ HTTP协议支持“分块编码”。它允许将页面分成一块一块发送�
 		<title>My App</title>
 		<script src="all_20100426.js"></script> </body>
 	</head>
-	<!-- end of chunk #1 -->
+	<!-- 第一块结束 -->
 	<body>
-		...
+		……
 	</html>
-	<!-- end of chunk #2 -->
+	<!-- 第二块结束 -->
 
-一个更好的办法是使用第三块内容，让它在页面尾部，只包含脚本。如果有一些每个页面都用到的静态的头部，也可以将这部分随和一块一起发送：
+一个更好的办法是使用第三块内容，让它在页面尾部，只包含脚本。如果有一些每个页面都用到的静态的头部，也可以将这部分随第一块一起发送：
 
 	<!doctype html> <html>
 	<head>
@@ -727,35 +727,35 @@ HTTP协议支持“分块编码”。它允许将页面分成一块一块发送�
 			<img src="logo.png" />
 			...
 		</div>
-		<!-- end of chunk #1 -->
+		<!-- 第一块结束 -->
 
 		... The full body of the page ...
 
-		<!-- end of chunk #2 -->
+		<!-- 第二块结束 -->
 		<script src="all_20100426.js"></script>
 	</body>
 	</html>
-	<!-- end of chunk #3 -->
+	<!-- 第三块结束 -->
 
 这种方法很适合使用渐进增强思想的网站（关键业务不依赖JavaScript）。当HTML的第二块发送完毕的时候，浏览器已经有了一个加载、显示完毕并且可用的页面，就像禁用JavaScript时的情况。当JavaScript随着第三块到达时，它会进一步增强页面，为页面锦上添花。
 
-### 动态\<script\>元素实现非阻塞下载
+### 动态`<script>`元素实现非阻塞下载
 
 前面已经说到过，JavaScript会阻塞后面文件的下载，但有一些模式可以防止阻塞：
 
-- 使用XHR加载脚本，然后作为一个字符串使用eval()来执行。这种方法受同源策略的限制，而且引入了eval()这种“反模式”。
-- 使用defer和async属性，但有浏览器兼容性问题
-- 使用动态\<script\>元素
+- 使用XHR加载脚本，然后作为一个字符串使用`eval()`来执行。这种方法受同源策略的限制，而且引入了`eval()`这种“反模式”`
+- 使用`defer`和`async`属性，但有浏览器兼容性问题
+- 使用动态`<script>`元素
 
-最后一种是一个很好并且实际可行的模式。和介绍JSONP时所做的一样，创建一个新的script元素，设置它的src属性，然后将它放到页面上。
+最后一种是一个很好并且实际可行的模式。和介绍JSONP时所做的一样，创建一个新的`script`元素，设置它的`src`属性，然后将它放到页面上。
 
-这是一个异步加载JavaScript，不阻塞其它文件下载的示例：
+这是一个异步加载JavaScript、不阻塞其它文件下载的示例：
 
 	var script = document.createElement("script");
 	script.src = "all_20100426.js";
 	document.documentElement.firstChild.appendChild(script);
 
-这种模式的缺点是，在这之后加载的脚本不能依赖这个脚本。因为这个脚本是异步加载的，所以无法保证它什么时候会被加载进来，如果要依赖的话，很可能会访问到（因还未加载完毕导致的）未定义的对象。
+这种模式的缺点是，在这之后加载的脚本不能依赖当前加载的这个脚本，因为这个脚本是异步加载的，所以无法保证它什么时候会被加载进来，如果要依赖的话，很可能会访问到（因还未加载完毕导致的）未定义的对象。
 
 如果要解决这个问题，可以让内联的脚本不立即执行，而是作为一个函数放到一个数组中。当依赖的脚本加载完毕后，再执行数组中的所有函数。所以一共有三个步骤。
 
@@ -765,12 +765,12 @@ HTTP协议支持“分块编码”。它允许将页面分成一块一块发送�
 		inline_scripts: []
 	};
 
-然后你需要将这些单独的内联脚本包裹进一个函数中，然后将每个函数放到inline_scripts数组中，也就是这样：
+然后你需要将这些单独的内联脚本包裹进一个函数中，然后将每个函数放到`inline_scripts`数组中，也就是这样：
 
-	// was:
+	// 原来的：
 	// <script>console.log("I am inline");</script>
 
-	// becomes:
+	// 修改后的：
 	<script>
 		mynamespace.inline_scripts.push(function () {
 			console.log("I am inline");
@@ -784,11 +784,11 @@ HTTP协议支持“分块编码”。它允许将页面分成一块一块发送�
 		scripts[i]();
 	}
 
-#### 插入\<script\>元素
+#### 插入`<script>`元素
 
-通常脚本是插入到文档的\<head\>中的，但其实你可以插入任何元素中，包括\<body\>（像JSONP示例中那样）。
+通常脚本是插入到文档的`<head>`中的，但其实你可以插入任何元素中，包括`<body>`（像JSONP示例中那样）。
 
-在前面的例子中，我们使用documentElement来插到\<head\>中，因为documentElement就是\<html\>，它的第一个子元素是\<head\>：
+在前面的例子中，我们使用`documentElement`来插到`<head>`中，因为`documentElement`就是`<html>`，它的第一个子元素是`<head>`：
 
 	document.documentElement.firstChild.appendChild(script);
 
@@ -796,31 +796,31 @@ HTTP协议支持“分块编码”。它允许将页面分成一块一块发送�
 
 	document.getElementsByTagName("head")[0].appendChild(script);
 
-当你能控制结构的时候，这样做没有问题，但是如果你在写挂件（widget）或者是广告时，你并不知道托管它的是一个什么样的页面。甚至可能页面上连\<head\>和\<body\>都没有，尽管document.body在绝大多数没有\<body\>标签的时候也可以工作：
+当你能控制结构的时候，这样做没有问题，但是如果你在写挂件（widget）或者是广告时，你并不知道使用它的是一个什么样的页面。甚至可能页面上连`<head>`和`<body>`都没有，尽管`document.body`在绝大多数没有`<body>`标签的时候也可以工作：
 
 	document.body.appendChild(script);
 
-可以肯定页面上一定存在的一个标签是你正在运行的脚本所处的位置——script标签。（对内联或者外部文件来说）如果没有script标签，那么代码就不会运行。可以利用这一事实，在页面的第一个script标签上使用insertBefore()：
+可以肯定页面上一定存在的一个标签是你正在运行的脚本所处的位置——`script`标签。（对内联或者外部文件来说）如果没有`script`标签，那么代码就不会运行。可以利用这一事实，在页面的第一个`script`标签上使用`insertBefore()`：
 
 	var first_script = document.getElementsByTagName('script')[0];
 	first_script.parentNode.insertBefore(script, first_script);
 
-frist_script是页面中一定存在的一个script标签，script是你创建的新的script元素。
+`frist_script`是页面中一定存在的一个`script`标签，`script`是你创建的新的`script`元素。
 
 ### 延迟加载
 
-所谓的延迟加载是指在页面的load事件之后再加载外部文件。通常，将一个大的合并后的文件分成两部分是有好处的：
+所谓的延迟加载是指在页面的`load`事件之后再加载外部文件。通常，将一个大的合并后的文件分成两部分是有好处的：
 
 - 一部分是页面初始化和绑定UI元素的事件处理函数必须的
 - 第二部分是只在用户交互或者其它条件下才会用到的
 
-目标就是逐步加载页面，让用户尽快可以进行一些操作。剩余的部分可以在用户可以看到页面的时候再在后台加载。
+分成两部分的目标就是逐步加载页面，让用户尽快可以进行一些操作。剩余的部分在用户可以看到页面的时候再在后台加载。
 
-加载第二部分JavaScript的方法也是使用动态script元素，将它加在head或者body中：
+加载第二部分JavaScript的方法也是使用动态`script`元素，将它加在`head`或者`body`中：
 
-		.. The full body of the page ...
+		……页面主体部分……
 
-		<!-- end of chunk #2 -->
+		<!-- 第二块结束 -->
 		<script src="all_20100426.js"></script>
 		<script>
 		window.onload = function () {
@@ -831,7 +831,7 @@ frist_script是页面中一定存在的一个script标签，script是你创建�
 		</script>
 	</body>
 	</html>
-	<!-- end of chunk #3 -->
+	<!-- 第三块结束 -->
 
 对很多应用来说，延迟加载的部分大部分情况下会比核心部分要大，因为我们关注的“行为”（比如拖放、XHR、动画）只在用户初始化之后才会发生。
 
@@ -841,44 +841,44 @@ frist_script是页面中一定存在的一个script标签，script是你创建�
 
 假设你页面的侧边栏上有一些tabs。点击tab会发出一个XHR请求获取内容，然后更新tab的内容，然后有一个更新的动画。如果这是页面上唯一需要XHR和动画库的地方，而用户又不点击tab的话会怎样？
 
-下面介绍按需加载模式。你可以创建一个require()函数或者方法，它接受一个需要被加载的脚本文件的文件名，还有一个在脚本被加载完毕后执行的回调函数。
+下面介绍按需加载模式。你可以创建一个`require()`函数或者方法，它接受一个需要被加载的脚本文件的文件名，还有一个在脚本被加载完毕后执行的回调函数。
 
-require()函数可以被这样使用：
+`require()`函数可以被这样使用：
 
 	require("extra.js", function () {
 		functionDefinedInExtraJS();
 	});
 
-我们来看一下如何实现这样一个函数。加载脚本很简单——你只需要按照动态\<script\>元素模式做就可以了。获知脚本已经加载需要一点点技巧，因为浏览器之间有差异：
+我们来看一下如何实现这样一个函数。加载脚本很简单——你只需要按照动态`<script>`元素模式做就可以了。获知脚本已经加载需要一点点技巧，因为浏览器之间有差异：
 
-function require(file, callback) {
+	function require(file, callback) {
 
-	var script = document.getElementsByTagName('script')[0], newjs = document.createElement('script');
+		var script = document.getElementsByTagName('script')[0], newjs = document.createElement('script');
 
-	// IE
-	newjs.onreadystatechange = function () {
-		if (newjs.readyState === 'loaded' || newjs.readyState === 'complete') {
-			newjs.onreadystatechange = null;
+		// IE
+		newjs.onreadystatechange = function () {
+			if (newjs.readyState === 'loaded' || newjs.readyState === 'complete') {
+				newjs.onreadystatechange = null;
+				callback();
+			}
+		};
+
+		// 其它浏览器
+		newjs.onload = function () {
 			callback();
-		}
-	};
+		};
 
-	// others
-	newjs.onload = function () {
-		callback();
-	};
-
-	newjs.src = file;
-	script.parentNode.insertBefore(newjs, script);
-}
+		newjs.src = file;
+		script.parentNode.insertBefore(newjs, script);
+	}
 
 这个实现的几点说明：
 
-- 在IE中需要订阅readystatechange事件，然后判断状态是否为“loaded”或者“complete”。其它的浏览器会忽略这里。
-- 在Firefox，Safari和Opera中，通过onload属性订阅load事件。
+- 在IE中需要监听`readystatechange`事件，然后判断状态是否为`"loaded"`或者`"complete"`。其它的浏览器会忽略这里。
+- 在Firefox，Safari和Opera中，通过`onload`属性监听load事件。
 - 这个方法在Safari 2中无效。如果必须要处理这个浏览器，需要设一个定时器，周期性地去检查某个指定的变量（在脚本中定义的）是否有定义。当它变成已定义时，就意味着新的脚本已经被加载并执行。
 
-你可以通过建立一个人为延迟的脚本来测试这个实现（模拟网络延迟），比如ondemand.js.php，如：
+你可以通过建立一个人为延迟的脚本来测试这个实现（模拟网络延迟），比如`ondemand.js.php`，如：
 
 	<?php
 	header('Content-Type: application/javascript');
@@ -889,20 +889,20 @@ function require(file, callback) {
 		console.log(logthis);
 	}
 
-现在测试require()函数：
+现在测试`require()`函数：
 
 	require('ondemand.js.php', function () {
 		extraFunction('loaded from the parent page');
 		document.body.appendChild(document.createTextNode('done!'));
 	});
 
-这段代码会在console中打印两条，然后页面中会显示“done!”，你可以在<http://jspatterns.com/book/7/ondemand.html>看到示例。
+这段代码会在`console`中打印两条，然后页面中会显示`"done!"`，你可以在<http://jspatterns.com/book/7/ondemand.html>看到示例。
 
 ### 预加载JavaScript
 
-在延迟加载模式和按需加载模式中，我们加载了当前页面需要用到的脚本。除此之外，我们也可以加载当前页面不需要但可能在接下来的页面中需要的脚本。这样的话，当用户进入第二个页面时，脚本已经被预加载过，整体体验会变得更快。
+在延迟加载模式和按需加载模式中，我们加载了当前页面需要用到的脚本，除此之外，我们也可以加载当前页面不需要但可能在接下来的页面中需要的脚本。这样的话，当用户进入第二个页面时，脚本已经被预加载过，整体体验会变得更快。
 
-预加载可以简单地通过动态脚本模式实现。但这也意味着脚本会被解析和执行。解析仅仅会在页面加载时间中增加预加载消耗的时间，但执行却可能导致JavaScript错误，因为预加载的脚本会假设自己运行在第二个页面上，比如找一个特写的DOM节点就可能出错。
+预加载可以简单地通过动态脚本模式实现，但这也意味着脚本会被解析和执行。解析仅仅会在页面加载时间中增加预加载消耗的时间，但执行却可能导致JavaScript错误，因为预加载的脚本会假设自己运行在第二个页面上，比如找一个特定的DOM节点就可能出错。
 
 仅加载脚本而不解析和执行是可能的，这也同样适用于CSS和图像。
 
@@ -910,18 +910,18 @@ function require(file, callback) {
 
 	new Image().src = "preloadme.js";
 
-在其它的浏览器中，你可以使用\<object\>替代script元素，然后将它的data属性指向脚本的URL：
+在其它的浏览器中，你可以使用`<object>`替代`script`元素，然后将它的`data`属性指向脚本的URL：
 
 	var obj = document.createElement('object');
 	obj.data = "preloadme.js";
 	document.body.appendChild(obj);
 
-为了阻止object可见，你应该设置它的width和height属性为0。
+为了阻止`object`可见，你应该设置它的`width`和`height`属性为`0`。
 
-你可以创建一个通用的preload()函数或者方法，使用条件初始化模式（第4章）来处理浏览器差异：
+你可以创建一个通用的`preload()`函数或者方法，使用条件初始化模式（第四章）来处理浏览器差异：
 
 	var preload;
-	if (/*@cc_on!@*/false) { // IE sniffing with conditional comments
+	if (/*@cc_on!@*/false) { // IE支持条件注释
 		preload = function (file) {
 			new Image().src = file;
 		};
@@ -941,15 +941,15 @@ function require(file, callback) {
 
 	preload('my_web_worker.js');
 
-这种模式的坏处在于存在用户代理（浏览器）嗅探，但这里无法避免，因为特性检测没有办法告知足够的浏览器行为信息。比如在这个模式中，理论上你可以测试typeof Image是否是“function”来代替嗅探。但这种方法其实没有作用，因为所有的浏览器都支持new Image();只是有一些浏览器会为图片单独做缓存，意味着作为图片缓存下来的组件（文件）在第二个页面中不会被作为脚本取出来，而是会重新下载。
+这种模式的坏处在于存在用户代理（浏览器）嗅探，但这里无法避免，因为特性检测没有办法告知足够的浏览器行为信息。比如在这个模式中，理论上你可以测试`typeof Image`是否是`"function"`来代替嗅探，但这种方法其实没有作用，因为所有的浏览器都支持`new Image()`；只是有一些浏览器会为图片单独做缓存，意味着作为图片缓存下来的组件（文件）在第二个页面中不会被作为脚本取出来，而是会重新下载。
 
-> 浏览器嗅探中使用条件注释很有意思，这明显比在navigator.userAgent中找字符串要安全得多，因为用户可以很容易地修改这些字符串。
+> 浏览器嗅探中使用条件注释很有意思，这明显比在`navigator.userAgent`中找字符串要安全得多，因为用户可以很容易地修改这些字符串。
 > 比如：
 > 	var isIE = /*@cc_on!@*/false;
-> 会在其它的浏览器中将isIE设为false（因为忽略了注释），但在IE中会是true，因为在条件注释中有取反运算符!。在IE中就像是这样：
+> 会在其它的浏览器中将`isIE`设为`false`（因为忽略了注释），但在IE中会是`true`，因为在条件注释中有取反运算符`!`。在IE中就像是这样：
 > 	var isIE = !false; // true
 
-预加载模式可以被用于各种组件（文件），而不仅仅是脚本。比如在登录页就很有用。当用户开始输入用户名时，你可以使用打字的时间开始预加载（非敏感的东西），因为用户很可能会到第二个也就是登录后的页面。
+预加载模式可以被用于各种组件（文件），而不仅仅是脚本。比如在登录页就很有用，当用户开始输入用户名时，你可以使用打字的时间开始预加载（非敏感的东西），因为用户很可能会到第二个也就是登录后的页面。
 
 ## 小结
 
@@ -960,7 +960,7 @@ function require(file, callback) {
 - 分离的思想（HTML：内容，CSS：表现，JavaScript：行为），只用于增强体验的JavaScript以及基于特性检测的浏览器探测。（尽管在本章的最后你看到了如何打破这个模式。）
 - DOM编程——加速DOM访问和操作的模式，主要通过将DOM操作集中在一起来实现，因为频繁和DOM打交道代码是很高的。
 - 事件，跨浏览器的事件处理，以及使用事件代码来减少事件处理函数的绑定数量以提高性能。
-- 两种处理长时间大计算量脚本的模式——使用setTimeout()将长时间操作拆分为小块执行和在现代浏览器中使用web workers。
+- 两种处理长时间大计算量脚本的模式——使用`setTimeout()`将长时间操作拆分为小块执行和在现代浏览器中使用web workers。
 - 多种用于远程编程，进行服务器和客户端通讯的模式——XHR，JSONP，框架和图片信标。
-- 在生产环境中部署JavaScript的步骤——将脚本合并为更少的文件，压缩和gzip（总共节省85%），可能的话托管到CDN并发送Expires头来提升缓存效果。
-- 基于性能考虑引入页面脚本的模式，包括：放置\<script\>元素的位置，同时也可以从HTTP分块获益。为了减少页面初始化时加载大的脚本文件引起的初始化工作量，我们讨论了几种不同的模式，比如延迟加载、预加载和按需加载。
+- 在生产环境中部署JavaScript的步骤——将脚本合并为更少的文件，压缩和gzip（总共节省85%），可能的话托管到CDN并发送`Expires`头来提升缓存效果。
+- 基于性能考虑引入页面脚本的模式，包括：放置`<script>`元素的位置，同时也可以从HTTP分块获益。为了减少页面初始化时加载大的脚本文件引起的初始化工作量，我们讨论了几种不同的模式，比如延迟加载、预加载和按需加载。
