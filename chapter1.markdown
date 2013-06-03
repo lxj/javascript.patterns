@@ -131,7 +131,7 @@ JSLint（<http://jslint.com> ）是一个JavaScript代码质量检测工具，�
 	console.log("test", 1, {}, [1,2,3]);
 	console.dir({one: 1, two: {three: 3}});
 
-当你在控制台输入内容时，不必使用console.log()。为了避免混乱，有些代码片段仍然会使用console.log()进行输出，并假设所有的代码片段都使用控制台来运行：
+当你在控制台输入内容时，不必使用`console.log()`。为了避免混乱，有些代码片段仍然会使用`console.log()`进行输出，并假设所有的代码片段都使用控制台来运行：
 	
 	window.name === window['name']; // true
 
@@ -139,4 +139,4 @@ JSLint（<http://jslint.com> ）是一个JavaScript代码质量检测工具，�
 	
 	console.log(window.name === window['name']);
 
-这段代码在控制台中输出为true。
+这段代码在控制台中输出为`true`。
