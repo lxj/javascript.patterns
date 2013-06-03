@@ -11,7 +11,7 @@
 
 # 目录
 
-## [第一章 绪言](javascript.patterns/blob/master/chapter1.markdown)
+## [第一章 绪言](./chapter1.markdown)
 
 - 模式
 - JavaScript：概念
