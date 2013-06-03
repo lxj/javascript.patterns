@@ -11,7 +11,7 @@
 
 # 目录
 
-## [第一章 绪言](chapter1.markdown)
+## [第一章 绪言](javascript.patterns/blob/master/chapter1.markdown)
 
 - 模式
 - JavaScript：概念
@@ -23,7 +23,7 @@
 - JSLint
 - 控制台工具
 
-## [第二章 概要](chapter2.markdown)
+## [第二章 概要](javascript.patterns/blob/master/chapter2.markdown)
 
 - 编写可维护的代码
 - 减少全局对象
@@ -57,7 +57,7 @@
 - 运行JSLint
 - 小结
 
-## [第三章 字面量和构造函数](chapter3.markdown)
+## [第三章 字面量和构造函数](javascript.patterns/blob/master/chapter3.markdown)
 
 - 对象字面量
 	- 对象字面量语法
@@ -81,7 +81,7 @@
 - 错误处理对象
 - 小结
 
-## [第四章 函数](chapter4.markdown)
+## [第四章 函数](javascript.patterns/blob/master/chapter4.markdown)
 
 - 背景知识
 	- 术语
@@ -111,7 +111,7 @@
 	- 什么时候使用柯里化
 - 小结
 
-## [第五章 对象创建模式](chapter5.markdown)
+## [第五章 对象创建模式](javascript.patterns/blob/master/chapter5.markdown)
 
 - 命名空间模式
 	- 通用命名空间函数
@@ -140,7 +140,7 @@
 - method()方法
 - 小结
 
-## [第六章 代码复用模式](chapter6.markdown)
+## [第六章 代码复用模式](javascript.patterns/blob/master/chapter6.markdown)
 
 - 类式继承 vs 现代继承模式
 - 类式继承的期望结果
@@ -168,7 +168,7 @@
 	- Function.prototype.bind()
 - 小结
 
-## [第七章 设计模式](chapter7.markdown)
+## [第七章 设计模式](javascript.patterns/blob/master/chapter7.markdown)
 
 - 单例
 	- 使用new
@@ -194,7 +194,7 @@
 	- 例2：按键游戏
 - 小结
 
-## [第八章 DOM和浏览器模式](chapter8.markdown)
+## [第八章 DOM和浏览器模式](javascript.patterns/blob/master/chapter8.markdown)
 
 - 分离
 - DOM编程
