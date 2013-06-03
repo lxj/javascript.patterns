@@ -111,7 +111,7 @@
 	- 什么时候使用柯里化
 - 小结
 
-## 第五章 对象创建模式
+## [第五章 对象创建模式](javascript.patterns/blob/master/chapter5.markdown)
 
 - 命名空间模式
 	- 通用命名空间函数
@@ -194,7 +194,7 @@
 	- 例2：按键游戏
 - 小结
 
-## 第八章 DOM和浏览器模式
+## [第八章 DOM和浏览器模式](javascript.patterns/blob/master/chapter8.markdown)
 
 - 分离
 - DOM编程
@@ -216,9 +216,9 @@
 	- 缓存头
 	- 使用CDN
 - 加载策略
-	- <script>元素的位置
+	- script元素的位置
 	- HTTP分块
-	- 动态<script>元素实现非阻塞下载
+	- 动态script元素实现非阻塞下载
 	- 延迟加载
 	- 按需加载
 	- 预加载JavaScript
