@@ -785,7 +785,7 @@ YUIDoc的初衷是为YUI（Yahoo! User Interface）库生成文档，但其实�
 
 图2-1 YUIDoc生成的文档
 
-![YUIDoc生成的文档](./Figure/cahpter2/2-1.jpg)
+![YUIDoc生成的文档](./Figure/chapter2/2-1.jpg)
 
 `app.js`的开始部分：
 
