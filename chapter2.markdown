@@ -781,7 +781,7 @@ YUIDoc的初衷是为YUI（Yahoo! User Interface）库生成文档，但其实�
 
 这里提供了在线的demo，请参照<http://jspatterns.com/book/2/>。
 
-这个例子中所有的应用作为一个模块（myapp）放在一个文件里（app.js），后续的章节会更详细的介绍模块，现在只需知道用可以用一个YUIDoc的标签来表示模块即可。
+这个例子中所有的应用作为一个模块（myapp）放在一个文件里（app.js），后续的章节会更详细的介绍模块，现在只需知道可以用一个YUIDoc的标签来表示模块即可。
 
 图2-1 YUIDoc生成的文档
 
