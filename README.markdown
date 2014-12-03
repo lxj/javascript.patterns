@@ -7,7 +7,7 @@
 - 作者：[Stoyan Stefanov](http://www.phpied.com/)
 - 翻译：[拔赤](http://jayli.github.com/)、[goddyzhao](http://goddyzhao.me)、[TooBug](http://www.toobug.net)
 
-本书从 JavaScript 的实际使用场景出发，提炼了不少有价值的前端实用模式式。模式的探索、创新，将永远是程序员自我提升的一条修炼之道，值得一读。
+本书从 JavaScript 的实际使用场景出发，提炼了不少有价值的前端实用模式。模式的探索、创新，将永远是程序员自我提升的一条修炼之道，值得一读。
 
 # 目录
 
